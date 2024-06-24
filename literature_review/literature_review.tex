@@ -1,0 +1,33 @@
+% \graphicspath{{introduction/fig/}}
+
+\chapter{Literature Review}
+\label{chap:literature_review}
+
+Here lies the literature review. Those who wander further beware.
+
+\section{Satellite Attitude Kinematics}
+
+The attitude of a vehicle refers to it's orientation and angular rate in 3D space. In order to control a satellite's
+oritentation for pointing and other applications it's phyics must be understood and modelled. 
+A satellite's attitude with mass moment of inertia $\vec{J}$ can be modelled using the Newton-Euler equation: 
+
+\begin{equation}
+\vec{J}\vec{\dot{\omega}} = \sum{\vec{N_{ext}}} -\vec{H}\times\vec{\omega}
+\end{equation}
+where $\vec{\omega}$ is the satellite's angular rate vector, $\vec{N_{ext}}$ is any external torque applied and $\vec{H}$
+the satellite's total angular momentum. This equation is a useful 
+
+\subsection{Attitude representations}
+The satellite's orientation can be represented intuitively using euler angles such as yaw $\psi$, pitch $\theta$ and roll$\phi$.
+However these representations are not so effective for computation in attitude control as they require more expensive trigonometric
+functions to be used and produce singularities. The most accurate way to represent the attitude of an object is using the direction
+cosine matrix (DCM) aka. the rotation matrix. This is a 3x3 matrix where each column represents the orthogonal xyz axes vector. However
+this is cumbersome for computing calculations as it would require computing 9 differential equations to determine a satellite's 
+attitude. Instead quaternions are used during computations. The quaternion can be defined as:
+
+\section{Attitude Control of a Satellite}
+
+\section{}
+\section{Fault Tolerant Control}
+
+this is a citation \cite{caoNovelLearningObserverbased2022} \cite{yinReviewRecentDevelopment2016}
