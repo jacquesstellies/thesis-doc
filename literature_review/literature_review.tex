@@ -26,8 +26,33 @@ this is cumbersome for computing calculations as it would require computing 9 di
 attitude. Instead quaternions are used during computations. The quaternion can be defined as:
 
 \section{Attitude Control of a Satellite}
+\subsection{Dynamics and Kinematics}
+Dynamics
 
-\section{}
+\begin{equation}
+\mathbf{J}\mathbf{\dot{\omega}} = \sum{\mathbf{T_{ext}}} -\mathbf{\omega}\times(\mathbf{J}\mathbf{\omega}-\vec{h})-\dot{\vec{h}}
+\end{equation}
+
+Kinematics
+\begin{equation}
+\vec{\dot{q}}=\frac{1}{2}
+\begin{bmatrix}
+q_{4} \ \ \neg q_{3} \ \ \ q_{2} \\ 
+q_{3} \ \ q_{4} \ \ \ \neg q_{1} \\ 
+\neg q_{2} \ \ q_{1} \ \ \ q_{4} \\ 
+\neg q_{1} \ \ \neg q_{2} \ \ \ \neg q_{3} \\
+\end{bmatrix} \vec{\omega}
+\end{equation}
+\subsection{}
 \section{Fault Tolerant Control}
 
-this is a citation \cite{caoNovelLearningObserverbased2022} \cite{yinReviewRecentDevelopment2016}
+\section{FTC Applied to Satellites}
+In \cite{JiangYe2010Abfc} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a 
+redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown
+inertia matrix of the spacecraft. 
+It is assumed that the angular velocity Ω of the reaction wheels are within the saturation limit and the input control torque 
+u(t) is unbounded.
+
+\section{Backstepping}
+\cite{khalilNonlinearSystems2002} describes backstepping as a recursive design method for nonlinear systems.
+\cite{ShenQiang2019AFCS} uses backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults.
