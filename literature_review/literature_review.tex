@@ -25,6 +25,15 @@ cosine matrix (DCM) aka. the rotation matrix. This is a 3x3 matrix where each co
 this is cumbersome for computing calculations as it would require computing 9 differential equations to determine a satellite's 
 attitude. Instead quaternions are used during computations. The quaternion can be defined as:
 
+\begin{align}
+    q_{1}=e_{1}\sin(\Phi) \\
+    q_{2}=e_{2}\sin(\Phi) \\
+    q_{3}=e_{3}\sin(\Phi) \\
+    q_{4}=q_{4}\cos(\Phi) 
+\end{align}
+
+
+
 \section{Attitude Control of a Satellite}
 \subsection{Dynamics and Kinematics}
 Dynamics
