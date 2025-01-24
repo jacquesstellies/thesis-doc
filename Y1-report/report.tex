@@ -39,22 +39,13 @@ q_{3} \ \ q_{0} \ \ \ \neg q_{1} \\
 \end{bmatrix} \vec{\omega_{b}}
 \end{equation}
 
-where $\vec{\omega_{b}}$ is the satellite's angular rate vector and $\vec{Q}$ is the quaternion representation of the satellite's attitude. This can be shortened to the following equation \cite{shenActiveFaulttolerantControl2019}:
-\begin{equation}
-    \dot{\vec{Q}} = 
-    \begin{bmatrix}
-        \frac{1}{2}\mathbf{S}(\vec{q})+q_{0} \\
-        -\vec{q}^T
-    \end{bmatrix}
-    \vec{\omega_{b}}
-\end{equation}
-$\mathbf{S}(\vec{q})$ is the skew symmetric matrix, $\vec{q}=\begin{bmatrix}q_{1} \ q_{2} \ q_{3} \end{bmatrix}$ is the vector representation
+where $\vec{\omega_{b}}$ is the satellite's angular rate vector and $\vec{Q}$ is the quaternion representation of the satellite's attitude. 
 
 A satellite's attitude with mass moment of inertia $\boldsymbol{J}$ can be modelled using the Newton-Euler equation \cite{sidiAttitudeDynamicsKinematics1997}: 
 
-$$
+\begin{equation}
 \mathbf{J}\mathbf{\dot{\vec{\omega_{b}}}} = \sum{\mathbf{T_{ext}}} -\mathbf{\vec{\omega_{b}}}\times(\mathbf{J}\vec{\omega_{b}}-\vec{h})-\vec{\dot{h}}
-$$
+\end{equation}
 
 where $\boldsymbol{\vec{\omega_{b}}}$ is the satellite's angular rate vector, $\boldsymbol{T_{ext}}$ is any external torque applied
 
@@ -87,9 +78,9 @@ Approaches to FDD can be broken down into 2 broad categories: model-based and da
 Existing design techniques for FTC can be classified into two approaches: passive FTC and active FTC. A passive FTC controller is designed to tolerate only a predefined, limited number of faults and does not require any online fault information. Passive FTC also does not require controller reconfiguration. \cite{yinReviewRecentDevelopment2016}
 
 Active FTC, on the other hand, is designed to reconfigure the controller in the presence of a fault. It can achieve this through preselecting an existing control law or synthesizing a new control law. It therefore requires online fault detection and isolation (FDI) information. Degraded performance of the system does have to be accepted but the aim is to reduce conservativeness of the controller. \cite{yinReviewRecentDevelopment2016}
-
 \subsubsection{Existing Problems in FTC}
-In \cite{yinReviewRecentDevelopment2016} the following open problems in FTC were identified
+\sethlcolor{green}
+\hl{In \mbox{\cite{yinReviewRecentDevelopment2016}} the following open problems in FTC were identified}
 \begin{itemize}
 \item Existing attitude FTC is developed without considering spacecraft actuator nonlinearities
 \item Existing attitude FTC has great conservativeness
@@ -100,20 +91,144 @@ In \cite{yinReviewRecentDevelopment2016} the following open problems in FTC were
 \subsection{FTC Applied to Spacecraft}
 In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown inertia matrix of the spacecraft. 
 
-Qiang Shen and collaborators \cite{shenActiveFaulttolerantControl2019} use backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults taking into account saturation. The methodolgy in the later section of this paper of fault tolerant control in this paper closely follows this work.
+Shen and collaborators \cite{shenActiveFaulttolerantControl2019} use backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults taking into account saturation. The methodolgy in the later section of this paper of fault tolerant control in this paper closely follows this work.
 
 \subsection{Backstepping}
-To understand the work of Shen et al. \cite{shenActiveFaulttolerantControl2019} it is important to understand backstepping. In Non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem of the system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law.
+To understand the work of Shen et al. \cite{shenActiveFaulttolerantControl2019} it is important to understand backstepping. In Non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law.
+
+A high level overview of the technique can be described using a series of flow diagrams:
 
 
 
-\section{Methodology}
+\subsubsection{Lyapunov Functions}
+*A Lyapunov function is a scalar function that is positive definite and radially unbounded. It is used to prove the stability of a system. A Lyapunov function $V(x)$ is positive definite if $V(0)=0$ and $V(x)>0$ for all $x\neq0$. It is radially unbounded if $V(x)\rightarrow\infty$ as $x\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite. That is $\dot{V}(x)<0$ for all $x\neq0$. If this is true then the system is stable.
 
-mathematically the estimated fault provided in terms of:
-$$\vec{u}=(\mathbf{I}_{n}-\mathbf{E})\vec{u}_{c}+\vec{u}_{a}$$
+\par
+Backstepping can be visualized with the following diagrams:
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{Backstepping_diagram.drawio.png}
+%     \caption{Backstepping Diagram}
+%     \label{fig:backstepping}
+% \end{figure}
+
+\subsection{Fault Tolerant Control Applied}
+
+\section{Proposed Methodology}
+\subsection{Fault Detection and Diagnosis}
+For the purposes of this paper, the FDI unit will not be implemented. Instead, the fault will be injected directly into the system and the FTC unit will be used to reconfigure the controller. Mathematically the estimated fault can be incorporated into the control law as follows:
+\begin{equation}\vec{u}=(\mathbf{I}_{n}-\mathbf{E})\vec{u}_{c}+\vec{u}_{a}\end{equation}
 
 where $E$ represents the effecitve loss of actuators $E=diag(e_{1},e_{2}\dots,e_{n})$ and $0\leq e_{i}\leq 1$. $e_{i}=0$ means the actuator is healthy. Additionally $\vec{u}_{a}$ represents the additive bias fault.
+
+\subsection{Fault Tolerant Control}
+The kinematic equation can be re-written in the following form \cite{shenActiveFaulttolerantControl2019}:
+
+$\mathbf{S}(\vec{q})$ is the skew symmetric matrix, $\vec{q}=\begin{bmatrix}q_{1} \ q_{2} \ q_{3} \end{bmatrix}$ is the vector representation
+\begin{equation}\mathbf{J}\dot{\vec{\omega}_{b}}=-\mathbf{S}(\vec{\omega}_{b})\mathbf{J}\vec{\omega}_{b}+\mathbf{D}\vec{u}+\vec{d}\end{equation}
+
+\begin{equation} \dot{\mathbf{Q}}=\frac{1}{2}\begin{bmatrix}
+\mathbf{S}(\vec{q})+q_{0}\mathbf{I}_{3} \\
+-\vec{q}^{T}
+\end{bmatrix} \vec{\omega}_{b}\end{equation}
+$\vec{d}$ is the environmental disturbances
+$\vec{\omega}_{b}$ is the body angular velocity in body fixed frame
+$\mathbf{D}$ is actuator configuration matrix
+$\mathbf{S(x)}$ represents the skew symmetric matrix 
+
+\begin{equation}\vec{u}=(\mathbf{I}-\mathbf{E})\vec{u}_{c}+\vec{u}_{a}\end{equation}
+where $E$ represents the effecitve loss of actuators $E=diag(e_{1},e_{2}\dots,e_{n})$ and $0\leq e_{i}\leq 1$. $e_{i}=0$ means the actuator is healthy. $\vec{u}_{a}$ additive bias fault.
+
+
+\begin{equation}
+    \mathbf{J}\dot{\vec{\omega}_{b}}=-\mathbf{S}(\vec{\omega}_{b})\mathbf{J}\vec{\omega}_{b}+\mathbf{D}\vec{u}_{c}+\vec{f}+\vec{d}
+\end{equation} 
+where $\vec{f}=\mathbf{D}\mathbf{E}\vec{u}_{c}+\mathbf{D}\vec{u}_{a}$ represents the influence of the fault on the system and acts as a disturbance on the system.
+
+
+let $\Delta \vec{f}=\vec{f}-\vec{\hat{f}}$ be the estimation error and $\Delta \vec{f}$ is bounded
+
+
+
+$\mathbf{D}^+=\mathbf{D}^T(\mathbf{D}\mathbf{D}^T)^{-1}$ is the pseudo inverse matrix
+
+In \cite{shenActiveFaulttolerantControl2019} a non-linear virtual control input is chosen based on the paper by \cite{kimRobustBacksteppingControl2003}. This improves the torque profile and motion around the equilibrium point. The virtual control input is given by:
+
+\begin{equation}\vec{\omega}_{c}=-\alpha\arctan(\beta\vec{q})\end{equation}
+
+\begin{equation}\vec{s}=\vec{\omega_{b}}-\vec{\omega_{c}}=\vec{\omega_{b}}+\alpha\arctan(\beta\vec{q})\end{equation}
+
+A Lyapunov function is chosen as 
+
+\begin{equation}V_{1}=k_{0}\vec{q}^T\vec{q}+k_{0}(1-q_{0})^T\end{equation}
+
+And it can be shown that 
+
+\begin{equation}\dot{V}_{1}\leq-k_{0}\alpha \lVert \vec{q} \rVert^{2}+k_0\alpha\vec{q}^T\vec{s}\end{equation}
+
+It's clear that $\vec{\dot{V}}_{1}\leq0$ if $\vec{s}=0$ since $-k_{0}\alpha \lVert \vec{q} \rVert^{2}\leq0$.
+
+After substituting into (9) like so:
+
+\begin{equation}
+    \begin{split}
+        \mathbf{J}\dot{\vec{s}}&=
+        \mathbf{J}\dot{\vec{\omega_b}} + \alpha\beta\mathbf{J}(\mathbf{I_3}+\beta^2\mathbf{\Xi}_q)^{-1}\vec{\dot{q}}\\
+        &=-k_0\vec{q}+\mathbf{F}(\cdot)+\mathbf{D}\vec{u}_{c}+\vec{\hat{f}}+\vec{d}
+    \end{split}
+\end{equation}
+
+where
+
+\begin{multline}
+    \mathbf{F}(\cdot)=k_0\vec{q}-\vec{\omega_b}^{\times}\mathbf{J}\vec{\omega_b}+\vec{\Delta f} + \vec{d} + \\
+    \frac{1}{2}\alpha\beta\mathbf{J}(\mathbf{I}_3+\beta^2\mathbf{\Xi}_q)^{-1}(\mathbf{S}(\vec{q})+q_0\mathbf{I}_3)\mathbf{J}\vec{\omega}_{b}
+\end{multline}
+
+Choosing the following Lyapunov function: 
+
+\begin{equation}
+    V_2=V_1+\frac{1}{2}\vec{s}^T\mathbf{J}\vec{s}
+\end{equation}
+
+
+\begin{equation}
+\vec{u}^{sat}_{c} = -\frac{u_{max}}{\epsilon_{0}}\mathbf{D}^+ sat[\Gamma(\cdot)\vec{s}]
+\end{equation}
+where $sat[\Gamma(\cdot)\vec{s}]$ is defined as
+
+\begin{equation}
+    sat[\Gamma(\cdot)\vec{s}]=\begin{cases}
+        \frac{\vec{s}}{\lVert s \rVert} & \text{if } \lVert \vec{s} \rVert \geq \frac{u_{max}}{\epsilon_0\Gamma(\cdot)\vec{s}}\\
+        \frac{\epsilon_0\Gamma(\cdot)\vec{s}}{u_{max}} & \text{if } \lVert \vec{s} \rVert \leq \frac{u_{max}}{\epsilon_0\Gamma(\cdot)\vec{s}}
+    \end{cases}
+\end{equation}
+
+And 
+\begin{equation}
+\Gamma(\cdot)=k+\frac{\vec{s}^T\vec{\hat{f}}}{{\lVert \vec{s} \rVert}^2+\epsilon_{1}^2}+ 
+\frac{\hat{h}\mathbf{\Omega}}{\lVert \vec{s} \rVert + \epsilon_{2}}
+\end{equation}
+
 
 \section{Results}
 
 \section{Conclusion}
+
+\section{Appendix}
+\subsection{1A}
+Given the following Lyapunov function:
+Proof:
+\begin{equation}
+    V_{1}=k_{0}\vec{q}^T\vec{q}+k_{0}(1-q_{0})^T
+\end{equation}
+
+\subsection{1B}
+\begin{equation}
+    \begin{split}
+        \mathbf{J}\dot{\vec{s}}&=
+        \mathbf{J}\dot{\vec{\omega_b}} + \alpha\beta\mathbf{J}(\mathbf{I_3}+\beta^2\mathbf{\Xi}_q)^{-1}\vec{\dot{q}}\\
+        &=-k_0\vec{q}+\mathbf{F}(\cdot)+\mathbf{D}\vec{u}_{c}+\vec{\hat{f}}+\vec{d}
+    \end{split}
+\end{equation}
