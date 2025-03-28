@@ -91,29 +91,103 @@ Active FTC, on the other hand, is designed to reconfigure the controller in the 
 \subsection{FTC Applied to Spacecraft}
 In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown inertia matrix of the spacecraft. 
 
-Shen and collaborators \cite{shenActiveFaulttolerantControl2019} use backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults taking into account saturation. The methodolgy in the later section of this paper of fault tolerant control in this paper closely follows this work.
+Shen and collaborators \cite{shenActiveFaulttolerantControl2019} use backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults taking into account saturation. The methodolgy in the later section of this paper of fault tolerant control in this paper closely follows this work. To understand the work of Shen et al. \cite{shenActiveFaulttolerantControl2019} it is important to understand backstepping which is discussed in the following section.
 
 \subsection{Backstepping}
-To understand the work of Shen et al. \cite{shenActiveFaulttolerantControl2019} it is important to understand backstepping. In Non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law.
-
-A high level overview of the technique can be described using a series of flow diagrams:
-
-
+Backstepping is a non-linear design technique for stabilizing the origin of a system in strict-feedback form.
+In Non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law. 
 
 \subsubsection{Lyapunov Functions}
-*A Lyapunov function is a scalar function that is positive definite and radially unbounded. It is used to prove the stability of a system. A Lyapunov function $V(x)$ is positive definite if $V(0)=0$ and $V(x)>0$ for all $x\neq0$. It is radially unbounded if $V(x)\rightarrow\infty$ as $x\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite. That is $\dot{V}(x)<0$ for all $x\neq0$. If this is true then the system is stable.
+Formally, a Lyapunov function is a scalar function that is positive definite and radially unbounded. It is used to prove the stability of a system. A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $V(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function. That is $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
+
+Breaking it down a bit further $V(\vec{x})$ represents the "generalized energy" of the system. By showing that overtime the energy of the system decays to zero then we can show that $\vec{x}$ must decay towards the origin $\vec{x}=0$.
+
+\par 
+Below is the procedure outlined in \cite{khalilNonlinearSystems2002}. Take the following 2nd order equation:
+
+\begin{align}
+    \dot{\eta} &= f(\eta) + g(\eta)\xi \label{eq:1}
+    \dot{\eta} &= u
+\end{align}
+
+where $f(0)=0$ and g is non-zero over the region of interest.
+The goal is to design a control law $u$ such that the origin $\eta=0$ is asymptotically stable i.e.: $(\eta, z)$ returns to $(0,0)$ after starting from some arbitrary initial condition.
+
+Assuming that equation \ref{eq:1} can be stabilized by a smooth feedback state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$ \cite{khalilNonlinearSystems2002} such that 
+
+$$
+    \dot{\eta} = f(\eta) + g(\eta)\phi(\eta)
+$$
+
+and assuming that there is a Lyapunov function $V(\eta)$ which stabilizes the subsystem then it should satisfy
+
+\begin{equation}
+\dot{\eta} = \frac{\partial V}{\partial \eta}[f(\eta) + g(\eta)\phi(\eta)] \leq -W(\eta), \quad \forall \ \eta \in D
+\end{equation}
+
+where $W(\eta)$ is a positive definite function. As we will see later $V$ can be chosen to suit application specific needs of the system.
+
+We can then obtain the equivalent expression by adding and subtracting $g(\eta)\phi(\eta)$ on the righthand side of equation \ref{eq:1}:
+\begin{equation}
+    \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)[\xi - \phi(\eta)] 
+\end{equation}
+
+The above is repsented in figure \ref{fig:backstepping} b). The change of variables 
+$$ z = \xi - \phi(\eta) $$
+results in the system 
+
+$$ \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z  $$
+$$ \dot{z} = u - \dot{\phi} $$
+
+which is shown in Figure \ref{fig:backstepping} c). Going from step b) to c) is called backstepping because you are backstepping the control input $-\phi(\eta)$ through the integrator. Finding the derivative $\dot{\phi}$ 
+
+$$ \dot{\phi} = \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)] $$
+
+and taking $v = u - \dot{\phi}$ we obtain the cascade connection
+
+$$ \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z  $$
+$$ \dot{z} = v $$
+
+This modified system is similar to the starting system however now the inner subsystem has an asymptotically stable origin when the input is zero. We can now choose a candidate Lyapunov function for the overall system:
+
+$$ V_c (\eta,\xi) = V(\eta) + \frac{1}{2}z^2 $$
+
+from which we obtain
+\begin{align}
+    \dot{V_c} &= \frac{\partial V}{\partial \eta}[f(\eta) + g(\eta)\phi(\eta)] + \frac{\partial V}{\partial \eta}g(\eta)z + zv \\
+    &\leq -W(\eta) + \frac{\partial V}{\partial \eta}g(\eta)z + zv
+\end{align}
+
+Choosing $v$ such that it cancels out the 2nd last term from the above
+
+$$ v = -\frac{\partial V}{\partial \eta}g(\eta) - kz, \; k > 0 $$
+
+gives us
+
+$$ \dot{V_c} = -W(\eta) - kz^2 $$
+
+where k influences the rate of convergence.
+This shows that the origin $(n=0, z=0)$ is asymptotically stable. Since $\phi(0) = 0$ we know that the origin $(n=0, \xi=0)$ is also asymptotically stable. Substituting for $v$, $z$ and $\phi$ we obtain the control law for the system:
+
+\begin{equation}
+    u =  \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)\xi] - \frac{\partial V}{\partial \eta}g(\eta)z - k[\xi - \phi(\eta)]
+\end{equation}
+
+If all assumptions hold globally and $V(\eta)$ is radially unbounded then that origin is globally asymptotically stable.
+\par
+This idea can be extended to higher order systems.
+\subsubsection{Summary}:
+    Given the system Let $phi$
 
 \par
-Backstepping can be visualized with the following diagrams:
+This process can be visualized in figure \ref{fig:backstepping}.
 
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{Backstepping_diagram.drawio.png}
-%     \caption{Backstepping Diagram}
-%     \label{fig:backstepping}
-% \end{figure}
-
-\subsection{Fault Tolerant Control Applied}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.48\textwidth]{Y1-report/Backstepping_diagram.drawio.png}
+    \caption{Backstepping Diagram}
+    \label{fig:backstepping}
+\end{figure}
 
 \section{Proposed Methodology}
 \subsection{Fault Detection and Diagnosis}
@@ -122,20 +196,22 @@ For the purposes of this paper, the FDI unit will not be implemented. Instead, t
 
 where $E$ represents the effecitve loss of actuators $E=diag(e_{1},e_{2}\dots,e_{n})$ and $0\leq e_{i}\leq 1$. $e_{i}=0$ means the actuator is healthy. Additionally $\vec{u}_{a}$ represents the additive bias fault.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FTC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Fault Tolerant Control}
-The kinematic equation can be re-written in the following form \cite{shenActiveFaulttolerantControl2019}:
+In this section, the steps used to obtain the control law from \cite{shenActiveFaulttolerantControl2019} are laid out. The kinematic equation can be re-written in the following form:
 
-$\mathbf{S}(\vec{q})$ is the skew symmetric matrix, $\vec{q}=\begin{bmatrix}q_{1} \ q_{2} \ q_{3} \end{bmatrix}$ is the vector representation
+
 \begin{equation}\mathbf{J}\dot{\vec{\omega}_{b}}=-\mathbf{S}(\vec{\omega}_{b})\mathbf{J}\vec{\omega}_{b}+\mathbf{D}\vec{u}+\vec{d}\end{equation}
 
 \begin{equation} \dot{\mathbf{Q}}=\frac{1}{2}\begin{bmatrix}
 \mathbf{S}(\vec{q})+q_{0}\mathbf{I}_{3} \\
 -\vec{q}^{T}
 \end{bmatrix} \vec{\omega}_{b}\end{equation}
-$\vec{d}$ is the environmental disturbances
-$\vec{\omega}_{b}$ is the body angular velocity in body fixed frame
-$\mathbf{D}$ is actuator configuration matrix
-$\mathbf{S(x)}$ represents the skew symmetric matrix 
+where $\mathbf{S}(x)$ represents the skew symmetric matrix, 
+$\vec{q}=\begin{bmatrix}q_{1} \ q_{2} \ q_{3} \end{bmatrix}^T$ is the vector part of the spacecraft quaternion $\vec{Q}$,
+$\vec{d}$ is the environmental disturbance torque,
+$\vec{\omega}_{b}$ is the body angular velocity in body fixed frame and
+$\mathbf{D}$ is the actuator configuration matrix.
 
 \begin{equation}\vec{u}=(\mathbf{I}-\mathbf{E})\vec{u}_{c}+\vec{u}_{a}\end{equation}
 where $E$ represents the effecitve loss of actuators $E=diag(e_{1},e_{2}\dots,e_{n})$ and $0\leq e_{i}\leq 1$. $e_{i}=0$ means the actuator is healthy. $\vec{u}_{a}$ additive bias fault.
@@ -147,12 +223,10 @@ where $E$ represents the effecitve loss of actuators $E=diag(e_{1},e_{2}\dots,e_
 where $\vec{f}=\mathbf{D}\mathbf{E}\vec{u}_{c}+\mathbf{D}\vec{u}_{a}$ represents the influence of the fault on the system and acts as a disturbance on the system.
 
 
-let $\Delta \vec{f}=\vec{f}-\vec{\hat{f}}$ be the estimation error and $\Delta \vec{f}$ is bounded
-
-
 
 $\mathbf{D}^+=\mathbf{D}^T(\mathbf{D}\mathbf{D}^T)^{-1}$ is the pseudo inverse matrix
 
+%%% Backstepping iteration 1 %%%
 In \cite{shenActiveFaulttolerantControl2019} a non-linear virtual control input is chosen based on the paper by \cite{kimRobustBacksteppingControl2003}. This improves the torque profile and motion around the equilibrium point. The virtual control input is given by:
 
 \begin{equation}\vec{\omega}_{c}=-\alpha\arctan(\beta\vec{q})\end{equation}
@@ -161,15 +235,21 @@ In \cite{shenActiveFaulttolerantControl2019} a non-linear virtual control input 
 
 A Lyapunov function is chosen as 
 
-\begin{equation}V_{1}=k_{0}\vec{q}^T\vec{q}+k_{0}(1-q_{0})^T\end{equation}
+\begin{equation}V_{1}=k_{0}\vec{q}^T\vec{q}+k_{0}(1-q_{0})^2\end{equation}
 
 And it can be shown that 
 
-\begin{equation}\dot{V}_{1}\leq-k_{0}\alpha \lVert \vec{q} \rVert^{2}+k_0\alpha\vec{q}^T\vec{s}\end{equation}
+% \begin{equation}\dot{V}_{1}\leq-k_{0}\alpha \lVert \vec{q} \rVert^{2}+k_0\alpha\vec{q}^T\vec{s}\end{equation}
 
-It's clear that $\vec{\dot{V}}_{1}\leq0$ if $\vec{s}=0$ since $-k_{0}\alpha \lVert \vec{q} \rVert^{2}\leq0$.
+% It's clear that $\dot{V}_{1}\leq0$ if $\vec{s}=0$ since $-k_{0}\alpha \lVert \vec{q} \rVert^{2}\leq0$.
 
-After substituting into (9) like so:
+\begin{equation}\dot{V}_{1}\leq-k_{0}\alpha \lVert \vec{q} \rVert^{2}\end{equation}
+
+It's clear that $\dot{V}_{1}\leq0$ since $-k_{0}\alpha \lVert \vec{q} \rVert^{2}\leq0$.
+
+
+%%% Backstepping iteration 2 %%%
+We obtain the new kinematic equation in terms of $\vec{s}$ after substituting into (9):
 
 \begin{equation}
     \begin{split}
@@ -186,12 +266,10 @@ where
     \frac{1}{2}\alpha\beta\mathbf{J}(\mathbf{I}_3+\beta^2\mathbf{\Xi}_q)^{-1}(\mathbf{S}(\vec{q})+q_0\mathbf{I}_3)\mathbf{J}\vec{\omega}_{b}
 \end{multline}
 
-Choosing the following Lyapunov function: 
-
-\begin{equation}
-    V_2=V_1+\frac{1}{2}\vec{s}^T\mathbf{J}\vec{s}
-\end{equation}
-
+where $\Delta \vec{f}=\vec{f}-\vec{\hat{f}}$ is the bounded fault estimation error,
+$\mathbf{\Xi}_q=diag(q_1^2,q_2^2,q_3^2)$ and
+$\vec{\omega_b}^{\times}=\mathbf{S}(\vec{\omega_b})$. 
+The control authority of the system changes significantly for the saturated and unsaturated actuator cases. Therefore a piecewise function must be defined which is continuous at the transition point. They define their control law as follows:
 
 \begin{equation}
 \vec{u}^{sat}_{c} = -\frac{u_{max}}{\epsilon_{0}}\mathbf{D}^+ sat[\Gamma(\cdot)\vec{s}]
@@ -211,20 +289,96 @@ And
 \frac{\hat{h}\mathbf{\Omega}}{\lVert \vec{s} \rVert + \epsilon_{2}}
 \end{equation}
 
+Here $k$, $\epsilon_0$, $\epsilon_1$ and $\epsilon_2$ are constants, $\Omega = \lVert\vec{\omega}_b\rVert^2 + \lVert\vec{\omega}_b\rVert^2 + 1$ $\hat{h}$ is defined as an adaptive law
+
+%% Adaptive law
+\begin{equation}
+    \dot{\hat{h}} = -c_1\hat{h} + \frac{c_2\Omega\lVert\vec{s}\rVert^2}{\lVert\vec{s}\rVert+\epsilon_2}
+\end{equation}
+where $c_1$ and $c_2$ are positive constants.
+Please see the Appendix \ref{apx:B} for proof of closed loop stability of this control law. 
+
 
 \section{Results}
 
 \section{Conclusion}
 
 \section{Appendix}
-\subsection{1A}
+\subsection{}
 Given the following Lyapunov function:
-Proof:
+% \begin{equation}
+%     V_{1}=k_{0}\vec{q}^T\vec{q}+k_{0}(1-q_{0})^2
+% \end{equation}
+$$
+V_{1}=k_{0}\vec{q}^T\vec{q}+k_{0}(1-q_{0})^2
+$$
+
 \begin{equation}
-    V_{1}=k_{0}\vec{q}^T\vec{q}+k_{0}(1-q_{0})^T
+    \begin{split}
+    \dot{V_{1}}&=\frac{d}{dq}(k_{0}\vec{q}\cdot\vec{q}+k_{0}(1-q_{0})^2) \\
+    &=\frac{d}{dq}(k_{0}\lVert\vec{q}\rVert^2+k_{0}(1-q_{0})^2) \\
+    \end{split}
 \end{equation}
 
-\subsection{1B}
+from \cite{kimRobustBacksteppingControl2003} it is shown that
+
+\begin{equation}
+    \frac{d}{dq}(\lVert \vec{q} \rVert^{2}+(1-q_{0})^2) = \vec{q}^T \vec{\omega}
+\end{equation}
+
+and from the following lemma:
+
+\begin{equation}
+    -\alpha x \arctan(\beta x) \leq -\alpha x^2
+\end{equation}
+
+Thus
+\begin{equation}
+    \begin{split}
+        \dot{V_{1}}&=k_{0}\vec{q}^T\vec{\omega_c} \\
+        &= -\alpha k_{0}\vec{q}^T \arctan(\beta \vec{q}) \\
+        &\leq -\alpha k_{0} \lVert\vec{q}\rVert^{2}
+    \end{split}
+\end{equation}
+
+\subsection{} \label{apx:B}
+\subsubsection{Case 1} $\lVert \vec{s} \rVert \geq \frac{u_{max}}{\epsilon_0\Gamma(\cdot)\vec{s}}$
+\begin{equation}
+\vec{u}_c^{sat} = -\frac{u_{max}}{\epsilon_0}\mathbf{D}^+ \frac{\vec{s}}{\lVert \vec{s} \rVert}
+\end{equation}
+
+For the first case (no actuator saturation) the following candidate Lyapunov function is chosen (similar to the previous section on backstepping):
+
+\begin{equation}
+    V_2=V_1 + \frac{1}{2}\vec{s}^T\mathbf{J}\vec{s}
+\end{equation}
+
+Taking the derivative and substituting in we get:
+
+\begin{equation}
+    \begin{split}
+        \dot{V_2} &= k_0\vec{\omega_b}^T\vec{q} + k_0\vec{q}^T\vec{s} + \vec{s}^T(-k_0\vec{q} + \mathbf{F}(\cdot) + \mathbf{D}\vec{u}_c^{sat} + f) \\
+        &=  k_0\vec{\omega_b}^T\vec{q} + \vec{s}^T(\mathbf{F}(\cdot) + \mathbf{D}(-\frac{u_{max}}{\epsilon_0}\mathbf{D}^+ \frac{\vec{s}}{\lVert \vec{s} \rVert}) + f) \\
+    \end{split}
+\end{equation}
+
+Now we show that
+
+\begin{equation}
+    \lVert\mathbf{F}(\cdot)\rVert \leq \bar{J}\lVert\vec{\omega}_b\rVert^2 + \frac{1}{2}\alpha\beta\lVert\vec{\omega}_b\rVert + k_0 + \delta + \bar{d}	\leq h\Omega 
+\end{equation}
+
+follows from the assumptions:
+\paragraph{Assumption 1} $\underline{J} \leq \lVert\vec{J}\rVert \leq \bar{J}$ where $\underline{J}$ and $\bar{J}$ are positive constants.
+
+\paragraph{Assumption 2} Environmental disturbances due to gravitation, solar radiation pressure, magnetic forces, or aerodynamic forces are bounded by positive constant $\bar{d}$ such that $\lVert\vec{d}\rVert \leq \bar{d}$.
+
+
+\subsubsection{Case 2} $\lVert \vec{s} \rVert \leq \frac{u_{max}}{\epsilon_0\Gamma(\cdot)\vec{s}}$
+\begin{equation}
+    V_2=V_1+\frac{1}{2}\vec{s}^T\mathbf{J}\vec{s}
+\end{equation}
+
 \begin{equation}
     \begin{split}
         \mathbf{J}\dot{\vec{s}}&=
