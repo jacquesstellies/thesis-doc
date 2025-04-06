@@ -373,7 +373,18 @@ follows from the assumptions:
 
 \paragraph{Assumption 2} Environmental disturbances due to gravitation, solar radiation pressure, magnetic forces, or aerodynamic forces are bounded by positive constant $\bar{d}$ such that $\lVert\vec{d}\rVert \leq \bar{d}$.
 
+\begin{equation}
+    \lVert\vec{\omega}_b^\times\mathbf{J}\vec{\omega}_b \rVert \leq \bar{J}\left\lVert\vec{\omega}_b\right\rVert 
+\end{equation}
+\begin{equation}
+    \left\lVert k_0\vec{q} + \vec{\Delta f} + \vec{d} \leq k_0 + delta + \bar{d}\right\rVert \label{eq:apx}
+\end{equation}
+\begin{equation}
+    \left\lVert\frac{1}{2}\alpha\beta\mathbf{J}(\mathbf{I}_3 + \beta^2\mathbf{\Xi}_q)^{-1}(\mathbf{S}(\vec{q}) + q_0\mathbf{I}_3)\vec{\omega}_b\right\rVert \leq \frac{1}{2}\alpha\beta\bar{J}\left\lVert\vec{\omega}_b\right\rVert 
+\end{equation}
+from the fact that $-1 \leq q_0,q_1,q_2,q_3 \leq 1$ we know that $\left\lVert(\mathbf{S}(\vec{q}) + q_0\mathbf{I}_3)\right\rVert  \leq 1$ and $\left\lVert(\mathbf{I}_3+\beta^2\mathbf{\Xi})^{-1}\right\rVert  \leq 1$
 
+Note that \ref{eq:apx} is a result of the assumption that estimation errors are bounded after successful fault identification: $\lVert\vec{\Delta f}\rVert \leq \delta$ where $\delta$ is a positive constant.
 \subsubsection{Case 2} $\lVert \vec{s} \rVert \leq \frac{u_{max}}{\epsilon_0\Gamma(\cdot)\vec{s}}$
 \begin{equation}
     V_2=V_1+\frac{1}{2}\vec{s}^T\mathbf{J}\vec{s}
