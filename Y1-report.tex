@@ -11,6 +11,7 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{soul,color}
+\usepackage{siunitx}
 
 \newcommand{\T}{^\top}
 \newcommand{\tr}{\textrm{tr}}
@@ -21,33 +22,29 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Fault-Tolerant Attitude Control of a Cubesat\\
-{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured for https://ieeexplore.ieee.org  and
-should not be used}
-\thanks{Identify applicable funding agency here. If none, delete this.}
+\title{Fault-Tolerant Attitude Control of a Satellite\\
 }
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+\author{\IEEEauthorblockN{Jacques Stoop}
+\IEEEauthorblockA{\textit{dept. Electical and Electronic Engineering} \\
+\textit{Stellenbosch University}\\
+Stellenbosch, South Africa \\
+jstoop3@gmail.com}
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+\IEEEauthorblockN{Dr HW Jordaan}
+\IEEEauthorblockA{\textit{dept. Electical and Electronic Engineering} \\
+\textit{Stellenbosch University}\\
+Stellenbosch, South Africa}
 }
 
 \maketitle
 
 \begin{abstract}
-
+This paper presents a fault-tolerant attitude control system for a satellite. The system is designed to improve the control performance in the presence of actuator faults. A satellite model is developed with environmental disturbances and a backstepping algorithm is used to reconfigure the control law and faults are assumed to be perfectly known. The effectiveness of the proposed approach is demonstrated through simulations.
 \end{abstract}
 
 \begin{IEEEkeywords}
-component, formatting, style, styling, insert.
+backstepping, fault-tolerant control, satellite attitude control, Lyapunov stability
 \end{IEEEkeywords}
 
 \input{Y1-report/report}

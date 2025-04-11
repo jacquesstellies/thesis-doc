@@ -1,12 +1,10 @@
 \section{Introduction}
 
-Space is a growing industry with thousands in orbit currently and, with the introduction of satellite constellations, thousands more to come in the next decades. In this context automation of is key importance to keeping costs down. The attitude determination and control system (ACDS) enables a satellite to orient itself and is thus critical for operations such as communication and observation. Due to the inaccessible nature of orbit, ADCS fault-tolerant control (FTC) is an attractive method of allowing operations to continue after degradation or even failure of an actuator. Current industry standard methods of dealing with this problem involve putting the satellite into safe mode and solving the problem on the ground. This paper proposes to solve this problem online during operation using a fault detection and isolation unit (FDI) and an FTC unit.
+Space is a growing industry with thousands of satellites in orbit currently and, with the introduction of satellite constellations, thousands more to come in the next decades. In this context automation of is key importance to keeping costs down. The attitude determination and control system (ACDS) enables a satellite to orient itself and is thus critical for operations such as communication and observation. Due to the inaccessible nature of orbit, fault-tolerant control (FTC) is an attractive method of allowing operations to continue after degradation or even failure of an actuator. Current industry standard methods of dealing with this problem involve putting the satellite into safe mode and solving the problem on the ground. This paper proposes to solve this problem online automatically using a fault detection and isolation unit (FDI) and an FTC unit.
 
 \section{Problem Definition}
 
 \section{Literature Review}
-
-Here lies the literature review. Those who wander further beware.
 
 \subsection{Satellite Attitude Kinematics}
 
@@ -44,7 +42,7 @@ where $\vec{\omega_{b}}$ is the satellite's angular rate vector and $\vec{Q}$ is
 A satellite's attitude with mass moment of inertia $\boldsymbol{J}$ can be modelled using the Newton-Euler equation \cite{sidiAttitudeDynamicsKinematics1997}: 
 
 \begin{equation}
-\mathbf{J}\mathbf{\dot{\vec{\omega_{b}}}} = \sum{\mathbf{T_{ext}}} -\mathbf{\vec{\omega_{b}}}\times(\mathbf{J}\vec{\omega_{b}}-\vec{h})-\vec{\dot{h}}
+\mathbf{J}\mathbf{\dot{\vec{\omega}}_b} = \sum{\mathbf{T_{ext}}} -\mathbf{\vec{\omega_{b}}}\times(\mathbf{J}\vec{\omega_{b}}-\vec{h})-\vec{\dot{h}}
 \end{equation}
 
 where $\boldsymbol{\vec{\omega_{b}}}$ is the satellite's angular rate vector, $\boldsymbol{T_{ext}}$ is any external torque applied
@@ -78,24 +76,25 @@ Approaches to FDD can be broken down into 2 broad categories: model-based and da
 Existing design techniques for FTC can be classified into two approaches: passive FTC and active FTC. A passive FTC controller is designed to tolerate only a predefined, limited number of faults and does not require any online fault information. Passive FTC also does not require controller reconfiguration. \cite{yinReviewRecentDevelopment2016}
 
 Active FTC, on the other hand, is designed to reconfigure the controller in the presence of a fault. It can achieve this through preselecting an existing control law or synthesizing a new control law. It therefore requires online fault detection and isolation (FDI) information. Degraded performance of the system does have to be accepted but the aim is to reduce conservativeness of the controller. \cite{yinReviewRecentDevelopment2016}
-\subsubsection{Existing Problems in FTC}
-\sethlcolor{green}
-\hl{In \mbox{\cite{yinReviewRecentDevelopment2016}} the following open problems in FTC were identified}
-\begin{itemize}
-\item Existing attitude FTC is developed without considering spacecraft actuator nonlinearities
-\item Existing attitude FTC has great conservativeness
-\item Implementation of the existing attitude FTC requires angular velocity measurements
-\item Existing FTC is without attitude fast slewing capability
-\end{itemize}
+% \subsubsection{Existing Problems in FTC}
+% % \sethlcolor{green}
+% % \hl{In \mbox{\cite{yinReviewRecentDevelopment2016}} the following open problems in FTC were identified}
+% In \mbox{\cite{yinReviewRecentDevelopment2016}} the following open problems in FTC were identified
+% \begin{itemize}
+% \item Existing attitude FTC is developed without considering spacecraft actuator nonlinearities
+% \item Existing attitude FTC has great conservativeness
+% \item Implementation of the existing attitude FTC requires angular velocity measurements
+% \item Existing FTC is without attitude fast slewing capability
+% \end{itemize}
 
 \subsection{FTC Applied to Spacecraft}
-In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown inertia matrix of the spacecraft. 
+In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a redundant actuator is available. They assume unknown faults of the reaction wheels, external disturbances, and unknown inertia matrix of the spacecraft. 
 
 Shen and collaborators \cite{shenActiveFaulttolerantControl2019} use backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults taking into account saturation. The methodolgy in the later section of this paper of fault tolerant control in this paper closely follows this work. To understand the work of Shen et al. \cite{shenActiveFaulttolerantControl2019} it is important to understand backstepping which is discussed in the following section.
 
 \subsection{Backstepping}
 Backstepping is a non-linear design technique for stabilizing the origin of a system in strict-feedback form.
-In Non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law. 
+In non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law. 
 
 \subsubsection{Lyapunov Functions}
 Formally, a Lyapunov function is a scalar function that is positive definite and radially unbounded. It is used to prove the stability of a system. A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $V(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function. That is $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
@@ -103,17 +102,19 @@ Formally, a Lyapunov function is a scalar function that is positive definite and
 Breaking it down a bit further $V(\vec{x})$ represents the "generalized energy" of the system. By showing that overtime the energy of the system decays to zero then we can show that $\vec{x}$ must decay towards the origin $\vec{x}=0$.
 
 \par 
-Below is the procedure outlined in \cite{khalilNonlinearSystems2002}. Take the following 2nd order equation:
+Below is the backstepping procedure as outlined in \cite{khalilNonlinearSystems2002}. Take the following 2nd order equation:
 
-\begin{align}
-    \dot{\eta} &= f(\eta) + g(\eta)\xi \label{eq:1}
-    \dot{\eta} &= u
-\end{align}
+\begin{equation}
+    \dot{\eta} = f(\eta) + g(\eta)\xi \label{eq:1}
+\end{equation}
+\begin{equation}
+    \dot{\xi} = u
+\end{equation}
 
 where $f(0)=0$ and g is non-zero over the region of interest.
 The goal is to design a control law $u$ such that the origin $\eta=0$ is asymptotically stable i.e.: $(\eta, z)$ returns to $(0,0)$ after starting from some arbitrary initial condition.
 
-Assuming that equation \ref{eq:1} can be stabilized by a smooth feedback state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$ \cite{khalilNonlinearSystems2002} such that 
+Assuming that equation \ref{eq:1} can be stabilized by a smooth feedback state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$ such that 
 
 $$
     \dot{\eta} = f(\eta) + g(\eta)\phi(\eta)
@@ -174,10 +175,7 @@ This shows that the origin $(n=0, z=0)$ is asymptotically stable. Since $\phi(0)
 \end{equation}
 
 If all assumptions hold globally and $V(\eta)$ is radially unbounded then that origin is globally asymptotically stable.
-\par
 This idea can be extended to higher order systems.
-\subsubsection{Summary}:
-    Given the system Let $phi$
 
 \par
 This process can be visualized in figure \ref{fig:backstepping}.
@@ -185,13 +183,13 @@ This process can be visualized in figure \ref{fig:backstepping}.
 \begin{figure}
     \centering
     \includegraphics[width=0.48\textwidth]{Y1-report/Backstepping_diagram.drawio.png}
-    \caption{Backstepping Diagram}
+    \caption{Backstepping visualization block diagram series. a) Original system b) Introduce virtual control input c) Backstepping control input throught integrator}
     \label{fig:backstepping}
 \end{figure}
 
 \section{Proposed Methodology}
 \subsection{Fault Detection and Diagnosis}
-For the purposes of this paper, the FDI unit will not be implemented. Instead, the fault will be injected directly into the system and the FTC unit will be used to reconfigure the controller. Mathematically the estimated fault can be incorporated into the control law as follows:
+For the purposes of this paper, the FDI unit will not be implemented. Instead, the fault will be assumed to be perfectly known and injected directly into the system and the FTC unit will be used to reconfigure the controller. Mathematically the estimated fault can be incorporated into the control law as follows:
 \begin{equation}\vec{u}=(\mathbf{I}_{n}-\mathbf{E})\vec{u}_{c}+\vec{u}_{a}\end{equation}
 
 where $E$ represents the effecitve loss of actuators $E=diag(e_{1},e_{2}\dots,e_{n})$ and $0\leq e_{i}\leq 1$. $e_{i}=0$ means the actuator is healthy. Additionally $\vec{u}_{a}$ represents the additive bias fault.
@@ -289,7 +287,7 @@ And
 \frac{\hat{h}\mathbf{\Omega}}{\lVert \vec{s} \rVert + \epsilon_{2}}
 \end{equation}
 
-Here $k$, $\epsilon_0$, $\epsilon_1$ and $\epsilon_2$ are constants, $\Omega = \lVert\vec{\omega}_b\rVert^2 + \lVert\vec{\omega}_b\rVert^2 + 1$ $\hat{h}$ is defined as an adaptive law
+Here $k$, $\epsilon_0$, $\epsilon_1$ and $\epsilon_2$ are constants, $\Omega = \lVert\vec{\omega}_b\rVert^2 + \lVert\vec{\omega}_b\rVert + 1$ $\hat{h}$ is defined as an adaptive law
 
 %% Adaptive law
 \begin{equation}
@@ -300,8 +298,33 @@ Please see the Appendix \ref{apx:B} for proof of closed loop stability of this c
 
 
 \section{Results}
+\subsection{Simulation Setup}
+To demonstrate the effectiveness of the preceding algorithm from \cite{shenActiveFaulttolerantControl2019} A similar experimental set up is used as in \cite{shenActiveFaulttolerantControl2019} however here we look at the case where there is a total failure of an actuator to push the system to the limits. The moment of inertia is taken to be $\mathbf{J} = [10.0, 1.2, 0.5; 1.2, 19.0, 1.5;  0.5, 1.5, 25.0;]$. The disturbance torques as taken to be 
+\newline $d(t) = [-0.005 sin(t), 0.005 sin(t), -0.005 sin(t)]^T \unit{Nm}$. Our fault is set as a complete failure of actuator 1, i.e.: \newline $e_1 = 0$ from $t_0$. Intial conditions are taken as 
+$\omega_b(0) = \vec{0}$ and $\vec{Q}(0) = [-0.30481062, 0.0, 0.0, 0.95241298]^T$ with a final position of the identity quaternion which represents a 120 degree rotation in the direction on the failed actuator.  To compensate for the fault the following constant parameters are used in the controller: 
+\newline $\alpha=0.2, \beta = 1.8, k = 100, \eta = 0.1, \upsilon = 0.01, c_1 = 0.01$ and the adaptive parameter $\hat{h}(0) = 0.1$. For the comparison case a quaternion feedback controller is simulated with the following control law chosen: $\vec{u}_c = -\mathbf{D}^+ (k_p \mathbf{J} \vec{q} + k_d \mathbf{J} \vec{\omega}_b)$ where kp and kd are chosen as 0.1422 and 0.533 respectively. The maximum torque is also limited to $\SI{0.2}{Nm}$ and the actuators speed is limited to 1000 rpm. The simulation is run for 300 seconds with a sampling time of 0.1 seconds. 
+Plotted in figure \ref{fig:backstepping-results} and figure \ref{fig:q_feedback-results} are the results of the simulation. The first row shows the euler yaw, pitch and roll angles and the integral of the error angle about the euler axis of rotation(called euler integral here for brevity). From \cite{sidiAttitudeDynamicsKinematics1997}: the euler integral  "shows the overall angle path that the satellite traverses during the maneuver". It is calculated by taking $\int_{0}^{t} cos^{-1}(\frac{1}{2}[trace(\mathbf{A}_E)-1] dt$ where $A_E$ represents the error DCM. Row 2 shows the actuator control torques and the satellite angular rate.
+%     \item $\mathbf{J} = \begin{bmatrix}
+%         10.0 \ \ 1.2 \ \ 0.5 \\ 1.2 \ \ 19.0 \ \ 1.5 \\  0.5 \ \ 1.5 \ \ 25.0 \\
+%     \end{bmatrix}  $
+%     \item $\lVert u_{max} \rVert = 0.5 Nm$
+%     \item 
+% \end{itemize}
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{Y1-report/Results-q_feedback.png}
+    \caption{Results showing the control performance of the quaternion feedback control with actuator failures and saturation. From left to right: the first row shows the euler yaw, pitch and roll angles and the integral of the error angle about the euler axis of rotation(called euler integral here for brevity). The second row shows the actuator control torques and the satellite angular rate.}
+    \label{fig:q_feedback-results}
+\end{figure*}
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{Y1-report/Results-backstepping_shen.png}
+    \caption{Results showing the control performance of the backstepping controller with actuator failures and saturation. From left to right: the first row shows the euler yaw, pitch and roll angles and the integral of the error angle about the euler axis of rotation(called euler integral here for brevity). The second row shows the actuator control torques and the satellite angular rate.}
+    \label{fig:backstepping-results}
+\end{figure*}
 
-\section{Conclusion}
+\subsection{Analysis}
+It is clear comparing the results in figure \ref{fig:backstepping-results} and figure \ref{fig:q_feedback-results} that the backstepping controller significantly improves performance. To give concreate numbers: the settling time improves from 283s to 115s and improves the pointing error from $\theta_e = [-0.1, -0.2, 0.3] deg (ypr)$  to $\theta_e = [\num{1.0e-10}, \num{1.33e-10}, \num{-1.86e-10}] deg (ypr)$. This is a major improvement and could allow a satellite to continue operations as normal.
 
 \section{Appendix}
 \subsection{}
@@ -377,23 +400,36 @@ follows from the assumptions:
     \lVert\vec{\omega}_b^\times\mathbf{J}\vec{\omega}_b \rVert \leq \bar{J}\left\lVert\vec{\omega}_b\right\rVert 
 \end{equation}
 \begin{equation}
-    \left\lVert k_0\vec{q} + \vec{\Delta f} + \vec{d} \leq k_0 + delta + \bar{d}\right\rVert \label{eq:apx}
+    \left\lVert k_0\vec{q} + \vec{\Delta f} + \vec{d} \leq k_0 + \delta + \bar{d}\right\rVert \label{eq:apx}
 \end{equation}
 \begin{equation}
     \left\lVert\frac{1}{2}\alpha\beta\mathbf{J}(\mathbf{I}_3 + \beta^2\mathbf{\Xi}_q)^{-1}(\mathbf{S}(\vec{q}) + q_0\mathbf{I}_3)\vec{\omega}_b\right\rVert \leq \frac{1}{2}\alpha\beta\bar{J}\left\lVert\vec{\omega}_b\right\rVert 
 \end{equation}
-from the fact that $-1 \leq q_0,q_1,q_2,q_3 \leq 1$ we know that $\left\lVert(\mathbf{S}(\vec{q}) + q_0\mathbf{I}_3)\right\rVert  \leq 1$ and $\left\lVert(\mathbf{I}_3+\beta^2\mathbf{\Xi})^{-1}\right\rVert  \leq 1$
-
-Note that \ref{eq:apx} is a result of the assumption that estimation errors are bounded after successful fault identification: $\lVert\vec{\Delta f}\rVert \leq \delta$ where $\delta$ is a positive constant.
-\subsubsection{Case 2} $\lVert \vec{s} \rVert \leq \frac{u_{max}}{\epsilon_0\Gamma(\cdot)\vec{s}}$
+from the fact that $-1 \leq q_0,q_1,q_2,q_3 \leq 1$ we know that $\left\lVert(\mathbf{S}(\vec{q}) + q_0\mathbf{I}_3)\right\rVert  \leq 1$\footnote{see proof below (TBD)} and $\left\lVert(\mathbf{I}_3+\beta^2\mathbf{\Xi})^{-1}\right\rVert  \leq 1$. Thus we can conclude that 
 \begin{equation}
-    V_2=V_1+\frac{1}{2}\vec{s}^T\mathbf{J}\vec{s}
+    \lVert\mathbf{F}(\cdot)\rVert \leq \bar{J}\lVert\vec{\omega}_b\rVert^2 + \frac{1}{2}\alpha\beta\lVert\vec{\omega}_b\rVert + k_0 + \delta + \bar{d}	\leq h\Omega
 \end{equation}
 
+where $\Omega = \lVert\vec{\omega}_b\rVert^2 + \lVert\vec{\omega}_b\rVert + 1$ and $h=max\{\bar{J},\frac{1}{2}\alpha\beta\bar{J},k_0 + \delta + \bar{d}\}$
+
+Note that \ref{eq:apx} is a result of the assumption that estimation errors are bounded after successful fault identification: $\lVert\vec{\Delta f}\rVert \leq \delta$ where $\delta$ is a positive constant.
+
+Therefore 
 \begin{equation}
-    \begin{split}
-        \mathbf{J}\dot{\vec{s}}&=
-        \mathbf{J}\dot{\vec{\omega_b}} + \alpha\beta\mathbf{J}(\mathbf{I_3}+\beta^2\mathbf{\Xi}_q)^{-1}\vec{\dot{q}}\\
-        &=-k_0\vec{q}+\mathbf{F}(\cdot)+\mathbf{D}\vec{u}_{c}+\vec{\hat{f}}+\vec{d}
-    \end{split}
+    \dot{V}_2 \leq -k_0\alpha\lVert \vec{q} \rVert^2 + \lVert \vec{s} \rVert\mathbf{D}^+\vec{u}_{sat} + \lVert \vec{s} \rVert h \Omega + \lVert \vec{\hat{f}} \rVert\lVert \vec{s} \rVert
+\end{equation}
+
+They assume that $\frac{u_{max}}{\epsilon_0} \geq h\Omega + \lVert \vec{\hat{f}} \rVert + \varrho_0$ where $\varrho_0$ is a small constant. substituing in and rearranging gives us:
+
+\begin{equation}
+    \dot{V}_2 \leq -k_0\alpha\lVert \vec{q} \rVert^2 - \varrho_0\lVert \vec{s} \rVert \leq 0
+\end{equation}
+\subsubsection{Case 2} $\lVert \vec{s} \rVert \leq \frac{u_{max}}{\epsilon_0\Gamma(\cdot)\vec{s}}$
+They choose a different Lyapunov function for this case as:
+\begin{equation}
+    V_2=V_1+\frac{1}{2}\vec{s}^T\mathbf{J}\vec{s} + \frac{1}{2c_2}\tilde{h}^2
+\end{equation}
+and after a more complicated procedure (but with the same fundementals) obtain the following control law:
+\begin{equation}
+    \vec{u}_c^{sat} = \mathbf{D}^+ \Gamma(\cdot) \vec{s}
 \end{equation}
