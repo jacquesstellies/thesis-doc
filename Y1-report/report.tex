@@ -1,6 +1,9 @@
 \section{Introduction}
 
-Space is a growing industry with thousands of satellites in orbit currently and, with the introduction of satellite constellations, thousands more to come in the next decades. In this context automation of is key importance to keeping costs down. The attitude determination and control system (ACDS) enables a satellite to orient itself and is thus critical for operations such as communication and observation. Due to the inaccessible nature of orbit, fault-tolerant control (FTC) is an attractive method of allowing operations to continue after degradation or even failure of an actuator. Current industry standard methods of dealing with this problem involve putting the satellite into safe mode and solving the problem on the ground. This paper proposes to solve this problem online automatically using a fault detection and isolation unit (FDI) and an FTC unit.
+Space is a growing industry with thousands of satellites in orbit currently and, with the introduction of satellite constellations, thousands more to come in the next decades. In this context automation of is key importance to keeping costs down. The attitude determination and control system (ACDS) enables a satellite to orient itself and is thus critical for operations such as communication and observation. Due to the inaccessible nature of orbit, fault-tolerant control (FTC) is an attractive method of allowing operations to continue after degradation or even failure of an actuator. Current industry standard methods of dealing with this problem involve putting the satellite into safe mode and solving the problem on the ground. This paper proposes to solve this problem online automatically using a fault detection and diagnosis unit (FDD) and an FTC unit.
+
+Typically for FTC systems two design approaches are available: passive and active. Passive FTC is composed of fixed controller which is designed to be robust to a set of predefined faults. Typically it is more conservative as it trades nominal performance for robustness. It also utilizes redundant actuators. It does not require any online fault information and does not require controller reconfiguration. 
+\par Active FTC, on the other hand, is designed to reconfigure the controller in the presence of a fault. It can achieve this through preselecting an existing control law or synthesizing a new control law. It therefore requires online fault detection and diagnosis (FDD) information. Typically a decision mechanism is used to distinguish between the faulty and non-faulty cases of operation usually via some type of threshold. If well designed this should compensate for some model uncertainty and noise to reduce false positives. Degraded performance of the system does have to be accepted when entering fault state but using this strategy one avoids increasing the conservativeness of the nominal controller \cite{yinReviewRecentDevelopment2016}.
 
 \section{Problem Definition}
 
@@ -57,20 +60,17 @@ A common control law designed used for 3-axis pointing control is the quaternion
 where $\vec{K_{q}}$ and $\vec{K_{\omega_{b}}}$ are the quaternion and angular rate feedback gains respectively and $\vec{q_{e}}$ and $\vec{\omega_{e}}$ 
 are the quaternion and angular rate errors respectively.
 
-\subsection{Fault Detection and Isolation}
-Fault detection and isolation (FDI) is crucial for providing up to date fault information for controller reconfiguration. In literature FDI is commonly used however in the case of Fault Tolerant Control diagnosis is an important step \cite{yinReviewRecentDevelopment2016}. Thus Fault Detection and Diagnosis (FDD) is a better metric and will be used in this work. An FDD high level algorithm can thus be summarized as asking the following questions:
+\subsection{Fault Detection and Diagnosis}
+Fault detection and diagnosis (FDD) is crucial for providing up to date fault information for controller reconfiguration. At a high level FDD can be summarized by asking the following questions:
 \begin{itemize}
     \item Detection - has a fault occured?
     \item Isolation - what is the type and location of the fault?
     \item Diagnosis/Estimation - what is the value or magnitude of the fault?
 \end{itemize}
 
-Approaches to FDD can be broken down into 2 broad categories: model-based and data-driven. Some common methods of FDI include:
-\begin{itemize}
-    \item Decision trees
-    \item Bayesian networks
-    \item Neural networks
-\end{itemize}
+Approaches to FDD can be broken down into 3 broad categories: model-based, data-driven and hybrid. 
+The first step is to detect a fault. To minimize the risk of false detections due to model uncertainties and to ensure robustness to noise a detection threshold is commonly used. In cite{}
+
 
 \subsection{Fault Tolerant Control}
 Existing design techniques for FTC can be classified into two approaches: passive FTC and active FTC. A passive FTC controller is designed to tolerate only a predefined, limited number of faults and does not require any online fault information. Passive FTC also does not require controller reconfiguration. \cite{yinReviewRecentDevelopment2016}
@@ -187,9 +187,10 @@ This process can be visualized in figure \ref{fig:backstepping}.
     \label{fig:backstepping}
 \end{figure}
 
+
 \section{Proposed Methodology}
 \subsection{Fault Detection and Diagnosis}
-For the purposes of this paper, the FDI unit will not be implemented. Instead, the fault will be assumed to be perfectly known and injected directly into the system and the FTC unit will be used to reconfigure the controller. Mathematically the estimated fault can be incorporated into the control law as follows:
+For the purposes of this paper the fault will be assumed to be perfectly known and injected directly into the system and the FTC unit will be used to reconfigure the controller. Mathematically the estimated fault can be incorporated into the control law as follows:
 \begin{equation}\vec{u}=(\mathbf{I}_{n}-\mathbf{E})\vec{u}_{c}+\vec{u}_{a}\end{equation}
 
 where $E$ represents the effecitve loss of actuators $E=diag(e_{1},e_{2}\dots,e_{n})$ and $0\leq e_{i}\leq 1$. $e_{i}=0$ means the actuator is healthy. Additionally $\vec{u}_{a}$ represents the additive bias fault.

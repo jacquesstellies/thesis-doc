@@ -3,65 +3,19 @@
 \chapter{Literature Review}
 \label{chap:literature_review}
 
-Here lies the literature review. Those who wander further beware.
+The problem of fault tolerant control systems (FTCS) has gained signifcant attention in the literature in the last few decades, with a variety of methods proposed to handle different types of faults and scenarios. The problem is usually broken down in to two main subproblems: fault detection and diagnosis (FDD) and fault tolerant control (FTC) \cite{yinReviewRecentDevelopment2016}. FDD involves identifying the presence of a fault, diagnosing the type of fault, and estimating the severity of the fault. FTC involves designing reconfigurable control laws that can operate in the presence of the identified faults. Typically some switching logic is used to determine which control law to use based on the identified faults.
 
-\section{Satellite Attitude Kinematics}
+\section{Fault Detection and Diagnosis}
 
-The attitude of a vehicle refers to it's orientation and angular rate in 3D space. In order to control a satellite's
-oritentation for pointing and other applications it's phyics must be understood and modelled. 
-A satellite's attitude with mass moment of inertia $\vec{J}$ can be modelled using the Newton-Euler equation: 
+In 
+\section{Switching Logic}
 
-\begin{equation}
-\vec{J}\vec{\dot{\omega}} = \sum{\vec{N_{ext}}} -\vec{H}\times\vec{\omega}
-\end{equation}
-where $\vec{\omega}$ is the satellite's angular rate vector, $\vec{N_{ext}}$ is any external torque applied and $\vec{H}$
-the satellite's total angular momentum. This equation is a useful 
+In \cite{shenActiveFaulttolerantControl2019} they attempt to determine a fault based on reduced actuator effectiveness. A threshold check on the residual of the estimated angular velocity of the spacecraft is used. The threshold is based on the external disturbance bounds and lipshitz constant of the spacecraft angular velocity which can be obtained from the reaction wheel cluster maximum torque vector and the spacecraft inertia. 
 
-\subsection{Attitude representations}
-The satellite's orientation can be represented intuitively using euler angles such as yaw $\psi$, pitch $\theta$ and roll$\phi$.
-However these representations are not so effective for computation in attitude control as they require more expensive trigonometric
-functions to be used and produce singularities. The most accurate way to represent the attitude of an object is using the direction
-cosine matrix (DCM) aka. the rotation matrix. This is a 3x3 matrix where each column represents the orthogonal xyz axes vector. However
-this is cumbersome for computing calculations as it would require computing 9 differential equations to determine a satellite's 
-attitude. Instead quaternions are used during computations. The quaternion can be defined as:
+In \cite{}
 
-\begin{align}
-    q_{1}=e_{1}\sin(\Phi) \\
-    q_{2}=e_{2}\sin(\Phi) \\
-    q_{3}=e_{3}\sin(\Phi) \\
-    q_{4}=q_{4}\cos(\Phi) 
-\end{align}
-
-
-
-\section{Attitude Control of a Satellite}
-\subsection{Dynamics and Kinematics}
-Dynamics
-
-\begin{equation}
-\mathbf{J}\mathbf{\dot{\omega}} = \sum{\mathbf{T_{ext}}} -\mathbf{\omega}\times(\mathbf{J}\mathbf{\omega}-\vec{h})-\dot{\vec{h}}
-\end{equation}
-
-Kinematics
-\begin{equation}
-\vec{\dot{q}}=\frac{1}{2}
-\begin{bmatrix}
-q_{4} \ \ \neg q_{3} \ \ \ q_{2} \\ 
-q_{3} \ \ q_{4} \ \ \ \neg q_{1} \\ 
-\neg q_{2} \ \ q_{1} \ \ \ q_{4} \\ 
-\neg q_{1} \ \ \neg q_{2} \ \ \ \neg q_{3} \\
-\end{bmatrix} \vec{\omega}
-\end{equation}
-\subsection{}
 \section{Fault Tolerant Control}
 
-\section{FTC Applied to Satellites}
-In \cite{JiangYe2010Abfc} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a 
-redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown
-inertia matrix of the spacecraft. 
-It is assumed that the angular velocity Ω of the reaction wheels are within the saturation limit and the input control torque 
-u(t) is unbounded.
+Some common FTC methods are sliding mode control (SMC), backstepping control, model predictive control (MPC), and adaptive control \cite{yinReviewRecentDevelopment2016}. These methods have been applied to a variety of systems, including spacecraft attitude control systems (ACS) with reaction wheel faults.
 
-\section{Backstepping}
-\cite{khalilNonlinearSystems2002} describes backstepping as a recursive design method for nonlinear systems.
-\cite{ShenQiang2019AFCS} uses backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults.
+In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown inertia matrix of the spacecraft. It is assumed that the angular velocity Ω of the reaction wheels are within the saturation limit and the input control torque u(t) is unbounded.

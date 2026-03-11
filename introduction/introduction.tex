@@ -3,24 +3,23 @@
 \chapter{Introduction}
 \label{chap:introduction}
 
-Space is a growing industry with thousands in orbit currently and, with the introduction of satellite constellations,
-thousands more to come in the next decades. In this context automation of is key importance to keeping costs down. 
-The attitude determination and control system (ACDS) enables a
-satellite to orient itself and is thus critical for operations such as communication
-and observation. Due to the inaccessible nature of orbit, ADCS fault-tolerant
-control (FTC) is an attractive method of allowing operations to continue after
-degradation or even failure of an actuator. Current industry standard methods
-of dealing with this problem involve putting the satellite into safe mode and
-solving the problem on the ground. This paper proposes to solve this problem
-online during operation using a fault detection and isolation unit (FDI) and an
-FTC unit – with the focus of being on the FTC unit
+Space is a growing industry with thousands in orbit currently and, with the introduction of satellite constellations, thousands more to come in the next decades. In this context automation of is key importance to keeping costs down. The attitude determination and control system (ACDS) enables a satellite to orient itself and is thus critical for operations such as communication and observation. Due to the inaccessible nature of orbit, ADCS fault-tolerant control (FTC) is an attractive method of allowing operations to continue after degradation or even failure of an actuator. Some key metrics that would make the system attractive would be robustness to a variety of faults, improved pointing accuracy and stability when compared to traditional control methods in such scenarios, low computational requirements, and ease of integration with existing systems.
 
-Due to the inaccessible nature of space ADCS Fault-tolerant control (FTC) is an attractive method of preventing allowing operations to continue after degradation or
-even failure of an actuator. 
+Current industry standard methods of dealing with this problem involve putting the satellite into safe mode and solving the problem on the ground. This can be a lengthy process and can lead to significant downtime and engineering time. Having a robust, well tested and integrated online method of dealing with a variety of fault conditions would allow the satellite to continue operations and thus increase the return on investment.
 
 \section{Problem Definition}
 
-What is Fault tolerant control?
+The main aim of this thesis is to design an attitude control system which can operate using faulty reaction wheels. This problem is solved by:
+
+\begin{itemize}
+ \item Understanding reaction wheel faults and failure modes.
+ \item Investigating methods for identifying and diagnosing reaction wheel faults during operation.
+ \item Investigating methods for reconfiguring the control law in the presence of faults.
+ \item Simulating the failures in a given realistic satellite scenario.
+ \item Designing a method for estimating the state of the system in the presence of faults and disturbances.
+ \item Designing a fault-tolerant control system (FTCS) to reconfigure the control law in the presence of faults in a realistic scenario.
+ \item Simulating the performance of the designed FTCS in a realistic scenario and comparing it to a traditional control method.
+\end{itemize}
 
 \section{Thesis Layout}
 
