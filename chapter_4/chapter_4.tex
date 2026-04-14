@@ -1,0 +1,21 @@
+\chapter{Underactuated Controller}
+
+\section{Underactuated System}
+\begin{equation}
+\dot{q}_{er} = \frac{1}{2}\omega \begin{bmatrix}
+    q_{e0} & -q_{e3} \\
+    q_{e3} & q_{e0} \\
+    -q_{e2} & q_{e1}
+\end{bmatrix}
+\end{equation}
+
+\section{Controlability}
+In \cite{krishnanAttitudeStabilizationRigid1994} Krishnan and Banavar present a controlability analysis of an underactuated satellite. They show that the system is controllable if 
+
+\section{Nadafi Controller}
+In \cite{nadafiRobustBacksteppingAttitude2021} Nadafi and Kabganian present a backstepping controller for attitude control of an underactuated satellite. Their contribution is the design of a novel hypersurface to ensure stability and convergence to the desired attitude. This hypersurface is defined as:
+\begin{equation}
+    -2\begin{bmatrix}
+        aq_{e2} q_{e3} + q_{e0} q_{e1} \gamma_1 \ b q_{e1} q_{e3} + q_{e0} q_{e2} \gamma_2
+    \end{bmatrix}^T
+\end{equation}
