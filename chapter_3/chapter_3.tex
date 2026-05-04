@@ -1,7 +1,7 @@
 \chapter{Modelling}
 \section{Attitude Control of a Satellite}
-\subsection{Attitude representations}
-The satellite's orientation can be represented intuitively using euler angles such as yaw $\psi$, pitch $\theta$ and roll$\phi$. However these representations are not so effective for computation in attitude control as they require more expensive trigonometric functions to be used and produce singularities. The most accurate way to represent the attitude of an object is using the direction cosine matrix (DCM) aka. the rotation matrix. This is a 3x3 matrix where each column represents the orthogonal xyz axes vector. This matrix is described by:
+\subsection{Rigid Body Kinematics}
+Since the goal is to control the attitude of a satellite, an appropriate representation should be used. The satellite's orientation can be represented intuitively using euler angles such as yaw $\psi$, pitch $\theta$ and roll$\phi$. However these representations are not so effective for computation in attitude control as they require more expensive trigonometric functions to be used and produce singularities at certain rotations, thus quaternions will be used for the mathematical model. A direction cosine matrix (DCM) aka. the transformation matrix, can be used to transform a vector from one frame to another. This matrix is described by the euler 3-2-1 rotation sequence as:
 
 \begin{align}
     % \begin{split}
@@ -11,18 +11,24 @@ The satellite's orientation can be represented intuitively using euler angles su
         c_{31} & c_{32} & c_{33}
     \end{bmatrix} \\
     &= \begin{bmatrix}
-        \cos\psi\cos\theta & \cos\psi\sin\theta\sin\phi - \sin\psi\cos\phi & \cos\psi\sin\theta\cos\phi + \sin\psi\sin\phi \\
-        \sin\psi\cos\theta & \sin\psi\sin\theta\sin\phi + \cos\psi\cos\phi & \sin\psi\sin\theta\cos\phi - \cos\psi\sin\phi \\
+        \cos\psi\cos\theta & \sin\psi\cos\theta & -\sin\theta \\
+        -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \cos\psi\cos + \sin\psi\\
         -\sin(\theta) & \cos(\theta)\sin(\phi) & \cos(\theta)\cos(\phi)
+    % &= \begin{bmatrix}
+    %     \cos\psi\cos\theta & \cos\psi\sin\theta\sin\phi - \sin\psi\cos\phi & \cos\psi\sin\theta\cos\phi + \sin\psi\sin\phi \\
+    %     \sin\psi\cos\theta & \sin\psi\sin\theta\sin\phi + \cos\psi\cos\phi & \sin\psi\sin\theta\cos\phi - \cos\psi\sin\phi \\
+    %     -\sin(\theta) & \cos(\theta)\sin(\phi) & \cos(\theta)\cos(\phi)
     \end{bmatrix} 
     % \end{split}
 \end{align}
 
 and 
 
-@TODO: check this
+@TODO: finish this
 
-However this is cumbersome for computing calculations as it would require computing 9 differential equations to determine a satellite's attitude. Instead quaternions are used during computations. The quaternion can be defined as:
+DCMs can be used for attitude kinematic equations, however this is cumbersome, requiring trignometric functions. Instead quaternions, $\vec{Q} = \begin{bmatrix}q_1 q_2 q_3 q_4\end{bmatrix}$, are used to represent the kinematic differential equations. Quaternions represent a 4 dimensional extension of complex numbers. In order to represent rotations we limit ourselves to the unit quaternion which satisfies $q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1$.
+
+Any sequence of rotations can be represented as a single rotation by angle $Phi$ about some vector $\vec{e}$. The rotation quaternion can be represented in these terms as:
 
 \begin{align}
     q_{1}=e_{1}\sin(\Phi) \\
@@ -31,56 +37,75 @@ However this is cumbersome for computing calculations as it would require comput
     q_{4}=cos(\Phi) 
 \end{align}
 
-where e is the unit vector representing the axis of rotation and $\Phi$ is the angle of rotation. The quaternion can be used to compute the DCM as follows:
+The quaternion can be used to compute the DCM as follows:
 
 \begin{align}
     \mathbf{C} = \begin{bmatrix}
-        q_{1}^2 - q_{2}^2 - q_{3}^2 + q_{4}^2 & 2(q_{1}q_{2} - q_{3}q_{4}) & 2(q_{1}q_{3} + q_{2}q_{4}) \\
+        q_{1}^2 -q_{2}^2 - q_{3}^2 + q_{4}^2 & 2(q_{1}q_{2} - q_{3}q_{4}) & 2(q_{1}q_{3} + q_{2}q_{4}) \\
         2(q_{1}q_{2} + q_{3}q_{4}) & -q_{1}^2 + q_{2}^2 - q_{3}^2 + q_{4}^2 & 2(q_{2}q_{3} - q_{1}q_{4}) \\
         2(q_{1}q_{3} - q_{2}q_{4}) & 2(q_{2}q_{3} + q_{1}q_{4}) & -q_{1}^2 - q_{2}^2 + q_{3}^2 + q_{4}^2
     \end{bmatrix}
 \end{align}
 
-\subsection{Dynamics and Kinematics}
-Dynamics
+The inertial angular velocity of a space craft $\vec{\omega}^B = \begin{bmatrix}\omega_1 \ \omega_2 \ \omega_3 \end{bmatrix}$ can be represented in terms of quaternions:
 
-\begin{equation}
-\mathbf{J}\vec{\dot{\omega}} = \sum{\mathbf{T_{ext}}} -\vec{\omega}\times(\mathbf{J}\vec{\omega}-\vec{h})-\dot{\vec{h}}
-\end{equation}
+% \begin{align}
+%     \begin{bmatrix}
+%         \omega_1 \\
+%         \omega_2 \\
+%         \omega_3 \\
+%     \end{bmatrix}
+%     = 
+%     \begin{bmatrix}
+        
+%     \end{bmatrix}
+% \end{align}
 
-Kinematics
+$$\begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \\ 0 \end{bmatrix} = 2 
+\begin{bmatrix} q_4 & q_3 & -q_2 & -q_1 
+            \\ -q_3 & -q_4 & q_1 & -q_2 
+            \\ q_2 & -q_1 & q_4 & -q_3
+            \\  q_1 & q_2 & q_3 & q4
+\end{bmatrix} 
+\begin{bmatrix} \dot{q}_0 \\ \dot{q}_1 \\ \dot{q}_2 \\ \dot{q}_3 \end{bmatrix}$$
+
+and can be rearranged to form
+
 \begin{align}
-\vec{\dot{q}}=\frac{1}{2}
+    \vec{\dot{Q}}
+=\frac{1}{2}
 \begin{bmatrix}
-q_{4} & -q_{3} & q_{2} \\ 
-q_{3} & q_{4} & -q_{1} \\ 
--q_{2} & q_{1} & q_{4} \\ 
+q_{0} & -q_{3} & q_{2} \\ 
+q_{3} & q_{0} & -q_{1} \\ 
+-q_{2} & q_{1} & q_{0} \\ 
 -q_{1} & -q_{2} & -q_{3} \\
-\end{bmatrix} \vec{\omega}
+\end{bmatrix} \begin{bmatrix}\omega_1 \\ \omega_2 \\ \omega_3 \\ 0 \end{bmatrix}
 \end{align}
 
-\section{Satellite Attitude Dynamics}
+The quaternion error 
 
-The attitude of a vehicle refers to it's orientation and angular rate in 3D space. In order to control a satellite's
-oritentation for pointing and other applications it's phyics must be understood and modelled. 
+\subsection{Attitude Dynamics}
+
 A satellite's attitude with mass moment of inertia $\vec{J}$ can be modelled using the Newton-Euler equation: 
 
 \begin{equation}
-\vec{J}\vec{\dot{\omega}} = \sum{\vec{N_{ext}}} -\vec{H}\times\vec{\omega}
+\vec{J}\vec{\dot{\omega}} = \sum{\vec{T_{ext}}} -\vec{H}\times\vec{\omega}
 \end{equation}
-where $\vec{\omega}$ is the satellite's angular rate vector, $\vec{N_{ext}}$ is any external torque applied and $\vec{H}$
-the satellite's total angular momentum. This equation is a useful 
+where $J$ is the satellite's mass moment of inertia, $\vec{T_{ext}}$ is any external torque applied and $\vec{h}$ is the total angular momentum of the satellite. Since we are focusing on reaction wheel control system
 
+\begin{equation}
+\mathbf{J}\vec{\dot{\omega}} = \sum{\mathbf{T}_d} -\vec{\omega}^\times(\mathbf{J}\vec{\omega}-\vec{h}_w)-\dot{\vec{h}}_w - \vec{T}_{mag}
+\end{equation}
 
-
+where $\vec{T}_d$ represents the external disturbances applied, $\vec{h}_w$ represents the total reaction wheels angular momentum vector, and $\vec{T}_{mag}$ represents the magnetorquer applied torque. $\vec{\omega}^\times$ represetns the skew symmetric matrix of the body angular velocity vector.
 \subsection{Orbit and Environment}
 A common orbit used for observation satellites is a sun-synchronous low earth orbit (LEO). This orbit allows the satellite to pass over the same part of the earth at the same local solar time. This is useful for imaging and observation as the lighting conditions will be similar for each pass. A typical altitude for a sun-synchronous LEO is between 400 and 800 km. 
 
 The dominant disturbances acting on a satellite in LEO are:
 \begin{itemize}
+    \item Aerodynamic drag torque
     \item Gravity gradient torque
     \item Solar radiation pressure torque
-    \item Aerodynamic drag torque
 \end{itemize} 
 
 \subsubsection{Aerodynamic Torque}
@@ -117,7 +142,7 @@ where $\alpha$ is the phase angle measured from the ascending node of the orbit 
     \vec{T_m} = \vec{m} \times \vec{B}
 \end{equation}
 
-where $\vec{m}$ is the generated magnetic moment of the magnetorquer and $\vec{B}$ is the magnetic field strength at the satellite's location \cite{sidiAttitudeDynamicsKinematics1997}. Some important notes about magnetorquers are that they can only generate torque perpendicular to the magnetic field and that the magnetic field strength varies with the satellite's position in orbit. The magnetic field is strongest near the poles and weakest near the equator. This means that the effectiveness of magnetorquers will vary depending on the satellite's position in orbit. Therefore maneuvers will require careful management to ensure that the satellite can maintain control throughout its orbit after under fault condition.
+where $\vec{m}$ is the generated magnetic moment of the magnetorquer and $\vec{B}$ is the magnetic field strength at the satellite's location \cite{sidiAttitudeDynamicsKinematics1997}. Some important notes about magnetorquers are that they can only generate torque perpendicular to the magnetic field and that the magnetic field strength varies with the satellite's position in orbit. The magnetic field is strongest near the poles and weakest near the equator.  Therefore maneuvers will require careful management to ensure that the satellite can maintain control throughout its orbit after under fault condition.
 
 
 \section{Fault Tolerant Control}
