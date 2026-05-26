@@ -1,19 +1,26 @@
 \chapter{Modelling}
 \section{Attitude Control of a Satellite}
 \subsection{Rigid Body Kinematics}
-Since the goal is to control the attitude of a satellite, an appropriate representation should be used. The satellite's orientation can be represented intuitively using euler angles such as yaw $\psi$, pitch $\theta$ and roll$\phi$. However these representations are not so effective for computation in attitude control as they require more expensive trigonometric functions to be used and produce singularities at certain rotations, thus quaternions will be used for the mathematical model. A direction cosine matrix (DCM) aka. the transformation matrix, can be used to transform a vector from one frame to another. This matrix is described by the euler 3-2-1 rotation sequence as:
+Since the goal is to control the attitude of a satellite, an appropriate representation should be used. Any orientation can be representead as a rotation from one frame to another. Typical reference frames would be inertial (TEME, ICRF), orbit or body-fixed. The satellite's orientation can be represented intuitively using euler angles such as yaw $\psi$, pitch $\theta$ and roll$\phi$. However these representations are not so effective for computation in attitude control as they require more expensive trigonometric functions to be used and produce singularities at certain rotations, thus quaternions will be used for the mathematical model. A direction cosine matrix (DCM) aka. the transformation matrix, can be used to transform a vector from frame A to B. 
+\begin{equation}
+    \vec{v}_B = \mathbf{C}_{BA}\vec{v}_A
+\end{equation}
+
+where $C_{BA}$ is the DCM from frame A to B and can is made up of the orthonormal basis vectors of frame B expressed in frame A: $\mathbf{C}_{BA} = \begin{bmatrix} \hat{a}_1^B & \hat{a}_2^B & \hat{a}_3^B\end{bmatrix}$.
+
+This matrix is described by the euler 3-2-1 rotation sequence as:
 
 \begin{align}
     % \begin{split}
-    \mathbf{C} &= \begin{bmatrix}
+    \mathbf{C}_{AB} &= \begin{bmatrix}
         c_{11} & c_{12} & c_{13} \\
         c_{21} & c_{22} & c_{23} \\
         c_{31} & c_{32} & c_{33}
     \end{bmatrix} \\
     &= \begin{bmatrix}
-        \cos\psi\cos\theta & \sin\psi\cos\theta & -\sin\theta \\
-        -\sin\psi\cos\phi + \cos\psi\sin\theta\sin\phi & \cos\psi\cos + \sin\psi\\
-        -\sin(\theta) & \cos(\theta)\sin(\phi) & \cos(\theta)\cos(\phi)
+        C \psi C \theta &  S\psi C \theta & - S \theta \\
+        - S \psi C \phi + C \psi S \theta S \phi & C \psi C \phi +  S\psi S \theta S \phi & C \theta S \phi \\
+        C \psi S \theta C \phi + S \psi S \phi & S \psi S \theta C \phi - C \psi S \phi & C \theta C \phi
     % &= \begin{bmatrix}
     %     \cos\psi\cos\theta & \cos\psi\sin\theta\sin\phi - \sin\psi\cos\phi & \cos\psi\sin\theta\cos\phi + \sin\psi\sin\phi \\
     %     \sin\psi\cos\theta & \sin\psi\sin\theta\sin\phi + \cos\psi\cos\phi & \sin\psi\sin\theta\cos\phi - \cos\psi\sin\phi \\
@@ -22,13 +29,11 @@ Since the goal is to control the attitude of a satellite, an appropriate represe
     % \end{split}
 \end{align}
 
-and 
+@TODO: fix this
 
-@TODO: finish this
+DCMs can be used for attitude kinematic equations, however this is cumbersome, requiring trignometric functions. Instead quaternions, $\vec{\bar{q}} = \begin{bmatrix}q_1 \ q_2 \ q_3 \ q_4\end{bmatrix}^T$, are used to represent the kinematic differential equations. Quaternions represent a 4 dimensional extension of complex numbers. In order to represent rotations we limit ourselves to the unit quaternion which satisfies $q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1$.
 
-DCMs can be used for attitude kinematic equations, however this is cumbersome, requiring trignometric functions. Instead quaternions, $\vec{Q} = \begin{bmatrix}q_1 q_2 q_3 q_4\end{bmatrix}$, are used to represent the kinematic differential equations. Quaternions represent a 4 dimensional extension of complex numbers. In order to represent rotations we limit ourselves to the unit quaternion which satisfies $q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1$.
-
-Any sequence of rotations can be represented as a single rotation by angle $Phi$ about some vector $\vec{e}$. The rotation quaternion can be represented in these terms as:
+Any sequence of rotations can be represented as a single rotation by angle $\Phi$ about some vector $\vec{e}$. The rotation quaternion can be represented in these terms as:
 
 \begin{align}
     q_{1}=e_{1}\sin(\Phi) \\
@@ -72,7 +77,7 @@ $$\begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \\ 0 \end{bmatrix} = 2
 and can be rearranged to form
 
 \begin{align}
-    \vec{\dot{Q}}
+    \vec{\dot{\bar{q}}}
 =\frac{1}{2}
 \begin{bmatrix}
 q_{0} & -q_{3} & q_{2} \\ 
@@ -82,7 +87,23 @@ q_{3} & q_{0} & -q_{1} \\
 \end{bmatrix} \begin{bmatrix}\omega_1 \\ \omega_2 \\ \omega_3 \\ 0 \end{bmatrix}
 \end{align}
 
-The quaternion error 
+The quaternion errors can be defined as the difference between the current quaternion and the desired quaternion. The error quaternion can be calculated as:
+
+\begin{align}
+    \vec{\bar{q}}_{e} &=  \vec{q} \otimes  \vec{q}_{d}^{-1} \\
+    &= \begin{bmatrix}
+        q_{d0} & q_{d1} & q_{d2} & q_{d3} \\
+        q_{d1} & -q_{d0} & -q_{d3} & q_{d2} \\
+        q_{d2} & q_{d3} & -q_{d0} & -q_{d1} \\
+        q_{d3} & -q_{d2} & q_{d1} & -q_{d0} \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        q_{0} \\
+        q_{1} \\
+        q_{2} \\
+        q_{3} \\
+    \end{bmatrix}
+\end{align}
 
 \subsection{Attitude Dynamics}
 
@@ -94,10 +115,11 @@ A satellite's attitude with mass moment of inertia $\vec{J}$ can be modelled usi
 where $J$ is the satellite's mass moment of inertia, $\vec{T_{ext}}$ is any external torque applied and $\vec{h}$ is the total angular momentum of the satellite. Since we are focusing on reaction wheel control system
 
 \begin{equation}
-\mathbf{J}\vec{\dot{\omega}} = \sum{\mathbf{T}_d} -\vec{\omega}^\times(\mathbf{J}\vec{\omega}-\vec{h}_w)-\dot{\vec{h}}_w - \vec{T}_{mag}
+\mathbf{J}\vec{\dot{\omega}} = \mathbf{T}_d -\vec{\omega}^\times(\mathbf{J}\vec{\omega}-\vec{h}_w)-\dot{\vec{h}}_w - \vec{T}_{mag}
 \end{equation}
 
-where $\vec{T}_d$ represents the external disturbances applied, $\vec{h}_w$ represents the total reaction wheels angular momentum vector, and $\vec{T}_{mag}$ represents the magnetorquer applied torque. $\vec{\omega}^\times$ represetns the skew symmetric matrix of the body angular velocity vector.
+where $\vec{T}_d$ represents the external disturbances applied, $\vec{h}_w$ represents the total reaction wheels angular momentum vector, and $\vec{T}_{mag}$ represents the magnetorquer applied torque. $\vec{\omega}^\times$ represents the skew symmetric matrix of the body angular velocity vector.
+
 \subsection{Orbit and Environment}
 A common orbit used for observation satellites is a sun-synchronous low earth orbit (LEO). This orbit allows the satellite to pass over the same part of the earth at the same local solar time. This is useful for imaging and observation as the lighting conditions will be similar for each pass. A typical altitude for a sun-synchronous LEO is between 400 and 800 km. 
 
@@ -109,17 +131,41 @@ The dominant disturbances acting on a satellite in LEO are:
 \end{itemize} 
 
 \subsubsection{Aerodynamic Torque}
-Aerodynamic torques occur due to the interaction of the satellite with the residual atmosphere in LEO. The torque can be calculated using the following equation cite:auret @TODO add reference here:
+Aerodynamic drag forces arise from the interaction of the satellite with the residual atmosphere present in LEO. Although the drag force is complex and time-varying due to atmospheric density fluctuations, it can be approximated under simplifying assumptions \cite{auretDesignAerodynamicAttitude2011}. For a near-circular orbit, the angle $x_{o,east}$ between the co-rotating atmosphere and the orbital path is given by
 
 \begin{equation}
-    \vec{F_{aero}} =  \rho \|\vec{v}^B_A\|^2 A_p [\sigma_t (\vec{r_{m/p}} \times \vec{v}^B_A) + (\sigma_n (v_b/\|\vec{v}^B_A\|) (2 - \sigma_n - \sigma_t)\cos(\alpha)(\vec{r_{m/p}} \times \vec{\bar{n}})]
+    x_{o,east} = \begin{cases}
+        \pi - \arctan\!\left(\dfrac{d\lambda/dt}{d\phi/dt}\right) & \text{for } \dfrac{d\phi}{dt} < 0 \\[8pt]
+        \dfrac{\pi}{2} & \text{for } \dfrac{d\phi}{dt} = 0 \\[8pt]
+        -\arctan\!\left(\dfrac{d\lambda/dt}{d\phi/dt}\right) & \text{for } \dfrac{d\phi}{dt} > 0
+    \end{cases}
 \end{equation}
 
-where $\rho$ is the atmospheric density, $\vec{v}^B_A$ is the satellite's velocity relative to the atmosphere, $A_p$ is the projected area of the satellite in the direction of the velocity vector, $\sigma_n$ and $\sigma_t$ are the coefficients of normal and tangential reflectivity, and $\vec{r_{m/p}}$ is the vector from the center of mass of the satellite to the center of pressure. The aerodynamic torque can be calculated by taking the cross product of the force and the vector from the center of mass to the center of pressure:
+where $\lambda$ is the satellite latitude and $\phi$ is the longitude. The local atmospheric velocity vector expressed in the satellite body coordinate (SBC) frame is then
 
 \begin{equation}
-    \vec{N_{aero}} = \vec{r_{m/p}} \times \vec{F_{aero}}
+    \vec{v}^B_A = \mathbf{C}_{BO}
+    \begin{bmatrix}
+        -\|\vec{v}_o\| + \omega_E \|\vec{R}\| \cos(\lambda)\cos(x_{o,east}) \\
+        -\omega_E \|\vec{R}\| \cos(\lambda)\sin(x_{o,east}) \\
+        0
+    \end{bmatrix}
 \end{equation}
+
+where $\|\vec{v}_o\|$ is the orbital speed, $\omega_E$ is the Earth's rotation rate, and $\vec{R}$ is the orbital radius. The atmospheric density $\rho$ required to evaluate the drag torque can be estimated with an exponential model
+
+\begin{equation}
+    \rho = \rho_0 \exp\!\left(-\frac{h - h_0}{H}\right)
+\end{equation}
+
+where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the atmospheric scale height, and $\rho_0$ is the nominal atmospheric density at $h_0$. The aerodynamic disturbance torque contribution of a given satellite surface is then \cite{auretDesignAerodynamicAttitude2011}
+
+\begin{equation}
+    \vec{T}_{\text{aero}} = \rho \|\vec{v}^B_A\|^2 A_p \left[\sigma_t\left(\vec{r}_{m/p} \times \bar{\vec{v}}^B_A\right) + \left(\sigma_n \frac{v_b}{\|\vec{v}^B_A\|} + (2 - \sigma_n - \sigma_t)\cos\alpha\right)\!\left(\vec{r}_{m/p} \times \bar{\vec{n}}\right)\right]
+    \label{eq:aero_torque}
+\end{equation}
+
+where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{m/p}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing \eqref{eq:aero_torque} over all exposed surfaces.
 
 \subsubsection{Magnetics}
 Reaction wheels and other momentum based control methods have the disadvantage when compared to other control methods such as thrusters in that they build up momentum over time when due to external disturbance torqures. Thus to in order to manage this momentum, the earth's magnetic field can be utilized for generating small torques in LEO. The earth's magnetic field can be approximated as a dipole field \cite{sidiAttitudeDynamicsKinematics1997}. The magnetic field strength at a distance r from the center of the earth can be calculated using the following equation:

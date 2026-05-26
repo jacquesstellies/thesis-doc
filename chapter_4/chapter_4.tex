@@ -1,8 +1,15 @@
 \chapter{Underactuated Controller}
 
 \section{Underactuated System}
+
+Using the dynamics given ins chapter 3, Nadfi et al \cite{nadafiRobustBacksteppingAttitude2021} derive the reduced underacteduated cascaded system as follows:
+
 \begin{equation}
-\dot{q}_{er} = \frac{1}{2}\omega \begin{bmatrix}
+\dot{\vec{\omega}} = \mathbf{J}^{-1}(\vec{T}_d - \vec{\omega}^\times(\mathbf{J}\vec{\omega}-\vec{h}_w)-\dot{\vec{h}}_w)
+\end{equation}
+
+\begin{equation}
+\dot{q}_{e} = \frac{1}{2}\omega \begin{bmatrix}
     q_{e0} & -q_{e3} \\
     q_{e3} & q_{e0} \\
     -q_{e2} & q_{e1}
