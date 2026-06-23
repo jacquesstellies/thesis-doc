@@ -3,11 +3,33 @@
 \chapter{Literature Review}
 \label{chap:literature_review}
 
-The problem of fault tolerant control systems (FTCS) has gained signifcant attention in the literature in the last few decades, with a variety of methods proposed to handle different types of faults and scenarios. The problem is usually broken down in to two main subproblems: fault detection and diagnosis (FDD) and fault tolerant control (FTC) \cite{yinReviewRecentDevelopment2016}. FDD involves identifying the presence of a fault, diagnosing the type of fault, and estimating the severity of the fault. FTC involves designing reconfigurable control laws that can operate in the presence of the identified faults. Typically some switching logic is used to determine which control law to use based on the identified faults.
+The problem of fault tolerant control systems (FTCS) has gained signifcant attention in the literature in the last few decades, with a variety of methods proposed to handle different types of faults and scenarios. Reaction wheel faults are a critical concernThe problem is usually broken down in to two main subproblems: fault detection and diagnosis (FDD) and fault tolerant control (FTC) \cite{yinReviewRecentDevelopment2016}. FDD involves identifying the presence of a fault, diagnosing the type of fault, and estimating the severity of the fault. FTC involves designing reconfigurable control laws that can operate in the presence of the identified faults. Typically some switching logic is used to determine which control law to use based on the identified faults.
+
+\section{Actuators}
+Reaction wheels are a common actuator for attitude control of satellites. They consist of a flywheel that can be spun up or down to generate torque on the satellite. They provide a 
+
+They are often used in conjunction with magnetorquers, which use the Earth's magnetic field to generate torque, to provide redundancy and increase the range of achievable torques. 
+Reaction wheels can experience a variety of faults, including bearing failures, motor failures, and control electronics failures \cite{shenActiveFaulttolerantControl2019}. These faults can lead to reduced effectiveness or complete loss of control authority from the affected reaction wheel, which can significantly degrade the performance of the attitude control system.
+\subsection{Faults in Reaction Wheels}
+
+In order to accurately model reaction wheel faults one needs to understand the underlying physical mechanisms. The root causes for reaction wheels can be broadly categorized as follows \cite{shenActiveFaulttolerantControl2019}:
+\begin{itemize}
+\item Viscous friction variations due to unexpected temperature changes — affects wheel speed rate of change and reduces generated torque
+\item Bearing lubricant failure — if lubricant ceases to dispense onto bearings, frictional losses increase dramatically
+\item Motor torque constant degradation — unexpected changes in $K_t$, reducing effective torque output
+
+\item Aging, wear and tear — gradual degradation that can generate an increasing bias torque over time
+\end{itemize}
+
+In \cite{castetSatelliteSatelliteSubsystems2009} a statis
+
+In \cite{shenActiveFaulttolerantControl2019} faults are modelled as multiplicative faults and additive fualts with the following relation between the commanded control torque and the torque acting on the space craft:
+\begin{equation}
+    \vec{u}_c = \mathbf{I} - \mathbf{E}\vec{u}_c + \vec{u}_a
+\end{equation}
 
 \section{Fault Detection and Diagnosis}
 
-In 
 \section{Switching Logic}
 
 In \cite{shenActiveFaulttolerantControl2019} they attempt to determine a fault based on reduced actuator effectiveness. A threshold check on the residual of the estimated angular velocity of the spacecraft is used. The threshold is based on the external disturbance bounds and lipshitz constant of the spacecraft angular velocity which can be obtained from the reaction wheel cluster maximum torque vector and the spacecraft inertia. 
