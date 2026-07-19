@@ -190,8 +190,79 @@ where $\alpha$ is the phase angle measured from the ascending node of the orbit 
 
 where $\vec{m}$ is the generated magnetic moment of the magnetorquer and $\vec{B}$ is the magnetic field strength at the satellite's location \cite{sidiAttitudeDynamicsKinematics1997}. Some important notes about magnetorquers are that they can only generate torque perpendicular to the magnetic field and that the magnetic field strength varies with the satellite's position in orbit. The magnetic field is strongest near the poles and weakest near the equator.  Therefore maneuvers will require careful management to ensure that the satellite can maintain control throughout its orbit after under fault condition.
 
+\section{Reaction Wheels}
 
-\section{Fault Tolerant Control}
+Reaction wheels are a common actuator for 
+
+
+% The dynamics of a satellite with reaction wheels can be visualised as a feedback system, shown in Figure~\ref{fig:rw_dynamics}. The reaction wheel torque command $\dot{\mathbf{h}}_w$, external disturbances $\mathbf{T}_d$, and magnetorquer torque $\mathbf{T}_{mag}$ drive the satellite's rotational dynamics through the inverse inertia $\mathbf{J}^{-1}$. The resulting angular velocity $\boldsymbol{\omega}$ feeds back through the nonlinear gyroscopic coupling term, which couples the satellite's spin to the stored wheel momentum $\mathbf{h}_w$.
+
+% \begin{figure}[htbp]
+%     \centering
+%     \begin{tikzpicture}[
+%         block/.style={
+%             draw, rectangle, thick,
+%             minimum height=1.0cm, minimum width=1.8cm,
+%             text centered, font=\small
+%         },
+%         sumjun/.style={
+%             draw, circle, thick,
+%             minimum size=1.0cm, inner sep=0pt
+%         },
+%         >=Stealth, thick,
+%         node distance=2.5cm
+%     ]
+
+%     % --- Main path nodes ---
+%     \node[sumjun]                       (sum)   {$\Sigma$};
+%     \node[block, right=2.5cm of sum]    (Jinv)  {$\mathbf{J}^{-1}$};
+%     \node[block, right=2.5cm of Jinv]   (integ) {$\dfrac{1}{s}$};
+%     \coordinate[right=2.0cm of integ]   (branch);
+
+%     % Gyroscopic feedback block
+%     \node[block, below=2.5cm of Jinv, minimum width=4.4cm]
+%           (cross) {$\boldsymbol{\omega}^{\times}
+%                    (\mathbf{J}\boldsymbol{\omega} - \mathbf{h}_{w})$};
+
+%     % --- Main signal path ---
+%     \draw[->] (sum)   -- node[above, font=\small]{$\mathbf{T}_{net}$} (Jinv);
+%     \draw[->] (Jinv)  -- node[above, font=\small]{$\dot{\boldsymbol{\omega}}$} (integ);
+%     \draw[->] (integ) -- node[above, font=\small]{$\boldsymbol{\omega}$} (branch);
+%     \node[right=0.15cm of branch] {$\boldsymbol{\omega}$};
+
+%     % --- Feedback path ---
+%     \draw[-]  (branch) |- (cross.east);
+%     \draw[->] (cross.west) -|
+%               node[pos=0.05, above, font=\scriptsize]{$-$}
+%               (sum.south);
+
+%     % --- Input: T_d from left ---
+%     \coordinate (td) at ($(sum.west)+(-2.2,0)$);
+%     \node[left=0.05cm of td] {$\mathbf{T}_{d}$};
+%     \draw[->] (td) -- node[above, near end, font=\scriptsize]{$+$} (sum.west);
+
+%     % --- Input: -dh_w from above ---
+%     \coordinate (hwdot) at ($(sum.north)+(0,1.4)$);
+%     \node[above=0.05cm of hwdot] {$\dot{\mathbf{h}}_{w}$};
+%     \draw[->] (hwdot) -- node[right, near end, font=\scriptsize]{$-$} (sum.north);
+
+%     % --- Input: T_mag from lower-left ---
+%     \coordinate (tmag) at ($(sum.south west)+(-1.3,-0.9)$);
+%     \node[left=0.05cm of tmag] {$\mathbf{T}_{mag}$};
+%     \draw[->] (tmag) --
+%               node[above right, near end, font=\scriptsize]{$-$}
+%               (sum.south west);
+
+%     \end{tikzpicture}
+%     \caption{Block diagram of the satellite rigid-body attitude dynamics
+%              with reaction wheels and magnetorquers. The reaction wheel torque
+%              $\dot{\mathbf{h}}_w$ and magnetorquer torque $\mathbf{T}_{mag}$
+%              subtract from the external disturbance $\mathbf{T}_d$, while the
+%              gyroscopic term $\boldsymbol{\omega}^{\times}(\mathbf{J}\boldsymbol{\omega}
+%              - \mathbf{h}_{w})$ provides nonlinear state feedback.}
+%     \label{fig:rw_dynamics}
+% \end{figure}
+
 
 \section{FTC Applied to Satellites}
 In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a 
@@ -295,6 +366,6 @@ This process can be visualized in figure \ref{fig:backstepping}.
 \begin{figure}
     \centering
     \includegraphics[width=0.48\textwidth]{chapter_3/Backstepping_diagram.drawio.png}
-    \caption{Backstepping visualization block diagram series. a) Original system b) Introduce virtual control input c) Backstepping control input throught integrator}
+    \caption{Backstepping visualization block diagram series. a) Original system b) Introduce virtual control input c) Backstepping control input through integrator}
     \label{fig:backstepping}
 \end{figure}

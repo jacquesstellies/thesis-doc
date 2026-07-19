@@ -3,7 +3,7 @@
 \chapter{Literature Review}
 \label{chap:literature_review}
 
-The problem of fault tolerant control systems (FTCS) has gained signifcant attention in the literature in the last few decades, with a variety of methods proposed to handle different types of faults and scenarios. Reaction wheel faults are a critical concernThe problem is usually broken down in to two main subproblems: fault detection and diagnosis (FDD) and fault tolerant control (FTC) \cite{yinReviewRecentDevelopment2016}. FDD involves identifying the presence of a fault, diagnosing the type of fault, and estimating the severity of the fault. FTC involves designing reconfigurable control laws that can operate in the presence of the identified faults. Typically some switching logic is used to determine which control law to use based on the identified faults.
+The problem of fault tolerant control systems (FTCS) has gained signifcant attention in the literature in the last few decades, with a variety of methods proposed to handle different types of faults and scenarios. Reaction wheel faults are a critical concernThe problem is usually broken down in to two main subproblems: fault detection and diagnosis (FDD) and fault tolerant control (FTC) \cite{yinReviewRecentDevelopment2016}. FDD involves identifying the presence of a fault, diagnosing the type of fault, and estimating the severity of the fault. FTC involves designing reconfigurable control laws that can operate in the presence of the identified faults. Typically some switching logic is used to determine which control law to use based on the identified faults. Underactuated control is a subproblem of FTC where the system has fewer actuators than degrees of freedom, which could occur when a catastrophic failure of an actuator wheel occurs.
 
 \section{Actuators}
 Reaction wheels are a common actuator for attitude control of satellites. They consist of a flywheel that can be spun up or down to generate torque on the satellite. They provide a 
@@ -17,11 +17,14 @@ In order to accurately model reaction wheel faults one needs to understand the u
 \item Viscous friction variations due to unexpected temperature changes — affects wheel speed rate of change and reduces generated torque
 \item Bearing lubricant failure — if lubricant ceases to dispense onto bearings, frictional losses increase dramatically
 \item Motor torque constant degradation — unexpected changes in $K_t$, reducing effective torque output
-
 \item Aging, wear and tear — gradual degradation that can generate an increasing bias torque over time
 \end{itemize}
 
-In \cite{castetSatelliteSatelliteSubsystems2009} a statis
+In \cite{castetSatelliteSatelliteSubsystems2009} a statistical analysis of satellite subsystems is presented, lumping reaction wheels in with gyroscopes and sensors into the Gyro subsystem. They show that over a 15-year horizon  the gyro subsystem is one of the two biggest contributors to satellite failures. It accounts for roughly 20\% of failures. 
+
+@TODO: check if I can do this.
+Space Track reports show that the in-orbit malfunction in missions such as FUSE, Dawn, Kepler, and Hayabusa has caused an underactuation fault.RW faults account for about 21\% of all low Earth orbit
+satellite attitude determination and control subsystem (ADCS) faults, with 6\% leading to mission failure. \cite{zarouratiUnderactuatedFaultTolerantControl}
 
 In \cite{shenActiveFaulttolerantControl2019} faults are modelled as multiplicative faults and additive fualts with the following relation between the commanded control torque and the torque acting on the space craft:
 \begin{equation}
@@ -34,10 +37,22 @@ In \cite{shenActiveFaulttolerantControl2019} faults are modelled as multiplicati
 
 In \cite{shenActiveFaulttolerantControl2019} they attempt to determine a fault based on reduced actuator effectiveness. A threshold check on the residual of the estimated angular velocity of the spacecraft is used. The threshold is based on the external disturbance bounds and lipshitz constant of the spacecraft angular velocity which can be obtained from the reaction wheel cluster maximum torque vector and the spacecraft inertia. 
 
-In \cite{}
 
 \section{Fault Tolerant Control}
 
 Some common FTC methods are sliding mode control (SMC), backstepping control, model predictive control (MPC), and adaptive control \cite{yinReviewRecentDevelopment2016}. These methods have been applied to a variety of systems, including spacecraft attitude control systems (ACS) with reaction wheel faults.
 
+
+*** @TODO: Review whether this is relevant ***
 In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown inertia matrix of the spacecraft. It is assumed that the angular velocity Ω of the reaction wheels are within the saturation limit and the input control torque u(t) is unbounded.
+***
+
+\subsection{Underactuated Control}
+\label{underactuated_lit_review}
+A few authors have investigated the problem of underactuated control of spacecraft though not all have approached the problem from the perspective of reacting to reaction wheel faults. Underactuated control has been investigated in the context of spacecraft attitude control with reaction wheel faults. In \cite{aeyelsStabilizationNonLinear} building on the work by Brockett (@TODO: add cite here) show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time varying control law feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the central manifold theorem. 
+
+This controllablity comes with certain conditions including that the total angular momentum of the system is zero, thus requiring a device to bleed any initial angular momentum. This would typically be achieved via magnetorquers or thrusters.
+
+In \cite{nadafiRobustBacksteppingAttitude2021} a backstepping controller is designed for an underactuated spacecraft. The controller is designed to ensure stability and convergence to the desired attitude, even in the presence of faults. The authors also present a novel hypersurface to ensure stability and convergence to the desired attitude.
+
+In \cite{zarouratiUnderactuatedFaultTolerantControl}
