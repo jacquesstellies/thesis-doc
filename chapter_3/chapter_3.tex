@@ -2,12 +2,12 @@
 In this chapter the framework is built to represent the underactuated spacecraft problem. First the attitude control of a satellite is described, including the kinematics and dynamics. Then the orbit and environment are described, including the dominant disturbances acting on a satellite in low earth orbit. Finally the reaction wheel dynamics are described, with relevant fault mechanisms investigated.
 
 \par\vspace{1cm}
-A note on notation: in this thesis the following conventions are followed:
+A note on notation in this thesis:
 \begin{itemize}
     \item 3D Vectors are denoted by bold lowercase letters, e.g.\ $\vec{x}$.
     \item Matrices are denoted by bold uppercase letters, e.g.\ $\mathbf{A}$.
     \item Scalars are denoted by lowercase letters, e.g.\ $a$.
-    \item 4D entities are denoted by bold lowercase/uppercase letters with a bar, e.g.\ $\vec{\bar{q}}$ $\vec{\bar{Q}}$.
+    \item 4D vectors/matricies are denoted by bold lowercase/uppercase letters with a bar, e.g.\ $\vec{\bar{q}}$ $\vec{\bar{Q}}$.
 \end{itemize}
 
 
@@ -15,16 +15,16 @@ A note on notation: in this thesis the following conventions are followed:
 \subsection{Reference Frames and Attitude Representations}
 Since the goal is to control the attitude of a satellite, an appropriate representation should be used. Any orientation can be representead as a rotation from one frame to another. Typical reference frames would be earth centered inertial (ECI), earth-centered-earth-fixed (ECEF), orbit or body-fixed. The satellite's orientation can be represented intuitively using euler angles yaw $\psi$, pitch $\theta$ and roll $\phi$, also known as the aerospace sequence. While these are intuitive, they suffer from singularities when trying to represent certain rotations. The direction cosine matrix (DCM) is the most fundamental representation of a rotation, since it is the rotation operator itself rather than a parameterization of it — it acts directly on a vector and is free of the singularities and sign ambiguities present in other representations. It can be used to transform a vector from frame A to B using the following relation 
 \begin{equation}
-    \vec{v}_B = \mathbf{C}_{BA}\vec{v}_A
+    \vec{v}_B = \mathbf{C}^{BA}\vec{v}_A
 \end{equation}
 
-where $\mathbf{C}_{BA} \in \mathbb{R}^{3 \times 3}$ is the DCM from frame A to B and is made up of the orthonormal basis vectors of frame B expressed in frame A: $\mathbf{C}_{BA} = \begin{bmatrix} \hat{a}_1^B & \hat{a}_2^B & \hat{a}_3^B\end{bmatrix}$.
+where $\mathbf{C}^{BA} \in \mathbb{R}^{3 \times 3}$ is the DCM from frame A to B and is made up of the orthonormal basis vectors of frame B expressed in frame A: $\mathbf{C}^{BA} = \begin{bmatrix} \hat{a}_1^B & \hat{a}_2^B & \hat{a}_3^B\end{bmatrix}$.
 
 This matrix can be described by the euler 3-2-1 rotation sequence as:
 
 \begin{align}
     % \begin{split}
-    \mathbf{C}_{AB} &= \begin{bmatrix}
+    \mathbf{C}^{AB} &= \begin{bmatrix}
         c_{11} & c_{12} & c_{13} \\
         c_{21} & c_{22} & c_{23} \\
         c_{31} & c_{32} & c_{33}
@@ -36,16 +36,16 @@ This matrix can be described by the euler 3-2-1 rotation sequence as:
     \end{bmatrix} 
 \end{align}
 
-The given problem requires computing attitude kinematics over time, and while DCMs can be used for this purpose, it is cumbersome requiring computationaly expensive trignometric functions. Instead quaternions, $\vec{\bar{q}} = \begin{bmatrix}q_1 \ q_2 \ q_3 \ q_4\end{bmatrix}^T$, are used to represent the kinematic differential equations. Quaternions represent a 4 dimensional extension of complex numbers. In order to represent rotations we limit ourselves to the unit quaternion which satisfies $q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1$.
+The given problem requires computing attitude kinematics over time, and while DCMs can be used for this purpose, it is cumbersome requiring computationaly expensive trignometric functions. Instead quaternions, $\vec{\bar{q}} = \begin{bmatrix}q_{x} \ q_{y} \ q_{z} \ q_{w}\end{bmatrix}^T$, are used to represent the kinematic differential equations. Quaternions represent a 4 dimensional extension of complex numbers. In order to represent rotations we limit ourselves to the unit quaternion which satisfies $q_{x}^2 + q_{y}^2 + q_{z}^2 + q_{w}^2 = 1$.
 
 Any sequence of rotations can be represented as a single rotation by angle $\Phi$ about some vector $\vec{e}$. The rotation quaternion can be represented in these terms as:
 
 % \begin{align}
 $$
-    q_{1}=e_{1}\sin(\Phi), \
-    q_{2}=e_{2}\sin(\Phi), \
-    q_{3}=e_{3}\sin(\Phi), \
-    q_{4}=cos(\Phi)
+    q_{x}=e_{x}\sin(\Phi), \
+    q_{y}=e_{y}\sin(\Phi), \
+    q_{z}=e_{z}\sin(\Phi), \
+    q_{w}=cos(\Phi)
 $$
 % \end{align}
 
@@ -53,25 +53,33 @@ The quaternion can be used to compute the DCM as follows:
 
 \begin{align}
     \mathbf{C} = \begin{bmatrix}
-        q_{1}^2 -q_{2}^2 - q_{3}^2 + q_{4}^2 & 2(q_{1}q_{2} - q_{3}q_{4}) & 2(q_{1}q_{3} + q_{2}q_{4}) \\
-        2(q_{1}q_{2} + q_{3}q_{4}) & -q_{1}^2 + q_{2}^2 - q_{3}^2 + q_{4}^2 & 2(q_{2}q_{3} - q_{1}q_{4}) \\
-        2(q_{1}q_{3} - q_{2}q_{4}) & 2(q_{2}q_{3} + q_{1}q_{4}) & -q_{1}^2 - q_{2}^2 + q_{3}^2 + q_{4}^2
+        q_{x}^2 -q_{y}^2 - q_{z}^2 + q_{w}^2 & 2(q_{x}q_{y} - q_{z}q_{w}) & 2(q_{x}q_{z} + q_{y}q_{w}) \\
+        2(q_{x}q_{y} + q_{z}q_{w}) & -q_{x}^2 + q_{y}^2 - q_{z}^2 + q_{w}^2 & 2(q_{y}q_{z} - q_{x}q_{w}) \\
+        2(q_{x}q_{z} - q_{y}q_{w}) & 2(q_{y}q_{z} + q_{x}q_{w}) & -q_{x}^2 - q_{y}^2 + q_{z}^2 + q_{w}^2
     \end{bmatrix}
 \end{align}
 
-There are a 2 ways of using rotation operators, either active or passive. An active rotation rotates a vector in a fixed frame, while a passive rotation rotates the frame itself. The active rotation is the conjugate of the passive rotation $\vec{\bar{q}}_{active} = \vec{\bar{q}}^{*}_{passive}$. In this thesis the passive rotation convention is used.
+Quaternion multiplication is defined according to the hamiltonian (right-handed) convention as follows:
+% \begin{align}
+
+% \end{align}
+
+\subsubsection{Rotation Operators}
+There are a 2 ways of using rotation operators, either active or passive. An active rotation rotates a vector in a fixed frame, while a passive rotation rotates the frame itself. The active rotation is the conjugate of the passive rotation $\vec{\bar{q}}_{active} = \vec{\bar{q}}^{*}_{passive}$. Quaternion multiplication 
+
+In this thesis the passive rotation convention is used.
 
 \subsection{Attitude Kinematics}
 To describe the kinematics, the inertial angular velocity of the spacecraft $\vec{\omega} = \begin{bmatrix}\omega_1 \ \omega_2 \ \omega_3 \end{bmatrix}$ now can be expressed in terms of quaternions in the following manner:
 
 
 $$\begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \\ 0 \end{bmatrix} = 2 
-\begin{bmatrix} q_4 & q_3 & -q_2 & -q_1 
-            \\ -q_3 & -q_4 & q_1 & -q_2 
-            \\ q_2 & -q_1 & q_4 & -q_3
-            \\  q_1 & q_2 & q_3 & q4
+\begin{bmatrix} q_{w} & q_{z} & -q_{y} & -q_{x} 
+            \\ -q_{z} & -q_{w} & q_{x} & -q_{y} 
+            \\ q_{y} & -q_{x} & q_{w} & -q_{z}
+            \\  q_{x} & q_{y} & q_{z} & q_{w}
 \end{bmatrix} 
-\begin{bmatrix} \dot{q}_0 \\ \dot{q}_1 \\ \dot{q}_2 \\ \dot{q}_3 \end{bmatrix}$$
+\begin{bmatrix} \dot{q}_{x} \\ \dot{q}_{y} \\ \dot{q}_{z} \\ \dot{q}_{w} \end{bmatrix}$$
 
 and can be rearranged to form
 
@@ -79,10 +87,10 @@ and can be rearranged to form
     \vec{\dot{\bar{q}}}
 =\frac{1}{2}
 \begin{bmatrix}
-q_{0} & -q_{3} & q_{2} \\ 
-q_{3} & q_{0} & -q_{1} \\ 
--q_{2} & q_{1} & q_{0} \\ 
--q_{1} & -q_{2} & -q_{3} \\
+q_{w} & -q_{z} & q_{y} \\ 
+q_{z} & q_{w} & -q_{x} \\ 
+-q_{y} & q_{x} & q_{w} \\ 
+-q_{x} & -q_{y} & -q_{z} \\
 \end{bmatrix} \begin{bmatrix}\omega_1 \\ \omega_2 \\ \omega_3 \\ 0 \end{bmatrix}
 \end{align}
 
@@ -91,16 +99,16 @@ Since it is required to determine the attitude error for the controller, another
 \begin{align}
     \vec{\bar{q}}_{e} &=  \vec{\bar{q}} \otimes  \vec{\bar{q}}_{d}^{-1} \\
     &= \begin{bmatrix}
-        q_{d0} & q_{d1} & q_{d2} & q_{d3} \\
-        q_{d1} & -q_{d0} & -q_{d3} & q_{d2} \\
-        q_{d2} & q_{d3} & -q_{d0} & -q_{d1} \\
-        q_{d3} & -q_{d2} & q_{d1} & -q_{d0} \\
+        q_{dw} & q_{dx} & q_{dy} & q_{dz} \\
+        q_{dx} & -q_{dw} & -q_{dz} & q_{dy} \\
+        q_{dy} & q_{dz} & -q_{dw} & -q_{dx} \\
+        q_{dz} & -q_{dy} & q_{dx} & -q_{dw} \\
     \end{bmatrix}
     \begin{bmatrix}
-        q_{0} \\
-        q_{1} \\
-        q_{2} \\
-        q_{3} \\
+        q_{w} \\
+        q_{x} \\
+        q_{y} \\
+        q_{z} \\
     \end{bmatrix}
     &= \vec{\bar{q}} \otimes  \vec{\bar{q}}_{d}^{-1}
 \end{align}
@@ -129,11 +137,12 @@ where $\vec{T}_d$ represents the external disturbances applied, $\vec{h}_w$ repr
 \section{Orbit and Environment}
 A common orbit used for observation satellites is a sun-synchronous low earth orbit (LEO). This orbit allows the satellite to pass over the same part of the earth at the same local solar time. This is useful for imaging and observation as the lighting conditions will be similar for each pass. A typical altitude for a sun-synchronous LEO is between 400 and 800 km. 
 
-The dominant disturbances acting on a satellite in LEO are:
+Disturbance torques acting on a satellite in LEO are:
 \begin{itemize}
     \item Aerodynamic drag torque
     \item Gravity gradient torque
     \item Solar radiation pressure torque
+    \item Magnetic Dipole torque
 \end{itemize} 
 
 \subsection{Aerodynamic Torque}
@@ -167,11 +176,27 @@ where $\|\vec{v}_o\|$ is the orbital speed, $\omega_E$ is the Earth's rotation r
 where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the atmospheric scale height, and $\rho_0$ is the nominal atmospheric density at $h_0$. The aerodynamic disturbance torque contribution of a given satellite surface is then \cite{auretDesignAerodynamicAttitude2011}
 
 \begin{equation}
-    \vec{T}_{\text{aero}} = \rho \|\vec{v}^B_A\|^2 A_p \left[\sigma_t\left(\vec{r}_{m/p} \times \bar{\vec{v}}^B_A\right) + \left(\sigma_n \frac{v_b}{\|\vec{v}^B_A\|} + (2 - \sigma_n - \sigma_t)\cos\alpha\right)\!\left(\vec{r}_{m/p} \times \bar{\vec{n}}\right)\right]
+    \vec{\tau}_{\text{aero}} = \rho \|\vec{v}^B_A\|^2 A_p \left[\sigma_t\left(\vec{r}_{m/p} \times \bar{\vec{v}}^B_A\right) + \left(\sigma_n \frac{v_b}{\|\vec{v}^B_A\|} + (2 - \sigma_n - \sigma_t)\cos\alpha\right)\!\left(\vec{r}_{m/p} \times \bar{\vec{n}}\right)\right]
     \label{eq:aero_torque}
 \end{equation}
 
 where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{m/p}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing \eqref{eq:aero_torque} over all exposed surfaces.
+
+\subsection{Gravity Gradient Torque}
+The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $R_E$ cubed and is thus only significant in LEO.
+
+The gravity gradient torque can be determined by \cite{wertz1999space}:
+\begin{equation}
+    \vec{\tau}_{GG} = \frac{3\mu}{{R_E}^3} \vec{u}_e \times (\mathbf{J_B}\vec{u}_e)
+\end{equation}
+
+where $\mu = 398600.5 km^3/s^2$ is the gravitational constant of Earth, $\vec{u}_e = \mathbf{C}^{OB} \begin{bmatrix}0 \ 0 \ 1\end{bmatrix}^T$ is the unit vector towards nadir in satellite body coordinates and $J$ is the satellite's moment of inertia tensor.
+
+
+\subsection{Solar Radiation Pressure Torque}
+
+\subsection{Magnetic Dipole Torque}
+Satellites have a significant current running through their solar panels and wiring. The interaction between this current and the Earth's magnetic field produces a disturbance torque on the satellite. However with clever design this can be minimized. Solar panel manufacturers design their solar panels to mitigate this effect by using a balanced wiring layout. As such this torque is usually negligible and will be ignored in the analysis of the satellite's attitude dynamics. 
 
 \section{Attitude Control}
 \section{Reaction Wheels}
