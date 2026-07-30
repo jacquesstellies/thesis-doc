@@ -1,14 +1,26 @@
 \chapter{Modelling}
+In this chapter the framework is built to represent the underactuated spacecraft problem. First the attitude control of a satellite is described, including the kinematics and dynamics. Then the orbit and environment are described, including the dominant disturbances acting on a satellite in low earth orbit. Finally the reaction wheel dynamics are described, with relevant fault mechanisms investigated.
+
+\par\vspace{1cm}
+A note on notation: in this thesis the following conventions are followed:
+\begin{itemize}
+    \item 3D Vectors are denoted by bold lowercase letters, e.g.\ $\vec{x}$.
+    \item Matrices are denoted by bold uppercase letters, e.g.\ $\mathbf{A}$.
+    \item Scalars are denoted by lowercase letters, e.g.\ $a$.
+    \item 4D entities are denoted by bold lowercase/uppercase letters with a bar, e.g.\ $\vec{\bar{q}}$ $\vec{\bar{Q}}$.
+\end{itemize}
+
+
 \section{Attitude Control of a Satellite}
-\subsection{Rigid Body Kinematics}
-Since the goal is to control the attitude of a satellite, an appropriate representation should be used. Any orientation can be representead as a rotation from one frame to another. Typical reference frames would be inertial (TEME, ICRF), orbit or body-fixed. The satellite's orientation can be represented intuitively using euler angles such as yaw $\psi$, pitch $\theta$ and roll$\phi$. However these representations are not so effective for computation in attitude control as they require more expensive trigonometric functions to be used and produce singularities at certain rotations, thus quaternions will be used for the mathematical model. A direction cosine matrix (DCM) aka. the transformation matrix, can be used to transform a vector from frame A to B. 
+\subsection{Reference Frames and Attitude Representations}
+Since the goal is to control the attitude of a satellite, an appropriate representation should be used. Any orientation can be representead as a rotation from one frame to another. Typical reference frames would be earth centered inertial (ECI), earth-centered-earth-fixed (ECEF), orbit or body-fixed. The satellite's orientation can be represented intuitively using euler angles yaw $\psi$, pitch $\theta$ and roll $\phi$, also known as the aerospace sequence. While these are intuitive, they suffer from singularities when trying to represent certain rotations. The direction cosine matrix (DCM) is the most fundamental representation of a rotation, since it is the rotation operator itself rather than a parameterization of it — it acts directly on a vector and is free of the singularities and sign ambiguities present in other representations. It can be used to transform a vector from frame A to B using the following relation 
 \begin{equation}
     \vec{v}_B = \mathbf{C}_{BA}\vec{v}_A
 \end{equation}
 
-where $C_{BA}$ is the DCM from frame A to B and can is made up of the orthonormal basis vectors of frame B expressed in frame A: $\mathbf{C}_{BA} = \begin{bmatrix} \hat{a}_1^B & \hat{a}_2^B & \hat{a}_3^B\end{bmatrix}$.
+where $\mathbf{C}_{BA} \in \mathbb{R}^{3 \times 3}$ is the DCM from frame A to B and is made up of the orthonormal basis vectors of frame B expressed in frame A: $\mathbf{C}_{BA} = \begin{bmatrix} \hat{a}_1^B & \hat{a}_2^B & \hat{a}_3^B\end{bmatrix}$.
 
-This matrix is described by the euler 3-2-1 rotation sequence as:
+This matrix can be described by the euler 3-2-1 rotation sequence as:
 
 \begin{align}
     % \begin{split}
@@ -21,26 +33,21 @@ This matrix is described by the euler 3-2-1 rotation sequence as:
         C \psi C \theta &  S\psi C \theta & - S \theta \\
         - S \psi C \phi + C \psi S \theta S \phi & C \psi C \phi +  S\psi S \theta S \phi & C \theta S \phi \\
         C \psi S \theta C \phi + S \psi S \phi & S \psi S \theta C \phi - C \psi S \phi & C \theta C \phi
-    % &= \begin{bmatrix}
-    %     \cos\psi\cos\theta & \cos\psi\sin\theta\sin\phi - \sin\psi\cos\phi & \cos\psi\sin\theta\cos\phi + \sin\psi\sin\phi \\
-    %     \sin\psi\cos\theta & \sin\psi\sin\theta\sin\phi + \cos\psi\cos\phi & \sin\psi\sin\theta\cos\phi - \cos\psi\sin\phi \\
-    %     -\sin(\theta) & \cos(\theta)\sin(\phi) & \cos(\theta)\cos(\phi)
     \end{bmatrix} 
-    % \end{split}
 \end{align}
 
-@TODO: fix this
-
-DCMs can be used for attitude kinematic equations, however this is cumbersome, requiring trignometric functions. Instead quaternions, $\vec{\bar{q}} = \begin{bmatrix}q_1 \ q_2 \ q_3 \ q_4\end{bmatrix}^T$, are used to represent the kinematic differential equations. Quaternions represent a 4 dimensional extension of complex numbers. In order to represent rotations we limit ourselves to the unit quaternion which satisfies $q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1$.
+The given problem requires computing attitude kinematics over time, and while DCMs can be used for this purpose, it is cumbersome requiring computationaly expensive trignometric functions. Instead quaternions, $\vec{\bar{q}} = \begin{bmatrix}q_1 \ q_2 \ q_3 \ q_4\end{bmatrix}^T$, are used to represent the kinematic differential equations. Quaternions represent a 4 dimensional extension of complex numbers. In order to represent rotations we limit ourselves to the unit quaternion which satisfies $q_1^2 + q_2^2 + q_3^2 + q_4^2 = 1$.
 
 Any sequence of rotations can be represented as a single rotation by angle $\Phi$ about some vector $\vec{e}$. The rotation quaternion can be represented in these terms as:
 
-\begin{align}
-    q_{1}=e_{1}\sin(\Phi) \\
-    q_{2}=e_{2}\sin(\Phi) \\
-    q_{3}=e_{3}\sin(\Phi) \\
-    q_{4}=cos(\Phi) 
-\end{align}
+% \begin{align}
+$$
+    q_{1}=e_{1}\sin(\Phi), \
+    q_{2}=e_{2}\sin(\Phi), \
+    q_{3}=e_{3}\sin(\Phi), \
+    q_{4}=cos(\Phi)
+$$
+% \end{align}
 
 The quaternion can be used to compute the DCM as follows:
 
@@ -52,19 +59,11 @@ The quaternion can be used to compute the DCM as follows:
     \end{bmatrix}
 \end{align}
 
-The inertial angular velocity of a space craft $\vec{\omega}^B = \begin{bmatrix}\omega_1 \ \omega_2 \ \omega_3 \end{bmatrix}$ can be represented in terms of quaternions:
+There are a 2 ways of using rotation operators, either active or passive. An active rotation rotates a vector in a fixed frame, while a passive rotation rotates the frame itself. The active rotation is the conjugate of the passive rotation $\vec{\bar{q}}_{active} = \vec{\bar{q}}^{*}_{passive}$. In this thesis the passive rotation convention is used.
 
-% \begin{align}
-%     \begin{bmatrix}
-%         \omega_1 \\
-%         \omega_2 \\
-%         \omega_3 \\
-%     \end{bmatrix}
-%     = 
-%     \begin{bmatrix}
-        
-%     \end{bmatrix}
-% \end{align}
+\subsection{Attitude Kinematics}
+To describe the kinematics, the inertial angular velocity of the spacecraft $\vec{\omega} = \begin{bmatrix}\omega_1 \ \omega_2 \ \omega_3 \end{bmatrix}$ now can be expressed in terms of quaternions in the following manner:
+
 
 $$\begin{bmatrix} \omega_1 \\ \omega_2 \\ \omega_3 \\ 0 \end{bmatrix} = 2 
 \begin{bmatrix} q_4 & q_3 & -q_2 & -q_1 
@@ -87,10 +86,10 @@ q_{3} & q_{0} & -q_{1} \\
 \end{bmatrix} \begin{bmatrix}\omega_1 \\ \omega_2 \\ \omega_3 \\ 0 \end{bmatrix}
 \end{align}
 
-The quaternion errors can be defined as the difference between the current quaternion and the desired quaternion. The error quaternion can be calculated as:
+Since it is required to determine the attitude error for the controller, another useful relation is the quaternion error. The error quaternion can be calculated as:
 
 \begin{align}
-    \vec{\bar{q}}_{e} &=  \vec{q} \otimes  \vec{q}_{d}^{-1} \\
+    \vec{\bar{q}}_{e} &=  \vec{\bar{q}} \otimes  \vec{\bar{q}}_{d}^{-1} \\
     &= \begin{bmatrix}
         q_{d0} & q_{d1} & q_{d2} & q_{d3} \\
         q_{d1} & -q_{d0} & -q_{d3} & q_{d2} \\
@@ -103,11 +102,18 @@ The quaternion errors can be defined as the difference between the current quate
         q_{2} \\
         q_{3} \\
     \end{bmatrix}
+    &= \vec{\bar{q}} \otimes  \vec{\bar{q}}_{d}^{-1}
 \end{align}
+
+the 
+
+\subsubsection{Underactuated Case}
+For the underactuated case, the error 
+
 
 \subsection{Attitude Dynamics}
 
-A satellite's attitude with mass moment of inertia $\vec{J}$ can be modelled using the Newton-Euler equation: 
+For the purposes of this thesis as a rigid body. The angular acceleration $\vec{\dot{\omega}}_{BI}$ of a rigid body with mass moment of inertia $\vec{J}$ can be modelled using the Newton-Euler equation:
 
 \begin{equation}
 \vec{J}\vec{\dot{\omega}} = \sum{\vec{T_{ext}}} -\vec{H}\times\vec{\omega}
@@ -120,7 +126,7 @@ where $J$ is the satellite's mass moment of inertia, $\vec{T_{ext}}$ is any exte
 
 where $\vec{T}_d$ represents the external disturbances applied, $\vec{h}_w$ represents the total reaction wheels angular momentum vector, and $\vec{T}_{mag}$ represents the magnetorquer applied torque. $\vec{\omega}^\times$ represents the skew symmetric matrix of the body angular velocity vector.
 
-\subsection{Orbit and Environment}
+\section{Orbit and Environment}
 A common orbit used for observation satellites is a sun-synchronous low earth orbit (LEO). This orbit allows the satellite to pass over the same part of the earth at the same local solar time. This is useful for imaging and observation as the lighting conditions will be similar for each pass. A typical altitude for a sun-synchronous LEO is between 400 and 800 km. 
 
 The dominant disturbances acting on a satellite in LEO are:
@@ -130,7 +136,7 @@ The dominant disturbances acting on a satellite in LEO are:
     \item Solar radiation pressure torque
 \end{itemize} 
 
-\subsubsection{Aerodynamic Torque}
+\subsection{Aerodynamic Torque}
 Aerodynamic drag forces arise from the interaction of the satellite with the residual atmosphere present in LEO. Although the drag force is complex and time-varying due to atmospheric density fluctuations, it can be approximated under simplifying assumptions \cite{auretDesignAerodynamicAttitude2011}. For a near-circular orbit, the angle $x_{o,east}$ between the co-rotating atmosphere and the orbital path is given by
 
 \begin{equation}
@@ -167,8 +173,43 @@ where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the 
 
 where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{m/p}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing \eqref{eq:aero_torque} over all exposed surfaces.
 
-\subsubsection{Magnetics}
-Reaction wheels and other momentum based control methods have the disadvantage when compared to other control methods such as thrusters in that they build up momentum over time when due to external disturbance torqures. Thus to in order to manage this momentum, the earth's magnetic field can be utilized for generating small torques in LEO. The earth's magnetic field can be approximated as a dipole field \cite{sidiAttitudeDynamicsKinematics1997}. The magnetic field strength at a distance r from the center of the earth can be calculated using the following equation:
+\section{Attitude Control}
+\section{Reaction Wheels}
+
+Reaction wheel dynamics can be modelled as a simple DC motor with a flywheel attached to the shaft. Sidi \cite{sidiAttitudeDynamicsKinematics1997} models the dynamics of the reaction wheel as follows:
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{chapter_3/Reaction_Wheel_Model.drawio.png}
+    \caption{Reaction Wheel Dynamics Model \cite{sidiAttitudeDynamicsKinematics1997}}
+    \label{fig:rw_dynamics}
+\end{figure}
+
+where $T_c$ is the commanded torque, $K_M$ is the motor torque constant, $K$ is the current-loop integrator gain, $V_M$ is the motor terminal voltage, $R_M$ is the motor winding resistance, $i_M$ is the motor armature current, $K_v$ is the back-EMF constant, $\dot{h}_w$ is the net torque delivered to the wheel, $I_W$ is the reaction wheel moment of inertia, $\omega_W$ is the resulting wheel angular velocity, $B$ is the wheel bearing viscous friction coefficient which is combined with the block describing the coloumb and dry friction to be fed back into the into the wheel torque, $\omega_{WB}$ is the wheel angular velocity relative to the spacecraft body (used to compute the friction torque), $I_B$ is the spacecraft body moment of inertia, and $\omega_B$ is the spacecraft body angular velocity, which combines with the wheel torque to give the net reaction torque on the body.
+
+$K_M$, $K$ and $V_M$ are usually not supplied by the manufacturer of a COTS reaction wheel so control system designers typically use a simplified model. Typically a COTS reaction wheel is controlled by an internal PID controller which takes the error between the commanded and actual wheel speed and outputs a voltage to the motor. Since the response of the wheel is much faster than that of the spacecraft, the wheel torque can be considered to be applied instantaneously to the spacecraft. Thus, the internal motor dynamics can be neglected. Since the wheel is spinning at high speed relative to the satellite, the satellite's angular velocity can be neglected in the wheel dynamics. Thus the simplified reaction wheel dynamics can be modelled as:
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{chapter_3/Reaction_Wheel_Model_Simplified.drawio.png}
+    \caption{Reaction Wheel Dynamics Model \cite{sidiAttitudeDynamicsKinematics1997}}
+    \label{fig:rw_dynamics}
+\end{figure}
+
+\subsection{Reaction Wheel Faults}
+Faults in reaction wheels can be broadly categorized as follows \cite{ZarouratiMohammad2023Daar}. Four representative fault types are defined according to how the wheel's speed characteristic deviates from its commanded value:
+
+\begin{itemize}
+    \item \textbf{Speed decrease:} the wheel speed remains proportional to, but scaled below, the desired value, producing a torque with high ripple. This is classified as a partial loss of effectiveness (PLOE) fault.
+    \item \textbf{Deviation:} the wheel speed deviates from the desired value for some reason, producing a continuous bias torque. Since the actuator still generates a (non-zero) torque, this is classified as a hard-over failure with total loss of effectiveness (TLOE).
+    \item \textbf{Stuck:} the wheel suddenly stops rotating following a step change, with bearing friction bringing the speed to zero over a characteristic time $T_z$.
+    \item \textbf{Idle:} the wheel stops responding to commands altogether, and its speed remains frozen at whatever value it had at the instant the fault occurred.
+\end{itemize}
+
+Of these, only the stuck and idle faults produce no reaction torque whatsoever, and it is these two fault types that render the corresponding control axis underactuated, since all actuation authority on that axis is lost. The speed-decrease and deviation faults still produce some control torque and therefore do not by themselves create an underactuated configuration, although a speed-decrease fault can combine with a superimposed bias to form a compound loss-of-effectiveness-plus-bias fault. At the attitude control subsystem level, these actuator-level faults manifest as degraded pointing accuracy, reduced stability margins, and, for the remaining healthy wheels compensating for the fault, increased power consumption -- ultimately degrading image resolution and manoeuvrability and potentially leading to mission failure.
+
+\section{Magnetics}
+Reaction wheels, and other momentum based control methods, have the disadvantage, when compared to other control methods, that they build up momentum over time due to external disturbance torqures leading to actuator saturation. Thus to in order to manage this momentum, the earth's magnetic field can be utilized for generating small torques in LEO. The earth's magnetic field can be approximated as a dipole field \cite{sidiAttitudeDynamicsKinematics1997}. The magnetic field strength at a distance r from the center of the earth can be calculated using the following equation:
 
 \begin{equation}
     \begin{bmatrix}
@@ -189,183 +230,3 @@ where $\alpha$ is the phase angle measured from the ascending node of the orbit 
 \end{equation}
 
 where $\vec{m}$ is the generated magnetic moment of the magnetorquer and $\vec{B}$ is the magnetic field strength at the satellite's location \cite{sidiAttitudeDynamicsKinematics1997}. Some important notes about magnetorquers are that they can only generate torque perpendicular to the magnetic field and that the magnetic field strength varies with the satellite's position in orbit. The magnetic field is strongest near the poles and weakest near the equator.  Therefore maneuvers will require careful management to ensure that the satellite can maintain control throughout its orbit after under fault condition.
-
-\section{Reaction Wheels}
-
-Reaction wheels are a common actuator for 
-
-
-% The dynamics of a satellite with reaction wheels can be visualised as a feedback system, shown in Figure~\ref{fig:rw_dynamics}. The reaction wheel torque command $\dot{\mathbf{h}}_w$, external disturbances $\mathbf{T}_d$, and magnetorquer torque $\mathbf{T}_{mag}$ drive the satellite's rotational dynamics through the inverse inertia $\mathbf{J}^{-1}$. The resulting angular velocity $\boldsymbol{\omega}$ feeds back through the nonlinear gyroscopic coupling term, which couples the satellite's spin to the stored wheel momentum $\mathbf{h}_w$.
-
-% \begin{figure}[htbp]
-%     \centering
-%     \begin{tikzpicture}[
-%         block/.style={
-%             draw, rectangle, thick,
-%             minimum height=1.0cm, minimum width=1.8cm,
-%             text centered, font=\small
-%         },
-%         sumjun/.style={
-%             draw, circle, thick,
-%             minimum size=1.0cm, inner sep=0pt
-%         },
-%         >=Stealth, thick,
-%         node distance=2.5cm
-%     ]
-
-%     % --- Main path nodes ---
-%     \node[sumjun]                       (sum)   {$\Sigma$};
-%     \node[block, right=2.5cm of sum]    (Jinv)  {$\mathbf{J}^{-1}$};
-%     \node[block, right=2.5cm of Jinv]   (integ) {$\dfrac{1}{s}$};
-%     \coordinate[right=2.0cm of integ]   (branch);
-
-%     % Gyroscopic feedback block
-%     \node[block, below=2.5cm of Jinv, minimum width=4.4cm]
-%           (cross) {$\boldsymbol{\omega}^{\times}
-%                    (\mathbf{J}\boldsymbol{\omega} - \mathbf{h}_{w})$};
-
-%     % --- Main signal path ---
-%     \draw[->] (sum)   -- node[above, font=\small]{$\mathbf{T}_{net}$} (Jinv);
-%     \draw[->] (Jinv)  -- node[above, font=\small]{$\dot{\boldsymbol{\omega}}$} (integ);
-%     \draw[->] (integ) -- node[above, font=\small]{$\boldsymbol{\omega}$} (branch);
-%     \node[right=0.15cm of branch] {$\boldsymbol{\omega}$};
-
-%     % --- Feedback path ---
-%     \draw[-]  (branch) |- (cross.east);
-%     \draw[->] (cross.west) -|
-%               node[pos=0.05, above, font=\scriptsize]{$-$}
-%               (sum.south);
-
-%     % --- Input: T_d from left ---
-%     \coordinate (td) at ($(sum.west)+(-2.2,0)$);
-%     \node[left=0.05cm of td] {$\mathbf{T}_{d}$};
-%     \draw[->] (td) -- node[above, near end, font=\scriptsize]{$+$} (sum.west);
-
-%     % --- Input: -dh_w from above ---
-%     \coordinate (hwdot) at ($(sum.north)+(0,1.4)$);
-%     \node[above=0.05cm of hwdot] {$\dot{\mathbf{h}}_{w}$};
-%     \draw[->] (hwdot) -- node[right, near end, font=\scriptsize]{$-$} (sum.north);
-
-%     % --- Input: T_mag from lower-left ---
-%     \coordinate (tmag) at ($(sum.south west)+(-1.3,-0.9)$);
-%     \node[left=0.05cm of tmag] {$\mathbf{T}_{mag}$};
-%     \draw[->] (tmag) --
-%               node[above right, near end, font=\scriptsize]{$-$}
-%               (sum.south west);
-
-%     \end{tikzpicture}
-%     \caption{Block diagram of the satellite rigid-body attitude dynamics
-%              with reaction wheels and magnetorquers. The reaction wheel torque
-%              $\dot{\mathbf{h}}_w$ and magnetorquer torque $\mathbf{T}_{mag}$
-%              subtract from the external disturbance $\mathbf{T}_d$, while the
-%              gyroscopic term $\boldsymbol{\omega}^{\times}(\mathbf{J}\boldsymbol{\omega}
-%              - \mathbf{h}_{w})$ provides nonlinear state feedback.}
-%     \label{fig:rw_dynamics}
-% \end{figure}
-
-
-\section{FTC Applied to Satellites}
-In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a 
-redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown
-inertia matrix of the spacecraft. 
-It is assumed that the angular velocity Ω of the reaction wheels are within the saturation limit and the input control torque 
-u(t) is unbounded.
-
-\section{Backstepping}
-\cite{khalilNonlinearSystems2002} describes backstepping as a recursive design method for nonlinear systems.
-\cite{shenActiveFaulttolerantControl2019} uses backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults.
-
-\subsection{Backstepping}
-Backstepping is a non-linear design technique for stabilizing the origin of a system in strict-feedback form.
-In non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law. 
-
-\subsubsection{Lyapunov Functions}
-Formally, a Lyapunov function is a scalar function that is positive definite and radially unbounded. It is used to prove the stability of a system. A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $V(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function. That is $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
-
-Breaking it down a bit further $V(\vec{x})$ represents the "generalized energy" of the system. By showing that overtime the energy of the system decays to zero then we can show that $\vec{x}$ must decay towards the origin $\vec{x}=0$.
-
-\par 
-Below is the backstepping procedure as outlined in \cite{khalilNonlinearSystems2002}. Take the following 2nd order equation:
-
-\begin{equation}
-    \dot{\eta} = f(\eta) + g(\eta)\xi \label{eq:1}
-\end{equation}
-\begin{equation}
-    \dot{\xi} = u
-\end{equation}
-
-where $f(0)=0$ and g is non-zero over the region of interest.
-The goal is to design a control law $u$ such that the origin $\eta=0$ is asymptotically stable i.e.: $(\eta, z)$ returns to $(0,0)$ after starting from some arbitrary initial condition.
-
-Assuming that equation \ref{eq:1} can be stabilized by a smooth feedback state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$ such that 
-
-$$
-    \dot{\eta} = f(\eta) + g(\eta)\phi(\eta)
-$$
-
-and assuming that there is a Lyapunov function $V(\eta)$ which stabilizes the subsystem then it should satisfy
-
-\begin{equation}
-\dot{\eta} = \frac{\partial V}{\partial \eta}[f(\eta) + g(\eta)\phi(\eta)] \leq -W(\eta), \quad \forall \ \eta \in D
-\end{equation}
-
-where $W(\eta)$ is a positive definite function. As we will see later $V$ can be chosen to suit application specific needs of the system.
-
-We can then obtain the equivalent expression by adding and subtracting $g(\eta)\phi(\eta)$ on the righthand side of equation \ref{eq:1}:
-\begin{equation}
-    \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)[\xi - \phi(\eta)] 
-\end{equation}
-
-The above is repsented in figure \ref{fig:backstepping} b). The change of variables 
-$$ z = \xi - \phi(\eta) $$
-results in the system 
-
-$$ \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z  $$
-$$ \dot{z} = u - \dot{\phi} $$
-
-which is shown in Figure \ref{fig:backstepping} c). Going from step b) to c) is called backstepping because you are backstepping the control input $-\phi(\eta)$ through the integrator. Finding the derivative $\dot{\phi}$ 
-
-$$ \dot{\phi} = \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)] $$
-
-and taking $v = u - \dot{\phi}$ we obtain the cascade connection
-
-$$ \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z  $$
-$$ \dot{z} = v $$
-
-This modified system is similar to the starting system however now the inner subsystem has an asymptotically stable origin when the input is zero. We can now choose a candidate Lyapunov function for the overall system:
-
-$$ V_c (\eta,\xi) = V(\eta) + \frac{1}{2}z^2 $$
-
-from which we obtain
-\begin{align}
-    \dot{V_c} &= \frac{\partial V}{\partial \eta}[f(\eta) + g(\eta)\phi(\eta)] + \frac{\partial V}{\partial \eta}g(\eta)z + zv \\
-    &\leq -W(\eta) + \frac{\partial V}{\partial \eta}g(\eta)z + zv
-\end{align}
-
-Choosing $v$ such that it cancels out the 2nd last term from the above
-
-$$ v = -\frac{\partial V}{\partial \eta}g(\eta) - kz, \; k > 0 $$
-
-gives us
-
-$$ \dot{V_c} = -W(\eta) - kz^2 $$
-
-where k influences the rate of convergence.
-This shows that the origin $(n=0, z=0)$ is asymptotically stable. Since $\phi(0) = 0$ we know that the origin $(n=0, \xi=0)$ is also asymptotically stable. Substituting for $v$, $z$ and $\phi$ we obtain the control law for the system:
-
-\begin{equation}
-    u =  \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)\xi] - \frac{\partial V}{\partial \eta}g(\eta)z - k[\xi - \phi(\eta)]
-\end{equation}
-
-If all assumptions hold globally and $V(\eta)$ is radially unbounded then that origin is globally asymptotically stable.
-This idea can be extended to higher order systems.
-
-\par
-This process can be visualized in figure \ref{fig:backstepping}.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.48\textwidth]{chapter_3/Backstepping_diagram.drawio.png}
-    \caption{Backstepping visualization block diagram series. a) Original system b) Introduce virtual control input c) Backstepping control input through integrator}
-    \label{fig:backstepping}
-\end{figure}

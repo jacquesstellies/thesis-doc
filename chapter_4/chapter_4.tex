@@ -3,6 +3,113 @@
 
 \section{Controlability}
 As mentioned in section \ref{underactuated_lit_review}, a controlability analysis of an underactuated satellite is presented by \cite{aeyelsStabilizationNonLinear}. They show that the system is controllable under certain conditions including that the total angular momentum of the system is zero, thus requiring a device to bleed any initial angular momentum and angular momentum. This would typically be achieved via magnetorquers or thrusters. Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} build on this work and present a time-varying 
+
+\section{FTC Applied to Satellites}
+In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a 
+redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown
+inertia matrix of the spacecraft. 
+It is assumed that the angular velocity Ω of the reaction wheels are within the saturation limit and the input control torque 
+u(t) is unbounded.
+
+\section{Backstepping}
+\cite{khalilNonlinearSystems2002} describes backstepping as a recursive design method for nonlinear systems.
+\cite{shenActiveFaulttolerantControl2019} uses backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults.
+
+\subsection{Backstepping}
+Backstepping is a non-linear design technique for stabilizing the origin of a system in strict-feedback form.
+In non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law. 
+
+\subsubsection{Lyapunov Functions}
+Formally, a Lyapunov function is a scalar function that is positive definite and radially unbounded. It is used to prove the stability of a system. A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $V(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function. That is $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
+
+Breaking it down a bit further $V(\vec{x})$ represents the "generalized energy" of the system. By showing that overtime the energy of the system decays to zero then we can show that $\vec{x}$ must decay towards the origin $\vec{x}=0$.
+
+\par 
+Below is the backstepping procedure as outlined in \cite{khalilNonlinearSystems2002}. Take the following 2nd order equation:
+
+\begin{equation}
+    \dot{\eta} = f(\eta) + g(\eta)\xi \label{eq:1}
+\end{equation}
+\begin{equation}
+    \dot{\xi} = u
+\end{equation}
+
+where $f(0)=0$ and g is non-zero over the region of interest.
+The goal is to design a control law $u$ such that the origin $\eta=0$ is asymptotically stable i.e.: $(\eta, z)$ returns to $(0,0)$ after starting from some arbitrary initial condition.
+
+Assuming that equation \ref{eq:1} can be stabilized by a smooth feedback state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$ such that 
+
+$$
+    \dot{\eta} = f(\eta) + g(\eta)\phi(\eta)
+$$
+
+and assuming that there is a Lyapunov function $V(\eta)$ which stabilizes the subsystem then it should satisfy
+
+\begin{equation}
+\dot{\eta} = \frac{\partial V}{\partial \eta}[f(\eta) + g(\eta)\phi(\eta)] \leq -W(\eta), \quad \forall \ \eta \in D
+\end{equation}
+
+where $W(\eta)$ is a positive definite function. As we will see later $V$ can be chosen to suit application specific needs of the system.
+
+We can then obtain the equivalent expression by adding and subtracting $g(\eta)\phi(\eta)$ on the righthand side of equation \ref{eq:1}:
+\begin{equation}
+    \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)[\xi - \phi(\eta)] 
+\end{equation}
+
+The above is repsented in figure \ref{fig:backstepping} b). The change of variables 
+$$ z = \xi - \phi(\eta) $$
+results in the system 
+
+$$ \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z  $$
+$$ \dot{z} = u - \dot{\phi} $$
+
+which is shown in Figure \ref{fig:backstepping} c). Going from step b) to c) is called backstepping because you are backstepping the control input $-\phi(\eta)$ through the integrator. Finding the derivative $\dot{\phi}$ 
+
+$$ \dot{\phi} = \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)] $$
+
+and taking $v = u - \dot{\phi}$ we obtain the cascade connection
+
+$$ \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z  $$
+$$ \dot{z} = v $$
+
+This modified system is similar to the starting system however now the inner subsystem has an asymptotically stable origin when the input is zero. We can now choose a candidate Lyapunov function for the overall system:
+
+$$ V_c (\eta,\xi) = V(\eta) + \frac{1}{2}z^2 $$
+
+from which we obtain
+\begin{align}
+    \dot{V_c} &= \frac{\partial V}{\partial \eta}[f(\eta) + g(\eta)\phi(\eta)] + \frac{\partial V}{\partial \eta}g(\eta)z + zv \\
+    &\leq -W(\eta) + \frac{\partial V}{\partial \eta}g(\eta)z + zv
+\end{align}
+
+Choosing $v$ such that it cancels out the 2nd last term from the above
+
+$$ v = -\frac{\partial V}{\partial \eta}g(\eta) - kz, \; k > 0 $$
+
+gives us
+
+$$ \dot{V_c} = -W(\eta) - kz^2 $$
+
+where k influences the rate of convergence.
+This shows that the origin $(n=0, z=0)$ is asymptotically stable. Since $\phi(0) = 0$ we know that the origin $(n=0, \xi=0)$ is also asymptotically stable. Substituting for $v$, $z$ and $\phi$ we obtain the control law for the system:
+
+\begin{equation}
+    u =  \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)\xi] - \frac{\partial V}{\partial \eta}g(\eta)z - k[\xi - \phi(\eta)]
+\end{equation}
+
+If all assumptions hold globally and $V(\eta)$ is radially unbounded then that origin is globally asymptotically stable.
+This idea can be extended to higher order systems.
+
+\par
+This process can be visualized in figure \ref{fig:backstepping}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapter_4/Backstepping_diagram.drawio.png}
+    \caption{Backstepping visualization block diagram series. a) Original system b) Introduce virtual control input c) Backstepping control input through integrator}
+    \label{fig:backstepping}
+\end{figure}
+\newpage
 \section{Nadafi Controller}
 
 Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} present a robust backstepping attitude tracking controller for an underactuated spacecraft equipped with two reaction wheels, addressing the coupled kinematic--dynamic (cascade) model in the presence of actuator saturation and time-varying perturbations. The key contribution is a novel hypersurface that stabilises the unactuated attitude degrees of freedom via virtual inputs, enabling full asymptotic convergence of both angular velocity error and quaternion error using only two torques.
