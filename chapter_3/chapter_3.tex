@@ -100,7 +100,7 @@ Quaternion multiplication is defined according to the hamiltonian (right-handed)
     \end{bmatrix}
 \end{align}
 
-
+where $\vec{p} = [\vec{p}_v, p_w]^T$ and $\vec{q} = [\vec{q}_v, q_w]^T$ are quaternions, made up of their vector and scalar parts respectively. The conjugate of a quaternion is defined as $\vec{q}^* = [-\vec{q}_v, q_w]^T$ and the inverse of a quaternion is defined as $\vec{q}^{-1} = \frac{\vec{q}^*}{||\vec{q}||^2}$.
 
 \subsubsection{Rotation Operators}
 There are a 2 ways of using rotation operators, either active or passive. An active rotation rotates a vector in a fixed frame, while a passive rotation rotates the frame itself. The active rotation is the conjugate of the passive rotation $\vec{q}_{active} = \vec{q}^{*}_{passive}$. In this thesis the passive rotation convention is used.
@@ -218,13 +218,13 @@ where $\lambda$ is the satellite latitude and $\phi$ is the longitude. The local
 \begin{equation}
     \vec{v}^B_A = \vec{C}^{BO}
     \begin{bmatrix}
-        -\|\vec{v}_o\| + \omega_E \|\vec{r_B}\| \cos(\lambda)\cos(x_{o,east}) \\
-        -\omega_E \|\vec{r_B}\| \cos(\lambda)\sin(x_{o,east}) \\
+        -\|\vec{v}_o\| + \omega^{EI} \|\vec{r}_{BE}\| \cos(\lambda)\cos(x_{o,east}) \\
+        -\omega^{EI} \|\vec{r}_{BE}\| \cos(\lambda)\sin(x_{o,east}) \\
         0
     \end{bmatrix}
 \end{equation}
 
-where $\|\vec{v}_o\|$ is the orbital speed, $\omega_E$ is the Earth's rotation rate, and $\vec{r_B}$ is the orbital radius. The atmospheric density $\rho$ required to evaluate the drag torque can be estimated with an exponential model
+where $\|\vec{v}_o\|$ is the orbital speed, $\omega^{EI}$ is the Earth's rotation rate, and $\vec{r}_{BE}$ is the orbital radius. The atmospheric density $\rho$ required to evaluate the drag torque can be estimated with an exponential model
 
 \begin{equation}
     \rho = \rho_0 \exp\!\left(-\frac{h - h_0}{H}\right)
@@ -233,21 +233,21 @@ where $\|\vec{v}_o\|$ is the orbital speed, $\omega_E$ is the Earth's rotation r
 where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the atmospheric scale height, and $\rho_0$ is the nominal atmospheric density at $h_0$. The aerodynamic disturbance torque contribution of a given satellite surface is then \cite{auretDesignAerodynamicAttitude2011}
 
 \begin{equation}
-    \vec{\tau}_{\text{aero}} = \rho \|\vec{v}^B_A\|^2 A_p \left[\sigma_t\left(\vec{r}_{m/p} \times \bar{\vec{v}}^B_A\right) + \left(\sigma_n \frac{v_b}{\|\vec{v}^B_A\|} + (2 - \sigma_n - \sigma_t)\cos\alpha\right)\!\left(\vec{r}_{m/p} \times \bar{\vec{n}}\right)\right]
+    \vec{\tau}_{\text{aero}} = \rho \|\vec{v}^B_A\|^2 A_p \left[\sigma_t\left(\vec{r}_{PB} \times \bar{\vec{v}}^B_A\right) + \left(\sigma_n \frac{v_b}{\|\vec{v}^B_A\|} + (2 - \sigma_n - \sigma_t)\cos\alpha\right)\!\left(\vec{r}_{PB} \times \bar{\vec{n}}\right)\right]
     \label{eq:aero_torque}
 \end{equation}
 
-where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{m/p}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing \eqref{eq:aero_torque} over all exposed surfaces.
+where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing \eqref{eq:aero_torque} over all exposed surfaces.
 
 \subsection{Gravity Gradient Torque}
-The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $\vec{r_B}$ cubed and is thus only significant in LEO.
+The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $\vec{r}_{BE}$ cubed and is thus only significant in LEO.
 
 The gravity gradient torque can be determined by \cite{wertz1999space}:
 \begin{equation}
-    \vec{\tau}_{GG} = \frac{3\mu}{{\vec{r_B}}^3} \vec{u}_e \times (\vec{J_B}\vec{u}_e)
+    \vec{\tau}_{GG} = \frac{3\mu}{{\vec{r}_{BE}}^3} \vec{u}_e \times (\vec{J_B}\vec{u}_e)
 \end{equation}
 
-where $\mu = 398600.5 km^3/s^2$ is the gravitational constant of Earth, $\vec{u}_e = \vec{C}^{OB} \begin{bmatrix}0 \ 0 \ 1\end{bmatrix}^T$ is the unit vector towards nadir in satellite body coordinates and $\vec{J}$ is the satellite's moment of inertia tensor.
+where $\mu = 398600.5 km^3/s^2$ is the gravitational constant of Earth, $\vec{u}_e = [\vec{C}]^{OB} \begin{bmatrix}0 \ 0 \ 1\end{bmatrix}^T$ is the unit vector towards nadir in satellite body coordinates and $\vec{J}$ is the satellite's moment of inertia tensor.
 
 
 \subsection{Solar Radiation Pressure Torque}
@@ -265,9 +265,9 @@ For a given flat surface, the force exerted by solar radiation pressure depends 
 \end{equation}
 where $\bar{\vec{s}}$ is the unit vector from the satellite towards the sun, $\theta_i$ is the angle of incidence between $\bar{\vec{s}}$ and $\bar{\vec{n}}$, and $\sigma_s$ and $\sigma_d$ are the specular and diffuse reflectivity coefficients of the surface respectively, with the absorbed fraction given by $1 - \sigma_s - \sigma_d$. This force only acts on surfaces which are illuminated, i.e.\ for which $\cos\theta_i > 0$ and which are not in eclipse.
 
-As with the aerodynamic torque, the disturbance torque about the satellite centre of mass is produced by the offset between the centre of mass and the centre of solar pressure of each surface, $\vec{r}_{m/p}$, such that the total SRP torque is obtained by summing over all illuminated surfaces \cite{wertz1999space}:
+As with the aerodynamic torque, the disturbance torque about the satellite centre of mass is produced by the offset between the centre of mass and the centre of solar pressure of each surface, $\vec{r}_{PB}$, such that the total SRP torque is obtained by summing over all illuminated surfaces \cite{wertz1999space}:
 \begin{equation}
-    \vec{\tau}_{SRP} = \sum_{k} \vec{r}_{m/p,k} \times \vec{F}_{SRP,k}
+    \vec{\tau}_{SRP} = \sum_{k} \vec{r}_{PB,k} \times \vec{F}_{SRP,k}
     \label{eq:srp_torque}
 \end{equation}
 
@@ -314,11 +314,10 @@ Reaction wheel dynamics can be modelled as a simple DC motor with a flywheel att
 where $\tau_c$ is the commanded torque, $K_M$ is the motor torque constant, $K$ is the current-loop integrator gain, $V_m$ is the motor terminal voltage, $R_m$ is the motor winding resistance, $i_m$ is the motor armature current, $K_v$ is the back-EMF constant, $\dot{h}_w$ is the net torque delivered to the wheel, $J_W$ is the reaction wheel moment of inertia, $\omega^{WI}$ is the resulting wheel angular rate, $\nu$ is the wheel bearing viscous friction coefficient which is combined with the block describing the coloumb and dry friction to be fed back into the into the wheel torque, $\omega^{WB}$ is the wheel angular rate relative to the spacecraft body (used to compute the friction torque), $\vec{J}_B$ is the spacecraft body moment of inertia, and $\omega^{BI}$ is the spacecraft body angular rate, which combines with the wheel torque to give the net reaction torque on the body.
 
 $K_M$, $K$ and $V_M$ are usually not supplied by the manufacturer of a COTS reaction wheel so control system designers typically use a simplified model. Typically a COTS reaction wheel is controlled by an internal PID controller which takes the error between the commanded and actual wheel speed and outputs a voltage to the motor. Since the response of the wheel is much faster than that of the spacecraft, the wheel torque can be considered to be applied instantaneously to the spacecraft. Thus, the internal motor dynamics can be neglected. Since the wheel is spinning at high speed relative to the satellite, the satellite's angular rate can be neglected in the wheel dynamics. Thus the simplified reaction wheel dynamics can be modelled as:
-@TODO: Fix Figure here
 \begin{figure}
     \centering
     \includegraphics[width=1.0\linewidth]{chapter_3/Reaction_Wheel_Model_Simplified.drawio.png}
-    \caption{Reaction Wheel Dynamics Model \cite{sidiAttitudeDynamicsKinematics1997}}
+    \caption{Reaction Wheel Dynamics Model Simplified}
     \label{fig:rw_dynamics_simplified}
 \end{figure}
 
@@ -333,6 +332,8 @@ Faults in reaction wheels can be broadly categorized as follows \cite{ZarouratiM
 \end{itemize}
 
 Of these, only the stuck and idle faults produce no reaction torque whatsoever, and it is these two fault types that render the corresponding control axis underactuated, since all actuation authority on that axis is lost. The speed-decrease and deviation faults still produce some control torque and therefore do not by themselves create an underactuated configuration, although a speed-decrease fault can combine with a superimposed bias to form a compound loss-of-effectiveness-plus-bias fault. At the attitude control subsystem level, these actuator-level faults manifest as degraded pointing accuracy, reduced stability margins, and, for the remaining healthy wheels compensating for the fault, increased power consumption -- ultimately degrading image resolution and manoeuvrability and potentially leading to mission failure.
+@TODO: Add a figure showing the different types of reaction wheel faults.
+@TODO: Read through section and word a bit better.
 
 \section{Feedback Control}
 
@@ -360,4 +361,21 @@ Stability of the equilibrium $(\vec{q}_{ve}, \vec{\omega}_e) = (\vec{0}, \vec{0}
 which is positive definite about the desired equilibrium since $q_{ew} \leq 1$ for a unit quaternion. Differentiating $V$ along the trajectories of \eqref{eq:q_error_kinematics} and \eqref{eq:quat_feedback_closed_loop} gives $\dot{V} = -k_d \vec{\omega}_e^T\vec{\omega}_e \leq 0$, so that by LaSalle's invariance principle the attitude and rate errors converge asymptotically to zero for any positive gains $k_p$ and $k_d$. A well known caveat of this control law is the double cover of $SO(3)$ by the unit quaternions: since $\vec{q}_e$ and $-\vec{q}_e$ represent the same physical attitude, a large initial error with $q_{ew} < 0$ can drive the controller the "long way" around the eigenaxis before converging, a behaviour commonly referred to as unwinding.
 
 The control law \eqref{eq:quat_feedback_control} implicitly assumes that the reaction wheels can supply an arbitrary commanded torque about all three body axes. This can be mitigated by keeping the system within the linear/almost linear control regime which is ensured by proper wheel sizing for desired slew rates. As discussed in Section~\ref{subsec:underactuated}, once a reaction wheel axis fails such that $h_{wz} = \dot{h}_{wz} = 0$, the spacecraft becomes underactuated and \eqref{eq:quat_feedback_control} can no longer be applied directly, since it requires independent control authority on all three axes. This motivates the fault-tolerant control approaches considered in the remainder of this thesis.
-To illustrate this, consider the following example...
+To illustrate this, consider the following example. A 3 wheel satellite is commanded to track a reference quaternion trajectory using the quaternion feedback control law \eqref{eq:quat_feedback_control}. The satellite is initially at rest with an attitude error of $q_{ew} = 0.7071$ and $\vec{q}_{ve} = [0.7071, 0, 0]^T$, corresponding to a $90^\circ$ rotation about the x-axis. The proportional and derivative gains are set to $k_p = 0.1$ and $k_d = 0.01$. The resulting attitude tracking performance is shown in Figure~\ref{fig:quat_feedback_nominal}. The satellite successfully tracks the reference trajectory with small attitude errors. 
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{chapter_3/pid_ortho_nom_q_sat_vs_ref.png}
+    \caption{Quaternion feedback control of a 3 wheel satellite tracking a reference}
+    \label{fig:quat_feedback_nominal}
+\end{figure}
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{chapter_3/pid_ortho_fault_q_sat_vs_ref.png}
+    \caption{Quaternion feedback control of a 3 wheel satellite tracking a reference with a failed wheel on the z-axis}
+    \label{fig:quat_feedback_fault}
+\end{figure}
