@@ -264,22 +264,22 @@ The solar radiation pressure at a distance of one astronomical unit from the sun
 \end{equation}
 where $S \approx 1367 \ W/m^2$ is the solar constant and $c$ is the speed of light, giving $P \approx 4.51 \times 10^{-6} \ N/m^2$.
 
-For a given flat surface, the force exerted by solar radiation pressure depends on the optical properties of the surface, namely the fractions of incident light that are absorbed, specularly reflected and diffusely reflected. The resulting force on a surface with area $A_{\text{surface}}$ and outward unit normal $\bar{\vec{n}}$ can be expressed as \cite{wertz1999space}:
+For a given flat surface, the force exerted by solar radiation pressure depends on the optical properties of the surface, namely the fractions of incident light that are absorbed, specularly reflected and diffusely reflected. The resulting force on a surface with area $A_{\text{surface}}$ and outward unit normal $\bar{\vec{n}}$ can be expressed as \cite{wieSpaceVehicleDynamics1998}:
 \begin{equation}
-    \vec{F}_{SRP} = -P A_{\text{surface}} \cos\theta_i \left[ (1 - \sigma_s)\bar{\vec{s}} + 2\left(\sigma_s \cos\theta_i + \frac{1}{3}\sigma_d\right)\bar{\vec{n}} \right]
+    \vec{F}_{srp} = -P A_{\text{surface}} \cos\theta_i \left[ (1 - \sigma_s)\bar{\vec{s}} + 2\left(\sigma_s \cos\theta_i + \frac{2}{3}\sigma_d\right)\bar{\vec{n}} \right]
 \end{equation}
 where $\bar{\vec{s}}$ is the unit vector from the satellite towards the sun, $\theta_i$ is the angle of incidence between $\bar{\vec{s}}$ and $\bar{\vec{n}}$, and $\sigma_s$ and $\sigma_d$ are the specular and diffuse reflectivity coefficients of the surface respectively, with the absorbed fraction given by $1 - \sigma_s - \sigma_d$. This force only acts on surfaces which are illuminated, i.e.\ for which $\cos\theta_i > 0$ and which are not in eclipse.
 
-As with the aerodynamic torque, the disturbance torque about the satellite centre of mass is produced by the offset between the centre of mass and the centre of solar pressure of each surface, $\vec{r}_{PB}$, such that the total SRP torque is obtained by summing over all illuminated surfaces \cite{wertz1999space}:
+As with the aerodynamic torque, the disturbance torque about the satellite centre of mass is produced by the offset between the centre of mass $B$ and the centre of solar pressure $P$ of each surface, $\vec{r}_{PB}$, such that the total SRP torque is obtained by summing over all illuminated surfaces \cite{wieSpaceVehicleDynamics1998}:
 \begin{equation}
-    \vec{\tau}_{SRP} = \sum_{k} \vec{r}_{PB,k} \times \vec{F}_{SRP,k}
+    \vec{\tau}_{srp} = \sum_{k} \vec{r}_{PB,k} \times \vec{F}_{srp,k}
     \label{eq:srp_torque}
 \end{equation}
 
 Since the direction of $\bar{\vec{s}}$ changes slowly over the course of an orbit relative to the orbital period, and reverses only when the satellite passes through the Earth's shadow, the SRP torque is typically treated as a slowly-varying or constant disturbance over the timescale of an attitude control manoeuvre.
 
 \subsection{Magnetic Dipole Torque}
-Satellites have a significant current running through their solar panels and wiring. The interaction between this current and the Earth's magnetic field produces a disturbance torque on the satellite. However with clever design this can be minimized. Solar panel manufacturers design their solar panels to mitigate this effect by using a balanced wiring layout. As such this torque is usually negligible and will be ignored in the analysis of the satellite's attitude dynamics. 
+Satellites have a significant current running through their solar panels and wiring. The interaction between this current and the Earth's magnetic field produces a disturbance torque on the satellite. However with clever design this can be minimized. Solar panel manufacturers design their solar panels to mitigate this effect by using a balanced wiring layout. As such this torque is usually negligible and will be ignored in the analysis of the satellite's attitude dynamics.
 
 \section{Attitude Control}
 
