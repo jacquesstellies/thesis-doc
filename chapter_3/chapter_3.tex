@@ -1,6 +1,9 @@
 \chapter{Modelling}
+
+\section{Introduction}
 In this chapter the framework is built to represent the underactuated spacecraft problem. First the attitude control of a satellite is described, including the kinematics and dynamics. Then the orbit and environment are described, including the dominant disturbances acting on a satellite in low Earth orbit. Finally the reaction wheel dynamics are described, with relevant fault mechanisms investigated.
-A note on notation in this thesis:
+
+\subsection{Notation}
 \begin{itemize}
     \item Vectors are denoted by bold lowercase letters, e.g.\ $\vec{x}$.
     \item Matrices are denoted by bold uppercase letters, e.g.\ $\vec{A}$.
@@ -19,9 +22,7 @@ It is also worth defining the following notation for sub and superscripts of vec
 \end{itemize}
 These notations may be omitted when context makes one aspect or another clear. Other lowercase and upper case sub and superscripts may be used to denote other operators, quantities etc. which should be clear given context. 
 
-
-\section{Attitude Control of a Satellite}
-\subsection{Reference Frames and Attitude Representations}
+\subsection{Reference Frames}
 Since the goal is to control the attitude of a satellite, an appropriate representation should be used. Any orientation can be represented as a rotation from one frame to another. Typical reference frames would be Earth centered inertial (ECI), Earth-centered-Earth-fixed (ECEF), orbit or body-fixed. A list of reference frames used with their abbreviation is given as:
 
 \vspace{1cm}
@@ -49,6 +50,13 @@ Since the goal is to control the attitude of a satellite, an appropriate represe
 \endgroup
 
 \vspace{1cm}
+
+
+In Figure \ref{fig:reference_frames} the Earth, orbit and satellite are shown with the relevant reference frames. The inertial frame $F_I$ is fixed at the centre of the Earth, the orbit frame $F_O$ is fixed at a point on the orbit and the body frame $F_B$ is fixed to the satellite. The radius vector $\vec{r}_{BE}$ points from the Earth centre to the satellite.
+\input{chapter_3/reference_frames}
+
+\section{Satellite Attitude Dynamics}
+\subsection{Attitude Representations}
 
 The satellite's orientation can be represented intuitively using Euler angles yaw $\psi$, pitch $\theta$ and roll $\phi$, also known as the aerospace sequence. While these are intuitive, they suffer from singularities when trying to represent certain rotations. The direction cosine matrix (DCM) is the most fundamental representation of a rotation, since it is the rotation operator itself rather than a parameterization of it — it acts directly on a vector and is free of the singularities and sign ambiguities present in other representations. It can be used to transform a vector from frame A to B using the following relation 
 \begin{equation}
@@ -353,14 +361,6 @@ where $k_p, k_d > 0$ are the proportional and derivative gains respectively, and
     \vec{J}\vec{\dot{\omega}}_e = -k_p \vec{q}_{ev} - k_d \vec{\omega}_e
     \label{eq:quat_feedback_closed_loop}
 \end{equation}
-
-Stability of the equilibrium $(\vec{q}_{ev}, \vec{\omega}_e) = (\vec{0}, \vec{0})$ can be shown using the Lyapunov function candidate \cite{wieSpaceVehicleDynamics1998}
-
-\begin{equation}
-    V = 2k_p(1 - q_{ew}) + \frac{1}{2}\vec{\omega}_e^T \vec{J} \vec{\omega}_e
-\end{equation}
-
-which is positive definite about the desired equilibrium since $q_{ew} \leq 1$ for a unit quaternion. Differentiating $V$ along the trajectories of \eqref{eq:q_error_kinematics} and \eqref{eq:quat_feedback_closed_loop} gives $\dot{V} = -k_d \vec{\omega}_e^T\vec{\omega}_e \leq 0$, so that by LaSalle's invariance principle the attitude and rate errors converge asymptotically to zero for any positive gains $k_p$ and $k_d$. A well known caveat of this control law is the double cover of $SO(3)$ by the unit quaternions: since $\vec{q}_e$ and $-\vec{q}_e$ represent the same physical attitude, a large initial error with $q_{ew} < 0$ can drive the controller the "long way" around the eigenaxis before converging, a behaviour commonly referred to as unwinding.
 
 
 The control law \eqref{eq:quat_feedback_control} implicitly assumes that the reaction wheels can supply an arbitrary commanded torque about all three body axes. This can be mitigated by keeping the system within the linear/almost linear control regime which is ensured by proper wheel sizing for desired slew rates. 
