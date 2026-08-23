@@ -1,8 +1,11 @@
 \chapter{Underactuated Controller}
+\label{chap:underactuated_controller}
 
+\section{Introduction}
+The underactuated system described in \autoref{chap:modelling} is a highly non-linear system thus traditional LTI control methods are not directly applicable. Of the methods outlined in \autoref{chap:literature_review}, the control law presented in \cite{nadafiRobustBacksteppingAttitude2021} was chosen. It is a backstepping sliding-mode adaptive controller designed to control an underactuated spacecraft and achieve pointing. Some benefits of this controller are that it is robust to external disturbances, varying inertia disturbances, reaction wheel torque disturbances and is fast to run in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite.
 
 \section{Controlability}
-As mentioned in section \ref{underactuated_lit_review}, a controlability analysis of an underactuated satellite is presented by \cite{aeyelsStabilizationNonLinear}. They show that the system is controllable under certain conditions including that the total angular momentum of the system is zero, thus requiring a device to bleed any initial angular momentum and angular momentum. This would typically be achieved via magnetorquers or thrusters. Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} build on this work and present a time-varying 
+As mentioned in section \ref{underactuated_lit_review}, a controlability analysis of an underactuated satellite is presented by \cite{aeyelsStabilizationNonLinear}. They show that the system is controllable under certain conditions including that the total angular momentum of the system is zero, thus requiring a device to bleed any initial angular momentum and angular momentum. This would typically be achieved via magnetorquers or thrusters. Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} build on this work and present a time-varying controller
 
 \section{FTC Applied to Satellites}
 In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a 
@@ -12,17 +15,28 @@ It is assumed that the angular velocity Ω of the reaction wheels are within th
 u(t) is unbounded.
 
 \section{Backstepping}
-\cite{khalilNonlinearSystems2002} describes backstepping as a recursive design method for nonlinear systems.
-\cite{shenActiveFaulttolerantControl2019} uses backstepping to design a fault-tolerant controller for a satellite with reaction wheel faults.
+\cite{nadafiRobustBacksteppingAttitude2021} implement a controller based on backstepping. Backstepping is a recursive design method for nonlinear systems \cite{khalilNonlinearSystems2002}.
 
+\subsubsection{Lyapunov Functions}
+An effective way to prove the stability of a non-linear system around an equilibrium point is to use a Lyapunov function. In general, let x = 0 be an equilibrium point of the system $\dot{x} = f(x)$ where $f : D \rightarrow \mathbb{R}^n$ is a locally Lipschitz map from a domain $D \subset R$ into $\mathbb{R}^n$ containing $x=0$. A Lyapunov function is a scalar function $V : D \rightarrow \mathbb{R}$ that is continuously differentiable and satisfies the following conditions:
+\begin{equation}
+    V(0) = 0, \quad V(x) > 0 \quad \forall \ x \in D, x \neq 0
+\end{equation}
+\begin{equation}
+    \dot{V}(x) \leq 0 \quad \forall \ x \in D
+\end{equation}
+then x is stable. If
+\begin{equation}
+    \dot{V}(x) < 0 \quad \forall \ x \in D, x \neq 0
+\end{equation}
+then x is asymptotically stable. If D = $\mathbb{R}^n$ and V is radially unbounded then x is globally asymptotically stable \cite{khalilNonlinearSystems2002}.
+
+ A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $V(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function. That is $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
+
+A common Lyapunov function chosen for electro-mechanical systems is the total energy of a system (pendulums, robot manipulators, converters, ship dynamics), since total energy V = kinetic + potential is already a natural positive-definite candidate. However this is not a requirement and other Lyapunov functions can be used along as it satisfies the conditions of being positive definite and differentiable \cite{khalilNonlinearSystems2002}.
 \subsection{Backstepping}
 Backstepping is a non-linear design technique for stabilizing the origin of a system in strict-feedback form.
 In non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law. 
-
-\subsubsection{Lyapunov Functions}
-Formally, a Lyapunov function is a scalar function that is positive definite and radially unbounded. It is used to prove the stability of a system. A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $V(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function. That is $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
-
-Breaking it down a bit further $V(\vec{x})$ represents the "generalized energy" of the system. By showing that overtime the energy of the system decays to zero then we can show that $\vec{x}$ must decay towards the origin $\vec{x}=0$.
 
 \par 
 Below is the backstepping procedure as outlined in \cite{khalilNonlinearSystems2002}. Take the following 2nd order equation:
@@ -110,7 +124,7 @@ This process can be visualized in figure \ref{fig:backstepping}.
     \label{fig:backstepping}
 \end{figure}
 \newpage
-\section{Nadafi Controller}
+\section{Nadafi and KabganianController}
 
 Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} present a robust backstepping attitude tracking controller for an underactuated spacecraft equipped with two reaction wheels, addressing the coupled kinematic--dynamic (cascade) model in the presence of actuator saturation and time-varying perturbations. The key contribution is a novel hypersurface that stabilises the unactuated attitude degrees of freedom via virtual inputs, enabling full asymptotic convergence of both angular velocity error and quaternion error using only two torques.
 
@@ -221,25 +235,35 @@ disturbances that keep $q_{e1}$ and $q_{e2}$ slightly excited, which in turn slo
 drives $q_{e3}$ toward zero---a mechanism absent in a clean disturbance-free step
 response.
 
-
-\subsection*{Modification for Actuator Saturation}
+This limitation is a significant practical concern as it means small manoeuvres which fail to sufficiently excite the actuated axes will leave the unactuated axis in an arbitrary orientation. This is particularly problematic for a satellite which may need to perform a slew manoeuvre to point at a target. If the unactuated axis is not sufficiently excited during the slew, the satellite may end up pointing in an arbitrary direction after the slew is complete. A way to counter act this behaviour is to construct a manoeuvre about the actuated axes which ultimately end at the desired attitude by constructing a box
+\subsection*{Modification for Hard Actuator Saturation}
 
 The control law \eqref{eq:fndo_bs} requires unbounded torques and fails under hard actuator saturation. The modified FNDO-BS (MFNDO-BS) controller replaces $\mathbf{u}$ with a saturated form through an auxiliary vector $\boldsymbol{\mu}$:
 \begin{equation}
     \mathbf{u} = \alpha_1\,\mathrm{sat}_\delta(\boldsymbol{\mu}) - \alpha_2\,\mathrm{sat}_\delta(\mathbf{Z})
 \end{equation}
-where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves via a stable auxiliary dynamics designed to compensate for the saturation nonlinearity. Theorem~3 shows that the augmented Lyapunov function $V_1 = V_a + \frac{1}{2}\mathbf{Z}^T\mathbf{Z} + \frac{1}{2}\boldsymbol{\mu}^T\boldsymbol{\mu} + V_{e\chi}$ remains negative definite, giving global asymptotic stability even under saturation.
+where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves via a stable auxiliary dynamics designed to compensate for the saturation nonlinearity. Theorem~3 shows that the augmented Lyapunov function $V_1 = V_a + \frac{1}{2}\mathbf{Z}^T\mathbf{Z} + \frac{1}{2}\boldsymbol{\mu}^T\boldsymbol{\mu} + V_{e\chi}$ remains negative definite, giving global asymptotic stability even under saturation. If one remains within the saturation limits, this  controller is not required and hinders performance. This controller is only required when very low saturation torques are present.
 
 \subsection*{Results}
 
-Simulations for a large-angle ($>90 \degree$) attitude tracking maneuver with inertia $J_0 = \mathrm{diag}(2.5,\, 3.5,\, 4.5)~\mathrm{kg\,m^2}$ and time-varying disturbances show:
-\begin{itemize}
-    \item Without saturation: MFNDO-BS and FNDO-BS both converge within 60~s; the plain backstepping (BS) controller fails to converge.
-    \item Soft saturation ($\pm 1$~Nm): only MFNDO-BS remains asymptotically stable, converging within 80~s.
-    \item Hard saturation (0.035~Nm, 3.5\% of soft level): MFNDO-BS still converges, within 150~s.
-\end{itemize}
-The closed-loop system was validated by Adams--MATLAB co-simulation, with maximum quaternion and angular velocity verification errors of 19\% and 13.5\%, respectively.
+% Simulations for a large-angle ($>90 \degree$) attitude tracking maneuver with inertia $J_0 = \mathrm{diag}(2.5,\, 3.5,\, 4.5)~\mathrm{kg\,m^2}$ and time-varying disturbances show:
+% \begin{itemize}
+%     \item Without saturation: MFNDO-BS and FNDO-BS both converge within 60~s; the plain backstepping (BS) controller fails to converge.
+%     \item Soft saturation ($\pm 1$~Nm): only MFNDO-BS remains asymptotically stable, converging within 80~s.
+%     \item Hard saturation (0.035~Nm, 3.5\% of soft level): MFNDO-BS still converges, within 150~s.
+% \end{itemize}
 
+\section{Zarourati/Tian Controller}
+
+It can be  \cite{nadafiRobustBacksteppingAttitude2021} \cite{zarouratiBacksteppingSlidingMode2022}a backstepping sliding-mode adaptive controller is designed to control an underactuated spacecraft and achieve pointing. The controller is robust to external disturbances, varying inertia disturbances, reaction wheel torque disturbances and is fast to run in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite.
+
+\begin{align}
+u_c^r &= C_r^{T}\Big[\underbrace{S_r(\omega)H_r - J_rS_r(\omega_e)A_r\omega_{d,r}+J_rA_r\dot\omega_{d,r}}_{\text{known/feedforward} \sim \mathbf F}
++\underbrace{J_r\dot u_k}_{\partial\phi/\partial\eta,[f+g\xi]}
++\underbrace{k_w\tanh(\eta)}_{-kz,\text{ saturated}}
++\underbrace{0.5,G_1e_ae_u+0.5,\tilde e_a}_{-\partial V/\partial\eta,g(\eta)} \\
+&+\underbrace{k_d\tanh(\eta/\eta_{bl})\tanh(\hat\varphi)}_{\text{robust disturbance term}}\Big]
+\end{align}
 
 % \section{Magnetorquer Controller}
 % As mentioned previously, magnetorquers are used to bleed angular momentum from the system. A simple proportional controller is used to generate a torque that is opposite to the angular momentum of the system. The torque generated by the magnetorquer is given by:

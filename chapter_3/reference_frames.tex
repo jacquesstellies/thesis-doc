@@ -39,12 +39,16 @@
 \triad{Ecen}{1.2}{I}
 \node[anchor=north east,xshift=-2pt,yshift=-10pt] at (Ecen) {\small $F_I$};
 
+% vernal equinox direction: continuation of the x_I axis, starting beyond
+% the Earth's edge so it doesn't overlap the triad arrow
+\draw[-{Latex[length=2.2mm]}, black, thick] ($(Ecen)+(210:4)$) -- ++(210:0.85) node[above right=-20pt] {\small $\aries$};
+
 % ============ ORBIT: front half (drawn after Earth, so it stays visible on top) ============
 \begin{scope}[rotate=18]
   \draw[orbitorange, thick] (-3.7,0) arc (180:360:3.7 and 1.6);
 \end{scope}
 
-\node[orbitorange!70!black] at ($(Ecen)+(-3.55,-1.75)$) {\small Orbit};
+\node[orbitorange!70!black] at ($(Ecen)+(-3.75,-1.05)$) {\small Orbit};
 
 % ---- point on the orbit where the orbit frame lives ----
 \coordinate (OrbPt) at ($(Ecen)+(3.0,1.71)$);
@@ -82,7 +86,7 @@
 \begin{scope}[rotate around={45:(Sat)}]
 \triad{Sat}{1.05}{B}
 \end{scope}
-\node[anchor=north west,xshift=-4pt,yshift=1pt] at (Sat) {\small $F_B$};
+\node[anchor=north west,xshift=0pt,yshift=-3pt] at (Sat) {\small $F_B$};
 \end{tikzpicture}
 \caption{Diagram showing the Earth, orbit and satellite with the relevant reference frames.}
 \label{fig:reference_frames}
