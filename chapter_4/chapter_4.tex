@@ -1,23 +1,20 @@
-\chapter{Underactuated Controller}
+\chapter{Underactuated Controller Design}
 \label{chap:underactuated_controller}
 
 \section{Introduction}
-The underactuated system described in \autoref{chap:modelling} is a highly non-linear system thus traditional LTI control methods are not directly applicable. Of the methods outlined in \autoref{chap:literature_review}, the control law presented in \cite{nadafiRobustBacksteppingAttitude2021} was chosen. It is a backstepping sliding-mode adaptive controller designed to control an underactuated spacecraft and achieve pointing. Some benefits of this controller are that it is robust to external disturbances, varying inertia disturbances, reaction wheel torque disturbances and is fast to run in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite.
+The underactuated system described in \autoref{chap:modelling} is a highly non-linear system thus traditional LTI control methods are not directly applicable. In this chapter, a comparison of the underactuated backstepping controllers designed by Nadafi \cite{nadafiRobustBacksteppingAttitude2021} and \cite{tianUnderactuatedTethered} is presented. It is a backstepping controller designed to control an underactuated spacecraft and achieve pointing. Some benefits of this controller are that it is robust to external disturbances, varying inertia disturbances, reaction wheel torque disturbances and is fast to run in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite.
 
 \section{Controlability}
-As mentioned in section \ref{underactuated_lit_review}, a controlability analysis of an underactuated satellite is presented by \cite{aeyelsStabilizationNonLinear}. They show that the system is controllable under certain conditions including that the total angular momentum of the system is zero, thus requiring a device to bleed any initial angular momentum and angular momentum. This would typically be achieved via magnetorquers or thrusters. Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} build on this work and present a time-varying controller
+As mentioned in section \ref{underactuated_lit_review}, a controlability analysis of an underactuated satellite is presented in \cite{aeyelsStabilizationNonLinear} by Aeyels and Dirk. They show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time varying control law feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the central manifold theorem.
 
-\section{FTC Applied to Satellites}
-In \cite{jiangAdaptiveBacksteppingFaulttolerant2010} a backstepping sliding-mode adaptive controller is designed to handle reaction wheel faults where a 
-redundant actuator is available. unknown faults of the reaction wheels, external disturbances, and unknown
-inertia matrix of the spacecraft. 
-It is assumed that the angular velocity Ω of the reaction wheels are within the saturation limit and the input control torque 
-u(t) is unbounded.
+Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021}, \cite{tianUnderactuatedTethered} and \cite{zarouratiUnderactuatedFaultTolerantControl} build on this work and present time-varying backstepping controllers.
 
 \section{Backstepping}
-\cite{nadafiRobustBacksteppingAttitude2021} implement a controller based on backstepping. Backstepping is a recursive design method for nonlinear systems \cite{khalilNonlinearSystems2002}.
+\label{subsec:backstepping_procedure}
+\cite{nadafiRobustBacksteppingAttitude2021} implement a controller based on backstepping. Backstepping is a non-linear design technique for stabilizing the origin of a system in strict-feedback form.
+It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law.  
 
-\subsubsection{Lyapunov Functions}
+\subsection{Lyapunov Functions}
 An effective way to prove the stability of a non-linear system around an equilibrium point is to use a Lyapunov function. In general, let x = 0 be an equilibrium point of the system $\dot{x} = f(x)$ where $f : D \rightarrow \mathbb{R}^n$ is a locally Lipschitz map from a domain $D \subset R$ into $\mathbb{R}^n$ containing $x=0$. A Lyapunov function is a scalar function $V : D \rightarrow \mathbb{R}$ that is continuously differentiable and satisfies the following conditions:
 \begin{equation}
     V(0) = 0, \quad V(x) > 0 \quad \forall \ x \in D, x \neq 0
@@ -34,12 +31,8 @@ then x is asymptotically stable. If D = $\mathbb{R}^n$ and V is radially unbound
  A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $V(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function. That is $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
 
 A common Lyapunov function chosen for electro-mechanical systems is the total energy of a system (pendulums, robot manipulators, converters, ship dynamics), since total energy V = kinetic + potential is already a natural positive-definite candidate. However this is not a requirement and other Lyapunov functions can be used along as it satisfies the conditions of being positive definite and differentiable \cite{khalilNonlinearSystems2002}.
-\subsection{Backstepping}
-Backstepping is a non-linear design technique for stabilizing the origin of a system in strict-feedback form.
-In non-linear Systems by H. Khalil \cite{khalilNonlinearSystems2002} backstepping is described as "a recursive design method for non-linear systems". It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. It uses Lyapunov functions to stabilize each subsystem and generate a control law. 
-
-\par 
-Below is the backstepping procedure as outlined in \cite{khalilNonlinearSystems2002}. Take the following 2nd order equation:
+\subsection{Backstepping Procedure}
+Using the Lyapunov stability theory, the backstepping procedure as outlined in \cite{khalilNonlinearSystems2002} can be described as follows. Take the following 2nd order equation:
 
 \begin{equation}
     \dot{\eta} = f(\eta) + g(\eta)\xi \label{eq:1}
@@ -124,64 +117,64 @@ This process can be visualized in figure \ref{fig:backstepping}.
     \label{fig:backstepping}
 \end{figure}
 \newpage
-\section{Nadafi and KabganianController}
+\section{Nadafi and Kabganian Controller}
 
 Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} present a robust backstepping attitude tracking controller for an underactuated spacecraft equipped with two reaction wheels, addressing the coupled kinematic--dynamic (cascade) model in the presence of actuator saturation and time-varying perturbations. The key contribution is a novel hypersurface that stabilises the unactuated attitude degrees of freedom via virtual inputs, enabling full asymptotic convergence of both angular velocity error and quaternion error using only two torques.
 
 \subsection*{Cascade Model}
 
-Under Assumption~1 (z-axis is the unactuated axis; total angular momentum is zero so $\omega_z = 0$), the full spacecraft dynamics reduce to a two-part cascade system in the actuated angular velocity error $\boldsymbol{\omega}^r_e = [\omega_{ex},\, \omega_{ey}]^T \in \mathbb{R}^2$ and the quaternion error $\mathbf{q}_e \in \mathbb{R}^4$:
+Under Assumption~1 (z-axis is the unactuated axis; total angular momentum is zero so $\omega_z = 0$), the full spacecraft dynamics reduce to a two-part cascade system in the actuated angular velocity error $\boldsymbol{\omega}^r_e = [\omega_{ex},\, \omega_{ey}]^T \in \mathbb{R}^2$ and the quaternion error $\vec{q}_e \in \mathbb{R}^4$:
 \begin{align}
-    \dot{\boldsymbol{\omega}}^r_e &= \mathbf{u} + \mathbf{F} + \mathbf{d} \label{eq:cascade_dyn} \\
-    \dot{\mathbf{q}}_e &= A(\mathbf{q}_e)\,\boldsymbol{\omega}^r_e, \quad
-    A(\mathbf{q}_e) = \frac{1}{2}\begin{bmatrix}
+    \dot{\boldsymbol{\omega}}^r_e &= \vec{u} + \vec{F} + \vec{d} \label{eq:cascade_dyn} \\
+    \dot{\vec{q}}_e &= A(\vec{q}_e)\,\boldsymbol{\omega}^r_e, \quad
+    A(\vec{q}_e) = \frac{1}{2}\begin{bmatrix}
         q_{e0} & -q_{e3} \\
         q_{e3} &  q_{e0} \\
        -q_{e2} &  q_{e1}
     \end{bmatrix} \label{eq:cascade_kin}
 \end{align}
-where $\mathbf{u} = \{J^r_0\}^{-1}\dot{\mathbf{h}}^r_w \in \mathbb{R}^2$ is the control input (reaction wheel torque), $\mathbf{F}$ captures the known gyroscopic and reference-trajectory terms, and $\mathbf{d}$ is the total bounded perturbation, which includes external disturbances, time-varying inertia uncertainty $\Delta J$, and internal reaction wheel disturbances.
+where $\vec{u} = \{J^r_0\}^{-1}\dot{\vec{h}}^r_w \in \mathbb{R}^2$ is the control input (reaction wheel torque), $\vec{F} = - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy} \} [\omega_{ey} \ -\omega_{ex}]^T$ captures the known gyroscopic and reference-trajectory terms, and $\vec{d}$ is the total bounded perturbation, which includes external disturbances, time-varying inertia uncertainty $\Delta J$, and internal reaction wheel disturbances.
 
 \subsection*{Disturbance Observer}
 
-To estimate $\mathbf{d}$, a finite-time nonlinear disturbance observer (FNDO) is employed:
+To estimate $\vec{d}$, a finite-time nonlinear disturbance observer (FNDO) is employed:
 \begin{align}
-    \dot{\boldsymbol{\chi}}_0 &= \boldsymbol{\nu}_0 + \mathbf{u} + \mathbf{F}, \quad
+    \dot{\boldsymbol{\chi}}_0 &= \boldsymbol{\nu}_0 + \vec{u} + \vec{F}, \quad
     \boldsymbol{\nu}_0 = -\kappa_0\,\mathrm{diag}\!\left(L^{1/2}|\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e|^{1/2}\right)\mathrm{sign}(\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e) + \boldsymbol{\chi}_1 \notag \\
     \dot{\boldsymbol{\chi}}_1 &= -\kappa_1 L\,\mathrm{sign}(\boldsymbol{\chi}_1 - \boldsymbol{\nu}_0)
 \end{align}
-where $\boldsymbol{\chi}_1$ converges to $\mathbf{d}$ in finite time for suitable choices of $\kappa_i > 0$ and Lipschitz coefficients $L$.
+where $\boldsymbol{\chi}_1$ converges to $\vec{d}$ in finite time for suitable choices of $\kappa_i > 0$ and Lipschitz coefficients $L$.
 
 \subsection*{Hypersurface Design}
 
-The unactuated quaternion error $\mathbf{q}_e$ cannot be driven directly by $\mathbf{u}$; it is driven only through the kinematic equation~\eqref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. The key idea is to define a virtual input hypersurface $\boldsymbol{\omega}^r_e = \boldsymbol{\Phi}(\mathbf{q}_e)$, with $\boldsymbol{\Phi}(\mathbf{0}) = \mathbf{0}$, such that $\mathbf{q}_e \to \mathbf{0}$ when the actuated states lie on the surface.
+The unactuated quaternion error $\vec{q}_e$ cannot be driven directly by $\vec{u}$; it is driven only through the kinematic equation \ref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. The key idea is to define a virtual input hypersurface $\boldsymbol{\omega}^r_e = \boldsymbol{\Phi}(\vec{q}_e)$, with $\boldsymbol{\Phi}(\vec{0}) = \vec{0}$, such that $\vec{q}_e \to \vec{0}$ when the actuated states lie on the surface.
 
 The choice
 \begin{equation}
-    \boldsymbol{\Phi}(\mathbf{q}_e) = -2\begin{bmatrix}
+    \boldsymbol{\Phi}(\vec{q}_e) = -2\begin{bmatrix}
         a q_{e2} q_{e3} + \lambda_1 q_{e0} q_{e1} \\
         b q_{e1} q_{e3} + \lambda_2 q_{e0} q_{e2}
     \end{bmatrix}, \quad a = \lambda_2 - \lambda_3,\quad b = \lambda_3 - \lambda_1
     \label{eq:hypersurface}
 \end{equation}
-with $\lambda_i > 0$, $|\lambda_1| = |\lambda_2|$, and $|a| \leq |\lambda_1|$, guarantees that the unactuated quaternion error $\mathbf{q}_e \to \mathbf{0}$ asymptotically.
+with $\lambda_i > 0$, $|\lambda_1| = |\lambda_2|$, and $|a| \leq |\lambda_1|$, guarantees that the unactuated quaternion error $\vec{q}_e \to \vec{0}$ asymptotically.
 
-The proof uses the Lyapunov function $V_a = \frac{1}{2}\mathbf{q}_e^T \Lambda \mathbf{q}_e$ with $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2, \lambda_3)$. Substituting \eqref{eq:hypersurface} yields $\dot{V}_a$ negative semi-definite, and LaSalle's invariance principle then shows that the only invariant set where $\dot{V}_a = 0$ is the origin $\mathbf{q}_e = \mathbf{0}$.
+The proof uses the Lyapunov function $V_a = \frac{1}{2}\vec{q}_e^T \Lambda \vec{q}_e$ with $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2, \lambda_3)$. Substituting equation \ref{eq:hypersurface} yields $\dot{V}_a$ negative semi-definite, and LaSalle's invariance principle then shows that the only invariant set where $\dot{V}_a = 0$ is the origin $\vec{q}_e = \vec{0}$.
 
 \subsection*{Backstepping Control Law}
 
-With the variable transformation $\mathbf{Z} = \boldsymbol{\omega}^r_e - \boldsymbol{\Phi}(\mathbf{q}_e)$ measuring deviation from the hypersurface, the FNDO-based backstepping (FNDO-BS) control law is:
+With the variable transformation $\vec{Z} = \boldsymbol{\omega}^r_e - \boldsymbol{\Phi}(\vec{q}_e)$ measuring deviation from the hypersurface, the FNDO-based backstepping (FNDO-BS) control law is:
 \begin{equation}
-    \mathbf{u} = \mathbf{F} - \boldsymbol{\chi}_1 + \frac{\partial\boldsymbol{\Phi}}{\partial\mathbf{q}_e}A(\mathbf{q}_e)(\mathbf{Z} + \boldsymbol{\Phi})
-    - \left(\mathbf{q}_e^T \Lambda A(\mathbf{q}_e)\right)^T - \Gamma_z \mathbf{Z}
+    \vec{u} = \vec{F} - \boldsymbol{\chi}_1 + \frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})
+    - \left(\vec{q}_e^T \Lambda A(\vec{q}_e)\right)^T - \Gamma_z \vec{Z}
     \label{eq:fndo_bs}
 \end{equation}
-where $\Gamma_z \in \mathbb{R}^{2\times 2}$ is a positive definite gain matrix. Using the composite Lyapunov function $V = V_a + \frac{1}{2}\mathbf{Z}^T\mathbf{Z} + V_{e\chi}$, Theorem~2 of \cite{nadafiRobustBacksteppingAttitude2021} shows that $\dot{V}$ is negative definite for $\lambda_{\min}(\Gamma_z) > \frac{1}{2}$, guaranteeing global asymptotic stability of both $\boldsymbol{\omega}^r_e$ and $\mathbf{q}_e$.
+where $\Gamma_z \in \mathbb{R}^{2\times 2}$ is a positive definite gain matrix. Using the composite Lyapunov function $V = V_a + \frac{1}{2}\vec{Z}^T\vec{Z} + V_{e\chi}$, Theorem~2 of \cite{nadafiRobustBacksteppingAttitude2021} shows that $\dot{V}$ is negative definite for $\lambda_{\min}(\Gamma_z) > \frac{1}{2}$, guaranteeing global asymptotic stability of both $\boldsymbol{\omega}^r_e$ and $\vec{q}_e$.
 
 \subsubsection*{Remark}
 
 The controller loses all authority over $q_{e3}$ when $q_{e1} = q_{e2} = 0$.
-Substituting $q_{e1} = q_{e2} = 0$ into \eqref{eq:hypersurface} gives
+Substituting $q_{e1} = q_{e2} = 0$ into equation \ref{eq:hypersurface} gives
 \begin{equation}
     \boldsymbol{\Phi}\big|_{q_{e1}=q_{e2}=0}
     = -2\begin{bmatrix}
@@ -191,15 +184,15 @@ Substituting $q_{e1} = q_{e2} = 0$ into \eqref{eq:hypersurface} gives
     = \begin{bmatrix} 0 \ 0 \end{bmatrix}
 \end{equation}
 so $\boldsymbol{\Phi}$ vanishes for any $q_{e3}$. The corrective quaternion feedback term in the
-control law also vanishes at this point: with $\mathbf{q}_e = [q_{e0},\,0,\,0,\,q_{e3}]^T$,
+control law also vanishes at this point: with $\vec{q}_e = [q_{e0},\,0,\,0,\,q_{e3}]^T$,
 \begin{equation}
-    \left(\mathbf{q}_e^T \Lambda A(\mathbf{q}_e)\right)^T = \mathbf{0}
+    \left(\vec{q}_e^T \Lambda A(\vec{q}_e)\right)^T = \vec{0}
 \end{equation}
-since the first two rows of $A(\mathbf{q}_e)$ couple only into $q_{e1}$ and $q_{e2}$.
-Consequently, at $\mathbf{q}_e = [q_{e0},\,0,\,0,\,q_{e3}]^T$ with $\boldsymbol{\omega}^r_e = \mathbf{0}$:
-$\boldsymbol{\Phi} = \mathbf{0}$, $\mathbf{Z} = \mathbf{0}$, and all quaternion feedback terms vanish,
-reducing the control law \eqref{eq:fndo_bs} to
-$\mathbf{u} \to -\boldsymbol{\chi}_1 - \mathbf{F} \to \mathbf{0}$.
+since the first two rows of $A(\vec{q}_e)$ couple only into $q_{e1}$ and $q_{e2}$.
+Consequently, at $\vec{q}_e = [q_{e0},\,0,\,0,\,q_{e3}]^T$ with $\boldsymbol{\omega}^r_e = \vec{0}$:
+$\boldsymbol{\Phi} = \vec{0}$, $\vec{Z} = \vec{0}$, and all quaternion feedback terms vanish,
+reducing the control law equation \ref{eq:fndo_bs} to
+$\vec{u} \to -\boldsymbol{\chi}_1 - \vec{F} \to \vec{0}$.
 This is a closed-loop equilibrium for \emph{any} $q_{e3}$: the entire $q_{e3}$-axis is an
 equilibrium manifold, and the controller is structurally blind to a pure yaw error about
 the unactuated $z$-axis once the actuated components have converged to zero.
@@ -224,11 +217,11 @@ The LaSalle argument in Case~I of \cite{nadafiRobustBacksteppingAttitude2021}
     \tfrac{1}{2}\,q_{e3}\!\left(\omega_{ex}^2 + \omega_{ey}^2\right) = 0.
 \end{equation}
 However, on the invariant set $\{q_{e1} = q_{e2} = 0\}$, the virtual control
-$\boldsymbol{\Phi} = \mathbf{0}$ forces $\boldsymbol{\omega}^r_e = \mathbf{0}$, reducing the
+$\boldsymbol{\Phi} = \vec{0}$ forces $\boldsymbol{\omega}^r_e = \vec{0}$, reducing the
 condition to $\tfrac{1}{2}\,q_{e3} \cdot 0 = 0$, which is satisfied for \emph{any}
 $q_{e3}$. The largest invariant set is therefore the entire $q_{e3}$-axis, not the
 origin alone. The proof implicitly assumes that trajectories maintain
-$\boldsymbol{\omega}^r_e \neq \mathbf{0}$ while on the invariant set; once the regulator
+$\boldsymbol{\omega}^r_e \neq \vec{0}$ while on the invariant set; once the regulator
 has settled to rest, this assumption fails. The convergence seen in the simulations
 of \cite{nadafiRobustBacksteppingAttitude2021} is attributable to persistent external
 disturbances that keep $q_{e1}$ and $q_{e2}$ slightly excited, which in turn slowly
@@ -238,11 +231,11 @@ response.
 This limitation is a significant practical concern as it means small manoeuvres which fail to sufficiently excite the actuated axes will leave the unactuated axis in an arbitrary orientation. This is particularly problematic for a satellite which may need to perform a slew manoeuvre to point at a target. If the unactuated axis is not sufficiently excited during the slew, the satellite may end up pointing in an arbitrary direction after the slew is complete. A way to counter act this behaviour is to construct a manoeuvre about the actuated axes which ultimately end at the desired attitude by constructing a box
 \subsection*{Modification for Hard Actuator Saturation}
 
-The control law \eqref{eq:fndo_bs} requires unbounded torques and fails under hard actuator saturation. The modified FNDO-BS (MFNDO-BS) controller replaces $\mathbf{u}$ with a saturated form through an auxiliary vector $\boldsymbol{\mu}$:
+The control law equation \ref{eq:fndo_bs} requires unbounded torques and fails under hard actuator saturation. The modified FNDO-BS (MFNDO-BS) controller replaces $\vec{u}$ with a saturated form through an auxiliary vector $\boldsymbol{\mu}$:
 \begin{equation}
-    \mathbf{u} = \alpha_1\,\mathrm{sat}_\delta(\boldsymbol{\mu}) - \alpha_2\,\mathrm{sat}_\delta(\mathbf{Z})
+    \vec{u} = \alpha_1\,\mathrm{sat}_\delta(\boldsymbol{\mu}) - \alpha_2\,\mathrm{sat}_\delta(\vec{Z})
 \end{equation}
-where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves via a stable auxiliary dynamics designed to compensate for the saturation nonlinearity. Theorem~3 shows that the augmented Lyapunov function $V_1 = V_a + \frac{1}{2}\mathbf{Z}^T\mathbf{Z} + \frac{1}{2}\boldsymbol{\mu}^T\boldsymbol{\mu} + V_{e\chi}$ remains negative definite, giving global asymptotic stability even under saturation. If one remains within the saturation limits, this  controller is not required and hinders performance. This controller is only required when very low saturation torques are present.
+where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves via a stable auxiliary dynamics designed to compensate for the saturation nonlinearity. Theorem~3 shows that the augmented Lyapunov function $V_1 = V_a + \frac{1}{2}\vec{Z}^T\vec{Z} + \frac{1}{2}\boldsymbol{\mu}^T\boldsymbol{\mu} + V_{e\chi}$ remains negative definite, giving global asymptotic stability even under saturation. If one remains within the saturation limits, this  controller is not required and hinders performance. This controller is only required when very low saturation torques are present.
 
 \subsection*{Results}
 
@@ -253,12 +246,88 @@ where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves v
 %     \item Hard saturation (0.035~Nm, 3.5\% of soft level): MFNDO-BS still converges, within 150~s.
 % \end{itemize}
 
-\section{Zarourati/Tian Controller}
+@TODO: Add figure showing the results of the Nadafi and Kabganian controller.
+\section{Haochang Tian Controller}
 
-It can be  \cite{nadafiRobustBacksteppingAttitude2021} \cite{zarouratiBacksteppingSlidingMode2022}a backstepping sliding-mode adaptive controller is designed to control an underactuated spacecraft and achieve pointing. The controller is robust to external disturbances, varying inertia disturbances, reaction wheel torque disturbances and is fast to run in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite.
+% Given the weaknesses cited in the previous controller, in \cite{tianUnderactuatedTethered} a backstepping sliding-mode adaptive controller is designed to control an underactuated tethered spacecraft. The controller is robust to external disturbances, time-varying inertia and reaction wheel torque disturbances. \cite{zarouratiUnderactuatedFaultTolerantControl} build on this controller to develop a fault tolerant controller which can adapt to a reaction wheel failure. The controller is designed to control the attitude of a spacecraft with 2 reaction wheels and 1 magnetorquer. The controller is designed to achieve pointing of the spacecraft in the presence of external disturbances, time-varying inertia and reaction wheel torque disturbances. The controller is designed to be robust to these disturbances and achieve pointing of the spacecraft.
+
+Given the weaknesses cited in the previous controller, \cite{tianUnderactuatedTethered} design a backstepping controller for an underactuated tethered spacecraft. \cite{zarouratiUnderactuatedFaultTolerantControl} build on this controller to develop an underactuated attitude tracking control (UATC) law for a reaction-wheel failure, generalising the choice of unactuated axis to whichever wheel has failed and replacing the disturbance-handling stage with an adaptive bound estimator. Both controllers apply the two-stage kinematic-then-dynamic backstepping procedure of \autoref{subsec:backstepping_procedure} recursively to the reduced kinematic and dynamic error subsystems below; the equations of both are presented together using Zarourati's notation, with the points where the two differ noted as they arise.
+They define the error kinematics of the system as follows:
+\subsection*{Reduced Attitude Error Model}
+
+Using the angular velocity error $\vec\omega_e = \vec\omega - [\vec C]^{BR}\vec\omega_d$ and quaternion error $\vec q_e$ of \autoref{chap:modelling}, the DCM $[\vec C]^{BR}$ evolves according to
+\begin{equation}
+    \dot{[\vec C]}^{BR} = -\vec\omega_e^\times [\vec C]^{BR}
+\end{equation}
+which, substituted into the rigid-body dynamics equation \ref{eq:sat_dynamics}, gives the attitude tracking error dynamics
+\begin{equation}
+    \vec{J}\vec{\dot\omega}_e = -\vec\omega^\times \vec{h} + \vec{J}\vec\omega_e^\times[\vec C]^{BR}\vec\omega_d - \vec{J}[\vec C]^{BR}\vec{\dot\omega}_d + \vec{D}\vec{u}_c + \vec{d}
+    \label{eq:zarourati_dynamics}
+\end{equation}
+where $\vec{h} = \vec{J}\vec\omega + \vec{h}_w$ is the total (body plus wheel) angular momentum, $\vec{D}\vec{u}_c = -\dot{\vec{h}}_w$ is the body torque produced by the wheels through the wheel torque distribution matrix $\vec{D}$, and $\vec{d}$ is the total bounded disturbance (external torques, inertia uncertainty and internal reaction-wheel disturbances).
+
+With one wheel unavailable, let $e_u \in \mathbb{R}$ and $\vec\omega_{eu} \in \mathbb{R}$ denote the vector-part quaternion error and angular velocity error component on the unactuated axis, and $\vec e_a \in \mathbb{R}^2$, $\vec\omega_{ea} \in \mathbb{R}^2$ the corresponding actuated pairs, using the reduced representation of \autoref{subsec:underactuated}. For a failure on, e.g., the $y$-axis reaction wheel ($e_u = q_{ey}$, $\vec e_a = [q_{ex},\,q_{ez}]^T$), the reduced kinematic error model following from equation \ref{eq:q_error_kinematics} is 
+%@TODO: move to chapter 3
+\begin{align}
+    \dot{e}_u &= \frac{1}{2}\left(q_{ew}\,\omega_{eu} + q_{ex}\,\omega_{d,z} - q_{ez}\,\omega_{d,x}\right) + \frac{1}{2}\vec{e}_a^T\vec{G}_1\vec\omega_{ea} \label{eq:reduced_kin_u} \\
+    \dot{\vec{e}}_a &= \frac{1}{2}\left(\vec{G}_1\vec{e}_a\,\omega_{eu} + \vec{G}_2\vec\omega_{ea}\right), \quad
+    \vec{G}_1 = \begin{bmatrix}0 & -1\\ 1 & 0\end{bmatrix}, \quad
+    \vec{G}_2 = \begin{bmatrix}q_{ew} & e_u \\ -e_u & q_{ew}\end{bmatrix} \label{eq:reduced_kin_a}
+\end{align}
+An equivalent pair of equations holds for a failure on any other axis by re-indexing. Equation \ref{eq:reduced_kin_u} shows that $e_u$ cannot be driven directly: it is only excited through the coupling term $\vec{e}_a^T\vec{G}_1\vec\omega_{ea}$.
+
+\subsection*{Kinematic Backstepping Controller}
+
+A virtual kinematic control input $\vec{u}_k$, the desired value for $\vec\omega_{ea}$, is designed as
+\begin{equation}
+    \vec{u}_k = -k_a q_{ew}\vec{e}_a + \kappa_1\vec{G}_1\vec{e}_d + \kappa_2\vec{e}_d
+    \label{eq:kin_controller}
+\end{equation}
+where $k_a > 0$ and $\vec{e}_d \in \mathbb{R}^2$ is an auxiliary converging vector. Rather than driving $\vec e_a$ to zero directly, $\vec e_a$ is commanded to track $\vec{e}_d$, which is defined by the time-varying oscillator-like differential equation
+\begin{equation}
+    \dot{\vec{e}}_d = \frac{\dot\xi}{\xi}\vec{e}_d + \Lambda\vec{G}_1\vec{e}_d, \qquad \vec{e}_d^T(0)\vec{e}_d(0) = \xi^2(0)
+    \label{eq:oscillator}
+\end{equation}
+with
+\begin{align}
+    \kappa_1 &= \frac{1}{\xi^2}\left(k_u e_u + q_{ew}\omega_{eu}\right), \qquad
+    \kappa_2 = \frac{2\dot\xi}{q_{ew}\xi} + k_a q_{ew}, \qquad
+    \Lambda = \frac{1}{2}\left(k_a q_{ew} e_u + q_{ew}\kappa_1 + \omega_{eu}\right), \notag \\
+    \xi &= \gamma_0\exp(-\gamma_1 t) + \gamma_2
+    \label{eq:xi_def}
+\end{align}
+where $k_u, \gamma_0, \gamma_1, \gamma_2 > 0$ are constant design parameters. Because $\vec{G}_1$ is skew-symmetric, $\vec{e}_d^T\vec{G}_1\vec{e}_d \equiv 0$, so $\frac{d}{dt}(\vec{e}_d^T\vec{e}_d) = 2\frac{\dot\xi}{\xi}\vec{e}_d^T\vec{e}_d$; solving this with the matched initial condition of \eqref{eq:oscillator} gives $\|\vec{e}_d(t)\| = \xi(t)$ for all $t \geq 0$ \cite{tianUnderactuatedTethered} (see appendix \ref{appen:derivations_tian_oscillator}). Since $\xi(t) \to \gamma_2 > 0$ rather than to zero, $\vec{e}_d$ never converges to the origin, so the coupling term in equation \ref{eq:reduced_kin_u} never vanishes identically and $e_u \to 0$ even once the actuated axes have settled onto their commanded trajectory. Using the Lyapunov function $V_1 = e_u^2 + \tilde{\vec{e}}_a^T\tilde{\vec{e}}_a$ with $\tilde{\vec{e}}_a = \vec{e}_d - \vec{e}_a$, \cite{tianUnderactuatedTethered} show that the kinematic control law equation \ref{eq:kin_controller}-- equation \ref{eq:oscillator} renders the equilibrium $(e_u, \tilde{\vec{e}}_a) = (0, \vec{0})$ uniformly exponentially stable.
+
+\subsection*{Dynamic Backstepping Controller}
+
+Define the dynamic tracking error $\vec\eta = \vec{u}_k - \vec\omega_{ea} \in \mathbb{R}^2$, the deviation of the actuated rate error from the kinematic control law equation \ref{eq:kin_controller}. Differentiating and substituting equation \ref{eq:zarourati_dynamics} gives the reduced dynamic error model
+\begin{equation}
+    \vec{J}^r\dot{\vec\eta} = \vec{J}^r\dot{\vec{u}}_k + (\vec\omega^\times)^r\vec{h}^r - \vec{J}^r(\vec\omega_e^\times)^r[\vec C]^{BR}_r\vec\omega_d^r + \vec{J}^r[\vec C]^{BR}_r\vec{\dot\omega}_d^r - \vec{D}^r\vec{u}_c^r - \vec{d}^r
+    \label{eq:eta_dyn}
+\end{equation}
+where $\vec{u}_c^r \in \mathbb{R}^2$ is the physical control torque and the reduced matrix notation $\vec P^r$ follows \autoref{subsec:underactuated}.
+
+\cite{tianUnderactuatedTethered} handle the bounded disturbance $\vec{d}^r$ with a positive-definite logarithmic barrier function
+\begin{equation}
+    H_B(x) = k\left(\ln\frac{s}{s - |x|}\right)^2, \qquad k, s > 0
+    \label{eq:barrier}
+\end{equation}
+whose resulting gain grows unboundedly as any component of $\vec\eta$ approaches a pre-selected bound $\pm s$, dominating the disturbance without an online estimate of it. \cite{zarouratiUnderactuatedFaultTolerantControl} instead replace this fixed a-priori bound with a scalar adaptive estimate $\hat\varphi$ of the disturbance bound $\|\vec{d}^r\| \leq \bar{d}$, updated by
+\begin{equation}
+    \dot{\hat\varphi} = \frac{k_\varphi}{k_d}\cosh^2(\hat\varphi)\,\|\vec\eta\|
+    \label{eq:phi_hat}
+\end{equation}
+with $k_\varphi, k_d > 0$. Using this estimate, the underactuated control torque is designed via backstepping as
+\begin{align}
+    \vec{u}_c^r = (\vec{D}^r)^T\Big[&(\vec\omega^\times)^r\vec{h}^r - \vec{J}^r(\vec\omega_e^\times)^r[\vec C]^{BR}_r\vec\omega_d^r + \vec{J}^r[\vec C]^{BR}_r\vec{\dot\omega}_d^r + \vec{J}^r\dot{\vec{u}}_k \notag \\
+    &+ k_\omega\tanh(\vec\eta) + \frac{1}{2}\vec{G}_1\vec{e}_a e_u + \frac{1}{2}\tilde{\vec{e}}_a + k_d\,\mathrm{sign}(\vec\eta)\tanh(\hat\varphi)\Big]
+    \label{eq:final_control}
+\end{align}
+where $k_\omega > 0$. The first four terms cancel the known gyroscopic coupling and feed forward the derivative of the kinematic control law; $k_\omega\tanh(\vec\eta)$ damps the dynamic tracking error; $\frac{1}{2}\vec{G}_1\vec{e}_a e_u + \frac{1}{2}\tilde{\vec{e}}_a$ cancels the cross-coupling term introduced by the kinematic Lyapunov function; and $k_d\,\mathrm{sign}(\vec\eta)\tanh(\hat\varphi)$ robustly rejects the disturbance using the adapted bound. Using the composite Lyapunov function $V = V_1 + \frac{1}{2}\vec\eta^T\vec\eta + \frac{k_d}{2k_\varphi}(\hat\varphi - \varphi)^2$, where $\varphi$ is the true disturbance bound, \cite{zarouratiUnderactuatedFaultTolerantControl} show that the closed-loop errors $e_u$, $\tilde{\vec{e}}_a$ and $\vec\eta$ converge asymptotically to zero.
+
 
 \begin{align}
-u_c^r &= C_r^{T}\Big[\underbrace{S_r(\omega)H_r - J_rS_r(\omega_e)A_r\omega_{d,r}+J_rA_r\dot\omega_{d,r}}_{\text{known/feedforward} \sim \mathbf F}
+u_c^r &= C_r^{T}\Big[\underbrace{S_r(\omega)H_r - J_rS_r(\omega_e)A_r\omega_{d,r}+J_rA_r\dot\omega_{d,r}}_{\text{known/feedforward} \sim \vec F}
 +\underbrace{J_r\dot u_k}_{\partial\phi/\partial\eta,[f+g\xi]}
 +\underbrace{k_w\tanh(\eta)}_{-kz,\text{ saturated}}
 +\underbrace{0.5,G_1e_ae_u+0.5,\tilde e_a}_{-\partial V/\partial\eta,g(\eta)} \\

@@ -1,11 +1,32 @@
-\chapter{Project Planning Schedule}
+\chapter{Tian Haochang Backstepping Controller }
 \makeatletter\@mkboth{}{Appendix}\makeatother
-\label{appen:derivations_bigramseg}
+\label{appen:derivations_tian_oscillator}
 
-This is an appendix.
+The choice of the oscillatory term given by equation \ref{eq:oscillator} is not immediately obvious.  First we note that it is given that 
+\begin{align*}
+    \frac{d \vec{e}_d^T \vec{e}_d}{dt} &= \vec{e}_d^T \Big[\frac{\dot\xi}{\xi}\vec{e}_d + \Lambda\vec{G}_1\vec{e}_d \Big] \\
+    &=2\vec{e}_d^T\frac{\dot\xi}{\xi}\vec{e}_d + 2\vec{e}_d^T\Lambda\vec{G}_1\vec{e}_d \\
+    &=2\vec{e}_d^T\frac{\dot\xi}{\xi}\vec{e}_d \numberthis \label{eq:oscillator_norm_ode}
+\end{align*}
+since $G_1 = \begin{bmatrix}0 & 1 \\ -1 & 0\end{bmatrix}$ is skew-symmetric then it has the property where any vector $\vec{x}$ satisfies $\vec{x}^T\vec{G}_1\vec{x} = 0$ and $\Lambda$ can be treated as a scalar.
+
+
+Given equation \ref{eq:oscillator_norm_ode}, let $r(t)=e_d(t)$, so 
+
+\begin{align*}
+    \frac{dr}{dt} &= 2\frac{\dot{\xi}}{\xi}r \\
+    \frac{dr}{dt} \frac{1}{r} &= 2\frac{d\xi}{dt}\frac{1}{\xi} \\
+\end{align*}
+
+valid since $r>0$, guaranteed as long as $\xi>0$, which the $\gamma_2>0$ condition guarantees. Integrating from $0$ to $t$ gives
+$$\ln r(t)-\ln r(0) = 2\ln\xi(t)-2\ln\xi(0) \Longrightarrow r(t) = r(0)\cdot\frac{\xi(t)}{\xi(0)}$$
+
+6. Apply the matched initial condition
+The design pins $r(0)=|e_d(0)|=\xi(0)$ (that's what $e_d^T(0)e_d(0)=\xi^2(0)$ means). Substituting:
+$$r(t) = \xi(0)\cdot\frac{\xi(t)}{\xi(0)} = \xi(t)\qquad\text{for all }t\ge0$$
 
 % \chapter{Outcomes Compliance}
 % \makeatletter\@mkboth{}{Appendix}\makeatother
-% \label{appen:derivations_bigramseg}
+% % \label{appen:derivations_bigramseg}
 
-This is another appendix.
+% This is another appendix.
