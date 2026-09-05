@@ -43,3 +43,24 @@
     COTS   & Commercial Off-The-Shelf \\
 \end{tabular}
 \endgroup
+
+\subsection{Notation}
+\begin{itemize}
+    \item Vectors are denoted by bold lowercase letters, e.g.\ $\vec{x}$.
+    \item Matrices are denoted by bold uppercase letters, e.g.\ $\vec{A}$.
+    \item Scalars are denoted by lowercase letters, e.g.\ $a$.
+\end{itemize}
+It is also worth defining the following notation for sub and superscripts of vectors and matrices:
+\begin{center}
+% \centering
+\begin{itemize}
+    \item subscripts denote points, e.g.\ $\vec{r}_{AB}$ is the position vector from point $B$ to point $A$ ($A$ relative to $B$).
+    \item superscripts denote frames, e.g.\ $\vec{v}^I_B$ is the velocity vector of point $B$ relative to inertial frame $I$ and $\vec{\omega}^{BI}$ is the angular velocity of frame $B$ relative to $I$.
+    \item coordinates are denoted by superscript outside of brackets e.g.\ $[\vec{r}_{AB}]^I$ represents the position vector of point $A$ relative to $B$ expressed in coordinates of frame $I$.
+    \item the $*^\times$ denotes the skew-symmetric matrix of a vector, e.g.\ $\vec{\omega}^\times = \begin{bmatrix} 0 & -\omega_z & \omega_y \\ \omega_z & 0 & -\omega_x \\ -\omega_y & \omega_x & 0 \end{bmatrix}$.
+    \item the $\bar{*}$ denotes a unit vector, e.g.\ $\bar{\vec{v}} = \frac{\vec{v}}{||\vec{v}||}$.
+    \item the $\hat{*}$ denotes the estimated value of a quantity, e.g.\ $\hat{\vec{\omega}}$ is the estimated angular velocity.
+    \item the $\tilde{*}$ denotes the error of a quantity relative to an estimate, e.g.\ $\tilde{\vec{\omega}} = \vec{\omega} - \hat{\vec{\omega}}$ is the angular velocity estimation error.
+\end{itemize}
+\end{center}
+These notations may be omitted when context makes one aspect or another clear. Other lowercase and upper case sub and superscripts may be used to denote other operators, quantities etc. which should be clear given context. 

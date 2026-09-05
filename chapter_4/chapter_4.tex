@@ -44,7 +44,7 @@ Using the Lyapunov stability theory, the backstepping procedure as outlined in \
 where $f(0)=0$ and g is non-zero over the region of interest.
 The goal is to design a control law $u$ such that the origin $\eta=0$ is asymptotically stable i.e.: $(\eta, z)$ returns to $(0,0)$ after starting from some arbitrary initial condition.
 
-Assuming that equation \ref{eq:1} can be stabilized by a smooth feedback state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$ such that 
+Assuming that equation \eqref{eq:1} can be stabilized by a smooth feedback state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$ such that 
 
 $$
     \dot{\eta} = f(\eta) + g(\eta)\phi(\eta)
@@ -58,7 +58,7 @@ and assuming that there is a Lyapunov function $V(\eta)$ which stabilizes the su
 
 where $W(\eta)$ is a positive definite function. As we will see later $V$ can be chosen to suit application specific needs of the system.
 
-We can then obtain the equivalent expression by adding and subtracting $g(\eta)\phi(\eta)$ on the righthand side of equation \ref{eq:1}:
+We can then obtain the equivalent expression by adding and subtracting $g(\eta)\phi(\eta)$ on the righthand side of equation \eqref{eq:1}:
 \begin{equation}
     \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)[\xi - \phi(\eta)] 
 \end{equation}
@@ -147,7 +147,7 @@ where $\boldsymbol{\chi}_1$ converges to $\vec{d}$ in finite time for suitable c
 
 \subsection*{Hypersurface Design}
 
-The unactuated quaternion error $\vec{q}_e$ cannot be driven directly by $\vec{u}$; it is driven only through the kinematic equation \ref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. The key idea is to define a virtual input hypersurface $\boldsymbol{\omega}^r_e = \boldsymbol{\Phi}(\vec{q}_e)$, with $\boldsymbol{\Phi}(\vec{0}) = \vec{0}$, such that $\vec{q}_e \to \vec{0}$ when the actuated states lie on the surface.
+The unactuated quaternion error $\vec{q}_e$ cannot be driven directly by $\vec{u}$; it is driven only through the kinematic equation \eqref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. The key idea is to define a virtual input hypersurface $\boldsymbol{\omega}^r_e = \boldsymbol{\Phi}(\vec{q}_e)$, with $\boldsymbol{\Phi}(\vec{0}) = \vec{0}$, such that $\vec{q}_e \to \vec{0}$ when the actuated states lie on the surface.
 
 The choice
 \begin{equation}
@@ -159,7 +159,7 @@ The choice
 \end{equation}
 with $\lambda_i > 0$, $|\lambda_1| = |\lambda_2|$, and $|a| \leq |\lambda_1|$, guarantees that the unactuated quaternion error $\vec{q}_e \to \vec{0}$ asymptotically.
 
-The proof uses the Lyapunov function $V_a = \frac{1}{2}\vec{q}_e^T \Lambda \vec{q}_e$ with $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2, \lambda_3)$. Substituting equation \ref{eq:hypersurface} yields $\dot{V}_a$ negative semi-definite, and LaSalle's invariance principle then shows that the only invariant set where $\dot{V}_a = 0$ is the origin $\vec{q}_e = \vec{0}$.
+The proof uses the Lyapunov function $V_a = \frac{1}{2}\vec{q}_e^T \Lambda \vec{q}_e$ with $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2, \lambda_3)$. Substituting equation \eqref{eq:hypersurface} yields $\dot{V}_a$ negative semi-definite, and LaSalle's invariance principle then shows that the only invariant set where $\dot{V}_a = 0$ is the origin $\vec{q}_e = \vec{0}$.
 
 \subsection*{Backstepping Control Law}
 
@@ -174,7 +174,7 @@ where $\Gamma_z \in \mathbb{R}^{2\times 2}$ is a positive definite gain matrix. 
 \subsubsection*{Remark}
 
 The controller loses all authority over $q_{e3}$ when $q_{e1} = q_{e2} = 0$.
-Substituting $q_{e1} = q_{e2} = 0$ into equation \ref{eq:hypersurface} gives
+Substituting $q_{e1} = q_{e2} = 0$ into equation \eqref{eq:hypersurface} gives
 \begin{equation}
     \boldsymbol{\Phi}\big|_{q_{e1}=q_{e2}=0}
     = -2\begin{bmatrix}
@@ -191,7 +191,7 @@ control law also vanishes at this point: with $\vec{q}_e = [q_{e0},\,0,\,0,\,q_{
 since the first two rows of $A(\vec{q}_e)$ couple only into $q_{e1}$ and $q_{e2}$.
 Consequently, at $\vec{q}_e = [q_{e0},\,0,\,0,\,q_{e3}]^T$ with $\boldsymbol{\omega}^r_e = \vec{0}$:
 $\boldsymbol{\Phi} = \vec{0}$, $\vec{Z} = \vec{0}$, and all quaternion feedback terms vanish,
-reducing the control law equation \ref{eq:fndo_bs} to
+reducing the control law equation \eqref{eq:fndo_bs} to
 $\vec{u} \to -\boldsymbol{\chi}_1 - \vec{F} \to \vec{0}$.
 This is a closed-loop equilibrium for \emph{any} $q_{e3}$: the entire $q_{e3}$-axis is an
 equilibrium manifold, and the controller is structurally blind to a pure yaw error about
@@ -231,7 +231,7 @@ response.
 This limitation is a significant practical concern as it means small manoeuvres which fail to sufficiently excite the actuated axes will leave the unactuated axis in an arbitrary orientation. This is particularly problematic for a satellite which may need to perform a slew manoeuvre to point at a target. If the unactuated axis is not sufficiently excited during the slew, the satellite may end up pointing in an arbitrary direction after the slew is complete. A way to counter act this behaviour is to construct a manoeuvre about the actuated axes which ultimately end at the desired attitude by constructing a box
 \subsection*{Modification for Hard Actuator Saturation}
 
-The control law equation \ref{eq:fndo_bs} requires unbounded torques and fails under hard actuator saturation. The modified FNDO-BS (MFNDO-BS) controller replaces $\vec{u}$ with a saturated form through an auxiliary vector $\boldsymbol{\mu}$:
+The control law equation \eqref{eq:fndo_bs} requires unbounded torques and fails under hard actuator saturation. The modified FNDO-BS (MFNDO-BS) controller replaces $\vec{u}$ with a saturated form through an auxiliary vector $\boldsymbol{\mu}$:
 \begin{equation}
     \vec{u} = \alpha_1\,\mathrm{sat}_\delta(\boldsymbol{\mu}) - \alpha_2\,\mathrm{sat}_\delta(\vec{Z})
 \end{equation}
@@ -251,7 +251,7 @@ where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves v
 
 % Given the weaknesses cited in the previous controller, in \cite{tianUnderactuatedTethered} a backstepping sliding-mode adaptive controller is designed to control an underactuated tethered spacecraft. The controller is robust to external disturbances, time-varying inertia and reaction wheel torque disturbances. \cite{zarouratiUnderactuatedFaultTolerantControl} build on this controller to develop a fault tolerant controller which can adapt to a reaction wheel failure. The controller is designed to control the attitude of a spacecraft with 2 reaction wheels and 1 magnetorquer. The controller is designed to achieve pointing of the spacecraft in the presence of external disturbances, time-varying inertia and reaction wheel torque disturbances. The controller is designed to be robust to these disturbances and achieve pointing of the spacecraft.
 
-Given the weaknesses cited in the previous controller, \cite{tianUnderactuatedTethered} design a backstepping controller for an underactuated tethered spacecraft. \cite{zarouratiUnderactuatedFaultTolerantControl} build on this controller to develop an underactuated attitude tracking control (UATC) law for a reaction-wheel failure, generalising the choice of unactuated axis to whichever wheel has failed and replacing the disturbance-handling stage with an adaptive bound estimator. Both controllers apply the two-stage kinematic-then-dynamic backstepping procedure of \autoref{subsec:backstepping_procedure} recursively to the reduced kinematic and dynamic error subsystems below; the equations of both are presented together using Zarourati's notation, with the points where the two differ noted as they arise.
+Given the weaknesses referred to in the previous controller, \cite{tianUnderactuatedTethered} design a backstepping controller for an underactuated tethered spacecraft. \cite{zarouratiUnderactuatedFaultTolerantControl} build on this controller to develop an underactuated attitude tracking control (UATC) law for a reaction-wheel failure, generalising the choice of unactuated axis to whichever wheel has failed and replacing the disturbance-handling stage with an adaptive bound estimator. Both controllers apply the two-stage kinematic-then-dynamic backstepping procedure of \autoref{subsec:backstepping_procedure} recursively to the reduced kinematic and dynamic error subsystems below. This controller does come with a trade-off however which is that it cannot track angular velocity along actuated axes. Thus it regulates towards an inertial point in space. The equations of both are presented together using Zarourati's notation, with the points where the two differ noted as they arise.
 They define the error kinematics of the system as follows:
 \subsection*{Reduced Attitude Error Model}
 
@@ -259,14 +259,14 @@ Using the angular velocity error $\vec\omega_e = \vec\omega - [\vec C]^{BR}\vec\
 \begin{equation}
     \dot{[\vec C]}^{BR} = -\vec\omega_e^\times [\vec C]^{BR}
 \end{equation}
-which, substituted into the rigid-body dynamics equation \ref{eq:sat_dynamics}, gives the attitude tracking error dynamics
+which, substituted into the rigid-body dynamics equation \eqref{eq:sat_dynamics}, gives the attitude tracking error dynamics
 \begin{equation}
     \vec{J}\vec{\dot\omega}_e = -\vec\omega^\times \vec{h} + \vec{J}\vec\omega_e^\times[\vec C]^{BR}\vec\omega_d - \vec{J}[\vec C]^{BR}\vec{\dot\omega}_d + \vec{D}\vec{u}_c + \vec{d}
     \label{eq:zarourati_dynamics}
 \end{equation}
 where $\vec{h} = \vec{J}\vec\omega + \vec{h}_w$ is the total (body plus wheel) angular momentum, $\vec{D}\vec{u}_c = -\dot{\vec{h}}_w$ is the body torque produced by the wheels through the wheel torque distribution matrix $\vec{D}$, and $\vec{d}$ is the total bounded disturbance (external torques, inertia uncertainty and internal reaction-wheel disturbances).
 
-With one wheel unavailable, let $e_u \in \mathbb{R}$ and $\vec\omega_{eu} \in \mathbb{R}$ denote the vector-part quaternion error and angular velocity error component on the unactuated axis, and $\vec e_a \in \mathbb{R}^2$, $\vec\omega_{ea} \in \mathbb{R}^2$ the corresponding actuated pairs, using the reduced representation of \autoref{subsec:underactuated}. For a failure on, e.g., the $y$-axis reaction wheel ($e_u = q_{ey}$, $\vec e_a = [q_{ex},\,q_{ez}]^T$), the reduced kinematic error model following from equation \ref{eq:q_error_kinematics} is 
+With one wheel unavailable, let $e_u \in \mathbb{R}$ and $\vec\omega_{eu} \in \mathbb{R}$ denote the vector-part quaternion error and angular velocity error component on the unactuated axis, and $\vec e_a \in \mathbb{R}^2$, $\vec\omega_{ea} \in \mathbb{R}^2$ the corresponding actuated pairs, using the reduced representation of \autoref{subsec:underactuated}. For a failure on, e.g., the $y$-axis reaction wheel ($e_u = q_{ey}$, $\vec e_a = [q_{ex},\,q_{ez}]^T$), the reduced kinematic error model following from equation \eqref{eq:q_error_kinematics} is 
 %@TODO: move to chapter 3
 \begin{align}
     \dot{e}_u &= \frac{1}{2}\left(q_{ew}\,\omega_{eu} + q_{ex}\,\omega_{d,z} - q_{ez}\,\omega_{d,x}\right) + \frac{1}{2}\vec{e}_a^T\vec{G}_1\vec\omega_{ea} \label{eq:reduced_kin_u} \\
@@ -274,7 +274,7 @@ With one wheel unavailable, let $e_u \in \mathbb{R}$ and $\vec\omega_{eu} \in \m
     \vec{G}_1 = \begin{bmatrix}0 & -1\\ 1 & 0\end{bmatrix}, \quad
     \vec{G}_2 = \begin{bmatrix}q_{ew} & e_u \\ -e_u & q_{ew}\end{bmatrix} \label{eq:reduced_kin_a}
 \end{align}
-An equivalent pair of equations holds for a failure on any other axis by re-indexing. Equation \ref{eq:reduced_kin_u} shows that $e_u$ cannot be driven directly: it is only excited through the coupling term $\vec{e}_a^T\vec{G}_1\vec\omega_{ea}$.
+An equivalent pair of equations holds for a failure on any other axis by re-indexing. Equation \eqref{eq:reduced_kin_u} shows that $e_u$ cannot be driven directly: it is only excited through the coupling term $\vec{e}_a^T\vec{G}_1\vec\omega_{ea}$.
 
 \subsection*{Kinematic Backstepping Controller}
 
@@ -296,11 +296,11 @@ with
     \xi &= \gamma_0\exp(-\gamma_1 t) + \gamma_2
     \label{eq:xi_def}
 \end{align}
-where $k_u, \gamma_0, \gamma_1, \gamma_2 > 0$ are constant design parameters. Because $\vec{G}_1$ is skew-symmetric, $\vec{e}_d^T\vec{G}_1\vec{e}_d \equiv 0$, so $\frac{d}{dt}(\vec{e}_d^T\vec{e}_d) = 2\frac{\dot\xi}{\xi}\vec{e}_d^T\vec{e}_d$; solving this with the matched initial condition of \eqref{eq:oscillator} gives $\|\vec{e}_d(t)\| = \xi(t)$ for all $t \geq 0$ \cite{tianUnderactuatedTethered} (see appendix \ref{appen:derivations_tian_oscillator}). Since $\xi(t) \to \gamma_2 > 0$ rather than to zero, $\vec{e}_d$ never converges to the origin, so the coupling term in equation \ref{eq:reduced_kin_u} never vanishes identically and $e_u \to 0$ even once the actuated axes have settled onto their commanded trajectory. Using the Lyapunov function $V_1 = e_u^2 + \tilde{\vec{e}}_a^T\tilde{\vec{e}}_a$ with $\tilde{\vec{e}}_a = \vec{e}_d - \vec{e}_a$, \cite{tianUnderactuatedTethered} show that the kinematic control law equation \ref{eq:kin_controller}-- equation \ref{eq:oscillator} renders the equilibrium $(e_u, \tilde{\vec{e}}_a) = (0, \vec{0})$ uniformly exponentially stable.
+where $k_u, \gamma_0, \gamma_1, \gamma_2 > 0$ are constant design parameters. Because $\vec{G}_1$ is skew-symmetric, $\vec{e}_d^T\vec{G}_1\vec{e}_d \equiv 0$, so $\frac{d}{dt}(\vec{e}_d^T\vec{e}_d) = 2\frac{\dot\xi}{\xi}\vec{e}_d^T\vec{e}_d$; solving this with the matched initial condition of \eqref{eq:oscillator} gives $\|\vec{e}_d(t)\| = \xi(t)$ for all $t \geq 0$ \cite{tianUnderactuatedTethered} (see appendix \ref{appen:derivations_tian_oscillator}). Since $\xi(t) \to \gamma_2 > 0$ rather than to zero, $\vec{e}_d$ never converges to the origin, so the coupling term in equation \eqref{eq:reduced_kin_u} never vanishes identically and $e_u \to 0$ even once the actuated axes have settled onto their commanded trajectory. Using the Lyapunov function $V_1 = e_u^2 + \tilde{\vec{e}}_a^T\tilde{\vec{e}}_a$ with $\tilde{\vec{e}}_a = \vec{e}_d - \vec{e}_a$, \cite{tianUnderactuatedTethered} show that the kinematic control law equation \eqref{eq:kin_controller}-- equation \eqref{eq:oscillator} renders the equilibrium $(e_u, \tilde{\vec{e}}_a) = (0, \vec{0})$ uniformly exponentially stable.
 
 \subsection*{Dynamic Backstepping Controller}
 
-Define the dynamic tracking error $\vec\eta = \vec{u}_k - \vec\omega_{ea} \in \mathbb{R}^2$, the deviation of the actuated rate error from the kinematic control law equation \ref{eq:kin_controller}. Differentiating and substituting equation \ref{eq:zarourati_dynamics} gives the reduced dynamic error model
+Define the dynamic tracking error $\vec\eta = \vec{u}_k - \vec\omega_{ea} \in \mathbb{R}^2$, the deviation of the actuated rate error from the kinematic control law equation \eqref{eq:kin_controller}. Differentiating and substituting equation \eqref{eq:zarourati_dynamics} gives the reduced dynamic error model
 \begin{equation}
     \vec{J}^r\dot{\vec\eta} = \vec{J}^r\dot{\vec{u}}_k + (\vec\omega^\times)^r\vec{h}^r - \vec{J}^r(\vec\omega_e^\times)^r[\vec C]^{BR}_r\vec\omega_d^r + \vec{J}^r[\vec C]^{BR}_r\vec{\dot\omega}_d^r - \vec{D}^r\vec{u}_c^r - \vec{d}^r
     \label{eq:eta_dyn}

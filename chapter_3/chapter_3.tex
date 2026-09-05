@@ -4,27 +4,6 @@
 \section{Introduction}
 In this chapter the framework is built to represent the underactuated spacecraft problem. First the attitude control of a satellite is described, including the kinematics and dynamics. Then the orbit and environment are described, including the dominant disturbances acting on a satellite in low Earth orbit. Finally the reaction wheel dynamics are described, with relevant fault mechanisms investigated.
 
-\subsection{Notation}
-\begin{itemize}
-    \item Vectors are denoted by bold lowercase letters, e.g.\ $\vec{x}$.
-    \item Matrices are denoted by bold uppercase letters, e.g.\ $\vec{A}$.
-    \item Scalars are denoted by lowercase letters, e.g.\ $a$.
-\end{itemize}
-It is also worth defining the following notation for sub and superscripts of vectors and matrices:
-\begin{center}
-% \centering
-\begin{itemize}
-    \item subscripts denote points, e.g.\ $\vec{r}_{AB}$ is the position vector from point $B$ to point $A$ ($A$ relative to $B$).
-    \item superscripts denote frames, e.g.\ $\vec{v}^I_B$ is the velocity vector of point $B$ relative to inertial frame $I$ and $\vec{\omega}^{BI}$ is the angular velocity of frame $B$ relative to $I$.
-    \item coordinates are denoted by superscript outside of brackets e.g.\ $[\vec{r}_{AB}]^I$ represents the position vector of point $A$ relative to $B$ expressed in coordinates of frame $I$.
-    \item the $*^\times$ denotes the skew-symmetric matrix of a vector, e.g.\ $\vec{\omega}^\times = \begin{bmatrix} 0 & -\omega_z & \omega_y \\ \omega_z & 0 & -\omega_x \\ -\omega_y & \omega_x & 0 \end{bmatrix}$.
-    \item the $\bar{*}$ denotes a unit vector, e.g.\ $\bar{\vec{v}} = \frac{\vec{v}}{||\vec{v}||}$.
-    \item the $\hat{*}$ denotes the estimated value of a quantity, e.g.\ $\hat{\vec{\omega}}$ is the estimated angular velocity.
-    \item the $\tilde{*}$ denotes the error of a quantity relative to an estimate, e.g.\ $\tilde{\vec{\omega}} = \vec{\omega} - \hat{\vec{\omega}}$ is the angular velocity estimation error.
-\end{itemize}
-\end{center}
-These notations may be omitted when context makes one aspect or another clear. Other lowercase and upper case sub and superscripts may be used to denote other operators, quantities etc. which should be clear given context. 
-
 \subsection{Reference Frames}
 Since the goal is to control the attitude of a satellite, an appropriate representation should be used. Any orientation can be represented as a rotation from one frame to another. Typical reference frames would be Earth centreed inertial (ECI), Earth-centred-Earth-fixed (ECEF), orbit or body-fixed. A list of reference frames used with their abbreviation is given as:
 
@@ -63,6 +42,8 @@ In Figure \ref{fig:reference_frames} the Earth, orbit and satellite are shown wi
 \input{chapter_3/reference_frames}
 
 \section{Satellite Attitude Dynamics}
+Given a sufficient representation of the satellite attitude, the kinematics and dynamics can be described. The satellite is modelled as a rigid body with three reaction wheels and three magnetorquers. The reaction wheels are used to control the attitude of the satellite, while the magnetorquers are used to dump angular momentum from the reaction wheels and provide a small amount of torque for attitude control. The satellite is assumed to be in a low Earth orbit (LEO) with a sun-synchronous orbit. Both the fully actuated and underactuated dynamics are described, with the underactuated case assuming a reaction wheel has failed on the z-axis and is no longer able to provide torque about its axis.
+
 \subsection{Attitude Representations}
 
 The satellite's orientation can be represented intuitively using Euler angles yaw $\psi$, pitch $\theta$ and roll $\phi$, also known as the aerospace sequence. While these are intuitive, they suffer from singularities when trying to represent certain rotations. The direction cosine matrix (DCM) is the most fundamental representation of a rotation, since it is the rotation operator itself rather than a parameterization of it — it acts directly on a vector and is free of the singularities and sign ambiguities present in other representations. It can be used to transform a vector from frame $A$ to $B$ using the following relation
@@ -74,7 +55,7 @@ where $[\vec{C}]^{BA} \in \mathbb{R}^{3 \times 3}$ is the DCM from frame $A$ to 
 
 This matrix can be described by the Euler 3-2-1 rotation sequence as:
 
-\begin{align}
+\begin{align*}
     % \begin{split}
     [\vec{C}]^{BA} &= \begin{bmatrix}
         c_{11} & c_{12} & c_{13} \\
@@ -85,8 +66,8 @@ This matrix can be described by the Euler 3-2-1 rotation sequence as:
         C \psi C \theta &  S\psi C \theta & - S \theta \\
         - S \psi C \phi + C \psi S \theta S \phi & C \psi C \phi +  S\psi S \theta S \phi & C \theta S \phi \\
         C \psi S \theta C \phi + S \psi S \phi & S \psi S \theta C \phi - C \psi S \phi & C \theta C \phi
-    \end{bmatrix} 
-\end{align}
+    \end{bmatrix} \
+\end{align*}
 where $C$ and $S$ denote the cosine and sine functions respectively.
 
 The given problem requires computing attitude kinematics over time, and while DCMs can be used for this purpose, it is cumbersome requiring computationally expensive trigonometric functions. Instead quaternions, $\vec{q} = [q_{x} \ q_{y} \ q_{z} \ q_{w}]^T = [\vec{q}_v, q_w]^T$, are used to represent the kinematic differential equations. Quaternions represent a 4-dimensional extension of complex numbers. In order to represent rotations we limit ourselves to the unit quaternion which satisfies $q_{x}^2 + q_{y}^2 + q_{z}^2 + q_{w}^2 = 1$.
@@ -183,7 +164,7 @@ The satellite is modelled as a rigid body. The angular acceleration $\vec{\dot{\
 \begin{equation} \label{eq:sat_dynamics_simple}
 \vec{J}\vec{\dot{\omega}} = \sum{\vec{\tau_{ext}}} - \vec{\omega}\times\vec{h}
 \end{equation}
-where $\vec{J}$ is the satellite's mass moment of inertia, $\vec{\tau_{ext}}$ is any external torque applied and $\vec{h}$ is the total angular momentum of the satellite. Incorporating reaction wheel control system and magnetorquers equation \ref{eq:sat_dynamics_simple} becomes
+where $\vec{J}$ is the satellite's mass moment of inertia, $\vec{\tau_{ext}}$ is any external torque applied and $\vec{h}$ is the total angular momentum of the satellite. Incorporating reaction wheel control system and magnetorquers equation \eqref{eq:sat_dynamics_simple} becomes
 
 \begin{equation} \label{eq:sat_dynamics}
 \vec{J}\vec{\dot{\omega}} = \vec{\tau}_d -\vec{\omega}^\times(\vec{J}\vec{\omega}-\vec{h}_w)-\dot{\vec{h}}_w + \vec{\tau}_{mag}
@@ -193,7 +174,7 @@ where $\vec{\tau}_d$ represents the external disturbances applied, $\vec{h}_w$ r
 
 \subsection{Underactuated Case}
 \label{subsec:underactuated}
-For the underactuated case, we will assume that a reaction wheel has failed on the z-axis and is no longer able to provide torque about its axis $h_{wz} = \dot{h}_{wz} = 0$. This means that the satellite is now underactuated and cannot control its attitude about that axis. A key assumption here for controllability, mentioned in the previous chapter, is that the spacecraft total angular momentum is zero. This condition must be achieved via some torque, in this case magnetorquers. Thus according to equations \ref{eq:q_error_kinematics}, \ref{eq:omega_error}, \ref{eq:sat_dynamics} the kinematics of the underactuated case can be expressed as \cite{nadafiRobustBacksteppingAttitude2021}:
+For the underactuated case, we will assume that a reaction wheel has failed on the z-axis and is no longer able to provide torque about its axis $h_{wz} = \dot{h}_{wz} = 0$. This means that the satellite is now underactuated and cannot control its attitude about that axis. A key assumption here for controllability, mentioned in the previous chapter, is that the spacecraft total angular momentum is zero. This condition must be achieved via some torque, in this case magnetorquers. Thus according to equations \eqref{eq:q_error_kinematics}, \eqref{eq:omega_error}, \eqref{eq:sat_dynamics} the kinematics of the underactuated case can be expressed as \cite{nadafiRobustBacksteppingAttitude2021}:
 
 \begin{equation}
     \vec{\dot{q}}_{ev} = \frac{1}{2} \begin{bmatrix} q_{ew} & -q_{ez} \\ 
@@ -257,7 +238,7 @@ where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the 
     \label{eq:aero_torque}
 \end{equation}
 
-where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing equation \ref{eq:aero_torque} over all exposed surfaces.
+where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing equation \eqref{eq:aero_torque} over all exposed surfaces.
 
 \subsection{Gravity Gradient Torque}
 The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $\vec{r}_{BE}$ cubed and is thus only significant in LEO.
@@ -354,14 +335,14 @@ Of these, only the stuck and idle faults produce no reaction torque whatsoever, 
 % @TODO: Add a figure showing the different types of reaction wheel faults.
 
 \section{Quaternion Feedback Control}
-The kinematics and dynamics of the attitude error given by \ref{eq:q_error_kinematics}, \ref{eq:omega_error} and \ref{eq:sat_dynamics}, are a non-linear system of equations and cannot be analyzed using linear control theory without linearisation. Wie \cite{wieSpaceVehicleDynamics1998} proved that they can be stabilised using a nonlinear proportional-derivative (PD) quaternion feedback law using Lyapunov theory which will be discussed in the next section. Denoting the net torque commanded from the reaction wheels as $\vec{\tau}_c \triangleq -\dot{\vec{h}}_w$, the control law is chosen as
+The kinematics and dynamics of the attitude error given by \eqref{eq:q_error_kinematics}, \eqref{eq:omega_error} and \eqref{eq:sat_dynamics}, are a non-linear system of equations and cannot be analyzed using linear control theory without linearisation. Wie \cite{wieSpaceVehicleDynamics1998} proved that they can be stabilised using a nonlinear proportional-derivative (PD) quaternion feedback law using Lyapunov theory which will be discussed in the next section. Denoting the net torque commanded from the reaction wheels as $\vec{\tau}_c \triangleq -\dot{\vec{h}}_w$, the control law is chosen as
 
 \begin{equation}
     \vec{\tau}_c = \vec{\omega}^\times(\vec{J}\vec{\omega} - \vec{h}_w) + \vec{J}\left([\vec{C}]^{BR}\vec{\dot{\omega}}_d - \vec{\omega}_e \times [\vec{C}]^{BR}\vec{\omega}_d\right) - k_p \vec{q}_{ev} - k_d \vec{\omega}_e
     \label{eq:quat_feedback_control}
 \end{equation}
 
-where $k_p, k_d > 0$ are the proportional and derivative gains respectively, and $\vec{q}_{ev}$ is the vector part of the error quaternion $\vec{q}_e$. The first two terms cancel the gyroscopic coupling term in \ref{eq:sat_dynamics} and feed forward the desired angular acceleration and rate, while the remaining two terms drive the attitude and rate errors towards zero. Substituting \ref{eq:quat_feedback_control} into \ref{eq:sat_dynamics}, and neglecting the external disturbance torque $\vec{\tau}_d$ and magnetorquer torque $\vec{\tau}_{mag}$, the angular velocity error dynamics of \ref{eq:omega_error} reduce to the linear closed-loop form
+where $k_p, k_d > 0$ are the proportional and derivative gains respectively, and $\vec{q}_{ev}$ is the vector part of the error quaternion $\vec{q}_e$. The first two terms cancel the gyroscopic coupling term in \eqref{eq:sat_dynamics} and feed forward the desired angular acceleration and rate, while the remaining two terms drive the attitude and rate errors towards zero. Substituting \eqref{eq:quat_feedback_control} into \eqref{eq:sat_dynamics}, and neglecting the external disturbance torque $\vec{\tau}_d$ and magnetorquer torque $\vec{\tau}_{mag}$, the angular velocity error dynamics of \eqref{eq:omega_error} reduce to the linear closed-loop form
 
 \begin{equation}
     \vec{J}\vec{\dot{\omega}}_e = -k_p \vec{q}_{ev} - k_d \vec{\omega}_e
@@ -369,11 +350,11 @@ where $k_p, k_d > 0$ are the proportional and derivative gains respectively, and
 \end{equation}
 
 
-The control law \ref{eq:quat_feedback_control} implicitly assumes that the reaction wheels can supply an arbitrary commanded torque about all three body axes. This can be mitigated by keeping the system within the linear/almost linear control regime which is ensured by proper wheel sizing for desired slew rates. 
+The control law \eqref{eq:quat_feedback_control} implicitly assumes that the reaction wheels can supply an arbitrary commanded torque about all three body axes. This can be mitigated by keeping the system within the linear/almost linear control regime which is ensured by proper wheel sizing for desired slew rates. 
 
 \subsection{Fault Effects on Quaternion Feedback Control}
-As discussed in Section~\ref{subsec:underactuated}, once a reaction wheel axis fails such that $h_{wz} = \dot{h}_{wz} = 0$, the spacecraft becomes underactuated and \ref{eq:quat_feedback_control} can no longer be applied directly, since it requires independent control authority on all three axes. This motivates the study in fault-tolerant control approaches.
-To illustrate this, consider the following example. A 3 wheel satellite is commanded to track a reference quaternion trajectory using the quaternion feedback control law \ref{eq:quat_feedback_control}. The satellite is initially at rest before following a smooth trajectory to achieve the target quaternion $\vec{q}_{ref} = [0.12707253, -0.17409001,  0.12707253,  0.96819307]^T$. The resulting attitude tracking performance is shown in Figure~\ref{fig:quat_feedback_nominal}. The satellite successfully tracks the reference trajectory with small attitude errors. 
+As discussed in Section~\ref{subsec:underactuated}, once a reaction wheel axis fails such that $h_{wz} = \dot{h}_{wz} = 0$, the spacecraft becomes underactuated and \eqref{eq:quat_feedback_control} can no longer be applied directly, since it requires independent control authority on all three axes. This motivates the study in fault-tolerant control approaches.
+To illustrate this, consider the following example. A 3 wheel satellite is commanded to track a reference quaternion trajectory using the quaternion feedback control law \eqref{eq:quat_feedback_control}. The satellite is initially at rest before following a smooth trajectory to achieve the target quaternion $\vec{q}_{ref} = [0.12707253, -0.17409001,  0.12707253,  0.96819307]^T$. The resulting attitude tracking performance is shown in Figure~\ref{fig:quat_feedback_nominal}. The satellite successfully tracks the reference trajectory with small attitude errors. 
 
 
 \begin{figure}
