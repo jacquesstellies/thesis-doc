@@ -37,7 +37,7 @@
 
 % inertial frame triad at earth centre
 \triad{Ecen}{1.2}{I}
-\node[anchor=north east,xshift=-2pt,yshift=-10pt] at (Ecen) {\small $F_I$};
+\node[anchor=north east,xshift=-2pt,yshift=-13pt] at (Ecen) {\small $F_I$};
 
 % vernal equinox direction: continuation of the x_I axis, starting beyond
 % the Earth's edge so it doesn't overlap the triad arrow
@@ -48,14 +48,14 @@
   \draw[orbitorange, thick] (-3.7,0) arc (180:360:3.7 and 1.6);
 \end{scope}
 
-\node[orbitorange!70!black] at ($(Ecen)+(-3.75,-1.05)$) {\small Orbit};
+\node[orbitorange!70!black] at ($(Ecen)+(-4.1,-1.05)$) {\small Orbit};
 
 % ---- point on the orbit where the orbit frame lives ----
 \coordinate (OrbPt) at ($(Ecen)+(3.0,1.71)$);
 
 % radius vector from earth centre to the orbit point
-\draw[thick] (Ecen) -- (OrbPt);
-\node[sloped, above, pos=1.22] at ($(Ecen)!1.22!(OrbPt)$) {\small $\vec{r}_{BE}$}; %{\small $[\bm{R}]^{OI},\ [\bm{t}]^{OI}$}
+\draw[thick, ->] (Ecen) -- (OrbPt);
+\node[sloped] at ($(Ecen)+(1.0,1.4)$) {\small $\vec{r}_{BE}$}; %{\small $[\bm{R}]^{OI},\ [\bm{t}]^{OI}$}
 
 \triad{OrbPt}{1.05}{O}
 \node[below=2pt] at (OrbPt) {\small $F_O$};
