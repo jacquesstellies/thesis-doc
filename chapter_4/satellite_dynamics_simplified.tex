@@ -1,0 +1,20 @@
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        block/.style={draw, minimum width=3.6cm, minimum height=1.3cm, align=center},
+        node distance=2.4cm,
+        >=Latex
+    ]
+        \node[block] (dyn) {$\dot{\vec{\omega}} = g(\vec{q},\vec{\omega}) + \vec{u}$};
+        \node[block, right=of dyn] (kin) {$\dot{\vec{q}} = f(\vec{q},\vec{\omega})$};
+
+        \draw[->] ($(dyn.west)+(-1.4,0)$) -- node[above]{$\vec{u}$} (dyn.west);
+        \draw[->] (dyn.east) -- node[above]{$\vec{\omega}$} (kin.west);
+        \draw[->] (kin.east) -- ++(1.4,0) node[right]{$\vec{q}$};
+
+        \node[draw, dashed, inner sep=0.35cm, fit=(dyn), label={above:Subsystem $i-1$}] {};
+        \node[draw, dashed, inner sep=0.35cm, fit=(kin), label={above:Subsystem $i$}] {};
+    \end{tikzpicture}
+    \caption{Simplified cascade block diagram of the satellite attitude dynamics (subsystem $i-1$) and kinematics (subsystem $i$).}
+    \label{fig:cascade_simplified}
+\end{figure}
