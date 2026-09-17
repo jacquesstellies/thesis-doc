@@ -2,16 +2,15 @@
 \label{chap:underactuated_controller}
 
 \section{Introduction}
-The underactuated system described in \autoref{chap:modelling} is a highly non-linear system thus traditional LTI control methods are not directly applicable. As discussed as part of the literature review in chapter \ref{chap:literature_review}, the backstepping controller is a suitable control method for underactuated systems. In this chapter, the underactuated backstepping controllers designed by Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} is analysed and its properties are discussed. A key defining feature of this controller is that it can achieve attitude tracking control i.e.: tracking a desired attitude profile under certain constraints, where most works are limited to regulation. It will be shown that this controller is robust to external disturbances, varying moment of inertia, reaction wheel torque disturbances and is performant in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite. This chapter will also discuss the controllability of the underactuated system and the limitations of the backstepping controller. A possible future modification to this controller is discussed using a technique developed by Haochang Tian in \cite{tianUnderactuatedTethered}. This controlle uses a similar backstepping methodology but contains a modification to the kinematic virtual control input to excite the actuated axes during a slew manoeuvre. Finally simulation results are presented which illustrate key constraints of the design.
+The underactuated system described in \autoref{chap:modelling} is a highly non-linear system thus traditional LTI control methods are not directly applicable. As discussed as part of the literature review in chapter \ref{chap:literature_review}, the backstepping controller is a suitable control method for underactuated systems. In this chapter, the underactuated backstepping controllers designed by Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} is analysed and its properties are discussed. A key defining feature of this controller is that it can achieve attitude tracking control i.e.: tracking a desired attitude profile under certain constraints, where most works are limited to regulation. It will be shown that this controller is robust to external disturbances, varying moment of inertia, reaction wheel torque disturbances and is performant in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite. This chapter will also discuss the controllability of the underactuated system and the limitations of the backstepping controller. A possible future modification to this controller is discussed using a technique developed by Haochang Tian in \cite{tianUnderactuatedTethered}. This controller uses a similar backstepping methodology but contains a modification to the kinematic virtual control input to excite the actuated axes during a slew manoeuvre. Simulation results are presented which illustrate key constraints of the design. Magnetorquer
 
 \begin{comment}
- @TODO: Do I include input shaping in this chapter?
- An input shaping techinque is presented to achieve smooth point to point manoeuvres. This is then combined with a box manoeuvre to .
+ @TODO: Do I include Magnetorquers in this chapter?
 \end{comment}
 \section{Controllability}
-As mentioned in section \ref{underactuated_lit_review}, a controllability analysis of an underactuated satellite is presented in \cite{aeyelsStabilizationNonLinear} by Aeyels and Dirk. They show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time varying control law feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the central manifold theorem. They also show that a key requirement is that the angular momementum of the satellite must be zero $H = 0$ in order to achieve stability.
+As mentioned in section \ref{underactuated_lit_review}, a controllability analysis of an underactuated satellite is presented in \cite{aeyelsStabilizationNonLinear} by Aeyels and Dirk. They show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time varying control law feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the central manifold theorem. In \cite{aeyelsComments} Aeyels and Szafranski show that a key requirement is that the total angular momentum of the satellite must be zero $\vec{H} = 0$ in order to achieve stability. 
 
-Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021}, \cite{tianUnderactuatedTethered} and \cite{zarouratiUnderactuatedFaultTolerantControl} build on this work and present time-varying backstepping controllers.
+Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} build on this work and present a time-varying backstepping controller.
 
 \section{Backstepping}
 \label{subsec:backstepping_procedure}
@@ -137,7 +136,7 @@ Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} present a robus
 
 \subsection*{Cascade Model}
 
-Under the assumptions (z-axis is the unactuated axis; total angular momentum is zero so $\omega_z = 0$), the full spacecraft dynamics reduce to a two-part cascade system in the actuated angular velocity error $\boldsymbol{\omega}^r_e = [\omega_{ex},\, \omega_{ey}]^T \in \mathbb{R}^2$ and the quaternion error $\vec{q}_e \in \mathbb{R}^4$:
+To design the controller, Nadafi and Kabganian consider the reduced spacecraft model error i.e.: the actuated dynamics and kinematics. Under the assumptions (z-axis is the unactuated axis; total angular momentum is zero so $\omega_z = 0$), the full spacecraft dynamics reduce to a two-part cascade system in the actuated angular velocity error $\boldsymbol{\omega}^r_e = [\omega_{ex},\, \omega_{ey}]^T \in \mathbb{R}^2$ and the quaternion error vector $\vec{q}_e \in \mathbb{R}^3$:
 \begin{align}
     \dot{\boldsymbol{\omega}}^r_e &= \vec{u} + \vec{F} + \vec{d} \label{eq:cascade_dyn} \\
     \dot{\vec{q}}_e &= A(\vec{q}_e)\,\boldsymbol{\omega}^r_e, \quad
@@ -151,17 +150,25 @@ where $\vec{u} = \{J^r_0\}^{-1}\dot{\vec{h}}^r_w \in \mathbb{R}^2$ is the contro
 
 \subsection*{Disturbance Observer}
 
-To estimate $\vec{d}$, a finite-time nonlinear disturbance observer (FNDO) is employed:
+To estimate$\vec{d}$ Nadafi and Kabganian employ a finite-time nonlinear disturbance observer (FNDO) derived in \cite{shihuaDisturbanceObserverBasedControl}. This is a sliding-mode observer that estimates the lumped disturbance $\vec{d}$ in finite time, with the following dynamics:
 \begin{align}
     \dot{\boldsymbol{\chi}}_0 &= \boldsymbol{\nu}_0 + \vec{u} + \vec{F}, \quad
     \boldsymbol{\nu}_0 = -\kappa_0\,\mathrm{diag}\!\left(L^{1/2}|\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e|^{1/2}\right)\mathrm{sign}(\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e) + \boldsymbol{\chi}_1 \notag \\
     \dot{\boldsymbol{\chi}}_1 &= -\kappa_1 L\,\mathrm{sign}(\boldsymbol{\chi}_1 - \boldsymbol{\nu}_0)
 \end{align}
-where $\boldsymbol{\chi}_1$ converges to $\vec{d}$ in finite time for suitable choices of $\kappa_i > 0$ and Lipschitz coefficients $L$.
+where $\boldsymbol{\chi}_1$ converges to $\vec{d}$ for suitable choices of parameters $\kappa_0, \kappa_1 > 0$ and $L$.
 
 \subsection*{Hypersurface Design}
 
-The unactuated quaternion error $\vec{q}_e$ cannot be driven directly by $\vec{u}$; it is driven only through the kinematic equation \eqref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. The key idea is to define a virtual input hypersurface $\boldsymbol{\omega}^r_e = \boldsymbol{\Phi}(\vec{q}_e)$, with $\boldsymbol{\Phi}(\vec{0}) = \vec{0}$, such that $\vec{q}_e \to \vec{0}$ when the actuated states lie on the surface.
+The unactuated quaternion error $q_{ez}$ cannot be driven directly by $\vec{u}$; it is driven only through the kinematic equation \eqref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. It's important to note that this is exploiting the kinematic (not gyroscopic) coupling between the actuated and unactuated states. No gyroscopic torque is involved instead this takes advantage of the Lie bracket geometry. The unactuated states are influenced in a manner analagous to nonholonomic steering. To illustrate this, consider the kinematic equation for the unactuated quaternion error rate:
+
+\begin{equation}
+    \dot{q}_{e3} = \frac{1}{2}(-q_{e2}\omega_{ex} + q_{e1}\omega_{ey})
+\end{equation}
+
+It is clear that the unactuated quaternion error $q_{e3}$ is driven by the actuated angular velocity error $\boldsymbol{\omega}^r_e$ through the actuated quaternion errors $q_{e1}$ and $q_{e2}$. If the actuated quaternion errors are zero or the actuated angular velocity error is zero, then the unactuated quaternion error is not driven at all. This is a key limitation of the controller which will be discussed in more detail later in this chapter. As such the controller is designed for tracking a desired attitude profile rather than regulation to a fixed attitude. 
+
+ So Nadafi and Kabganian define a virtual input hypersurface $\boldsymbol{\omega}^r_e = \boldsymbol{\Phi}(\vec{q}_e)$, with $\boldsymbol{\Phi}(\vec{0}) = \vec{0}$, such that $\vec{q}_e \to \vec{0}$ when the actuated states lie on the surface.
 
 The choice
 \begin{equation}
@@ -179,7 +186,7 @@ The proof uses the Lyapunov function $V_a = \frac{1}{2}\vec{q}_e^T \Lambda \vec{
 
 With the variable transformation $\vec{Z} = \boldsymbol{\omega}^r_e - \boldsymbol{\Phi}(\vec{q}_e)$ measuring deviation from the hypersurface, the FNDO-based backstepping (FNDO-BS) control law is:
 \begin{equation}
-    \vec{u} = \vec{F} - \boldsymbol{\chi}_1 + \frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})
+    \vec{u} = -\vec{F} - \boldsymbol{\chi}_1 + \frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})
     - \left(\vec{q}_e^T \Lambda A(\vec{q}_e)\right)^T - \Gamma_z \vec{Z}
     \label{eq:fndo_bs}
 \end{equation}
@@ -227,7 +234,7 @@ The driving authority for $q_{e3}$ is quadratic in the actuated error, so it van
 The LaSalle argument in Case~I of \cite{nadafiRobustBacksteppingAttitude2021}
 (equations~24--25) concludes $q_{e3} = 0$ from the condition
 \begin{equation}
-    \tfrac{1}{2}\,q_{e3}\!\left(\omega_{ex}^2 + \omega_{ey}^2\right) = 0.
+    \tfrac{1}{2}\,q_{e3}\!\left(\omega_{ex}^2 + \omega_{ey}^2\right) = 0
 \end{equation}
 However, on the invariant set $\{q_{e1} = q_{e2} = 0\}$, the virtual control
 $\boldsymbol{\Phi} = \vec{0}$ forces $\boldsymbol{\omega}^r_e = \vec{0}$, reducing the

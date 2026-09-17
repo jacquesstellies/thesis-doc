@@ -1,0 +1,67 @@
+The definitions of stability and asymptotic stability given above have a natural geometric interpretation in the state space, illustrated in Figure~\ref{fig:lyapunov_stability}. For a given $\epsilon > 0$, the equilibrium point $x=0$ is stable if a $\delta > 0$ can be found such that any trajectory starting inside the ball $S(\delta)$ remains inside the larger ball $S(\epsilon)$ for all time. If, in addition, the trajectory converges to the origin as $t \rightarrow \infty$, the equilibrium is asymptotically stable. If no such $\delta$ exists, i.e.\ trajectories starting arbitrarily close to the origin eventually leave $S(\epsilon)$, the equilibrium is unstable \cite{khalilNonlinearSystems2002}.
+
+\begin{figure}[h]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[
+        >=Stealth,
+        every node/.style={font=\small}
+    ]
+        % ---------- Panel (a): Stable ----------
+        \begin{scope}[xshift=0cm]
+            \draw[dashed] (0,0) circle (2.1);
+            \draw[dashed] (0,0) circle (0.9);
+            \draw[->] (-1.9,1.75) -- (-0.75,1.35) node[midway, above, sloped]{};
+            \node at (-2.3,1.95) {$S(\epsilon)$};
+            \draw[->] (-1.2,-1.6) -- (-0.55,-0.75);
+            \node at (-1.55,-1.8) {$S(\delta)$};
+
+            \filldraw (0,0) circle (1.2pt) node[below left=1pt] {$0$};
+            \filldraw (0.55,0.15) circle (1.2pt) node[right] {$x(0)$};
+
+            \draw[->, thick, domain=0:760, samples=150, smooth, variable=\t]
+                plot ({(0.15+0.0018*\t)*cos(\t)+0.55*(1-\t/760)}, {(0.15+0.0018*\t)*sin(\t)+0.15*(1-\t/760)});
+
+            \node at (0,-2.7) {Lyapunov stable};
+        \end{scope}
+
+        % ---------- Panel (b): Asymptotically stable ----------
+        \begin{scope}[xshift=6cm]
+            \draw[dashed] (0,0) circle (2.1);
+            \draw[dashed] (0,0) circle (0.9);
+            \draw[->] (-1.9,1.75) -- (-0.75,1.35);
+            \node at (-2.3,1.95) {$S(\epsilon)$};
+            \draw[->] (-1.2,-1.6) -- (-0.55,-0.75);
+            \node at (-1.55,-1.8) {$S(\delta)$};
+
+            \filldraw (0,0) circle (1.2pt) node[below left=1pt] {$0$};
+            \filldraw (0.7,0.1) circle (1.2pt) node[right] {$x(0)$};
+
+            \draw[->, thick, domain=0:760, samples=150, smooth, variable=\t]
+                plot ({0.71*exp(-\t/280)*cos(\t)}, {0.71*exp(-\t/280)*sin(\t)});
+
+            \node at (0,-2.7) {Asymptotically stable};
+        \end{scope}
+
+        % ---------- Panel (c): Unstable ----------
+        \begin{scope}[xshift=12cm]
+            \draw[dashed] (0,0) circle (2.1);
+            \draw[dashed] (0,0) circle (0.9);
+            \draw[->] (-1.9,1.75) -- (-0.75,1.35);
+            \node at (-2.3,1.95) {$S(\epsilon)$};
+            \draw[->] (-1.2,-1.6) -- (-0.55,-0.75);
+            \node at (-1.55,-1.8) {$S(\delta)$};
+
+            \filldraw (0,0) circle (1.2pt) node[below left=1pt] {$0$};
+            \filldraw (0.25,0.05) circle (1.2pt) node[above right=1pt] {$x(0)$};
+
+            \draw[->, thick, domain=0:430, samples=150, smooth, variable=\t]
+                plot ({0.26*exp(\t/240)*cos(\t)}, {0.26*exp(\t/240)*sin(\t)});
+
+            \node at (0,-2.7) {Unstable};
+        \end{scope}
+    \end{tikzpicture}%
+    }
+    \caption{Geometric interpretation of Lyapunov stability, asymptotic stability and instability of the equilibrium point $x=0$. A trajectory starting inside $S(\delta)$ either remains inside $S(\epsilon)$ (stable), converges to the origin (asymptotically stable), or eventually leaves $S(\epsilon)$ (unstable) \cite{khalilNonlinearSystems2002}.}
+    \label{fig:lyapunov_stability}
+\end{figure}
