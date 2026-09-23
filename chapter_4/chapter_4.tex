@@ -8,6 +8,7 @@ The underactuated system described in \autoref{chap:modelling} is a highly non-l
  @TODO: Do I include Magnetorquers in this chapter?
 \end{comment}
 \section{Controllability}
+\label{sec:controllability}
 As mentioned in section \ref{underactuated_lit_review}, a controllability analysis of an underactuated satellite is presented in \cite{aeyelsStabilizationNonLinear} by Aeyels and Dirk. They show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time varying control law feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the central manifold theorem. In \cite{aeyelsComments} Aeyels and Szafranski show that a key requirement is that the total angular momentum of the satellite must be zero $\vec{H} = 0$ in order to achieve stability. 
 
 Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} build on this work and present a time-varying backstepping controller.
@@ -24,7 +25,7 @@ To prove the stability of a non-linear system around an equilibrium point, a Lya
 
 which has an equilibrium point at $x=0$. The equilibrium point is stable if for each $\epsilon > 0$, there exists a $\delta > 0$ such that if $\|x(0)\| < \delta$, then $\|x(t)\| < \epsilon$ for all $t \geq 0$.
 
-\input{chapter_4/lypunov_stability}
+\input{chapter_4/lyapunov_stability}
 % @TODO: Fix this
 
 
@@ -41,11 +42,11 @@ then x is stable. If
 \end{equation}
 then x is asymptotically stable. If D = $\mathbb{R}^n$ and V is radially unbounded then x is globally asymptotically stable \cite{khalilNonlinearSystems2002}.
 
- A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $V(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function. That is $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
+ A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $\dot{V}(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function or equivilantly $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
 
 A common Lyapunov function chosen for electro-mechanical systems is the total energy of a system (pendulums, robot manipulators, converters, ship dynamics), since total energy V = kinetic + potential is already a natural positive-definite candidate. However this is not a requirement and other Lyapunov functions can be used along as it satisfies the conditions of being positive definite and differentiable \cite{khalilNonlinearSystems2002}.
 \subsection{Backstepping Procedure}
-Using the Lyapunov stability theory, the backstepping procedure as outlined in \cite{khalilNonlinearSystems2002} can be described as follows. Take the following 2nd order equation:
+Using the Lyapunov stability theory, the backstepping procedure is outlined in \cite{khalilNonlinearSystems2002} as follows. Take the following 2nd order equation:
 
 \begin{equation}
     \dot{\eta} = f(\eta) + g(\eta)\xi \label{eq:1}
@@ -57,38 +58,36 @@ Using the Lyapunov stability theory, the backstepping procedure as outlined in \
 where $f(0)=0$ and g is non-zero over the region of interest.
 The goal is to design a control law $u$ such that the origin $\eta=0$ is asymptotically stable i.e.: $(\eta, z)$ returns to $(0,0)$ after starting from some arbitrary initial condition.
 
-Assuming that equation \eqref{eq:1} can be stabilized by a smooth feedback state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$ such that 
-
-$$
+\textbf{Step 1: Treat $\xi$ as a virtual control.} Assume that equation \eqref{eq:1} can be stabilized by a smooth state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$, i.e. the subsystem
+\begin{equation}
     \dot{\eta} = f(\eta) + g(\eta)\phi(\eta)
-$$
-
-and assuming that there is a Lyapunov function $V(\eta)$ which stabilizes the subsystem then it should satisfy
+\end{equation}
+has an asymptotically stable origin. Then there is a Lyapunov function $V(\eta)$ satisfying
 
 \begin{equation}
-\dot{\eta} = \frac{\partial V}{\partial \eta}[f(\eta) + g(\eta)\phi(\eta)] \leq -W(\eta), \quad \forall \ \eta \in D
+\begin{split}
+    \dot{V} &= \frac{\partial V}{\partial \eta}\frac{d \eta}{dt} \\
+    &= \frac{\partial V}{\partial \eta}[f(\eta) + g(\eta)\phi(\eta)] \leq -W(\eta), \quad \forall \ \eta \in D
+\end{split}
 \end{equation}
 
-where $W(\eta)$ is a positive definite function. As we will see later $V$ can be chosen to suit application specific needs of the system.
+where $W(\eta)$ is a positive definite function. Note that $\xi=\phi(\eta)$ is only the \textit{desired} value of $\xi$. In reality $\xi$ is a state that is only driven by $u$, so in general $\xi \neq \phi(\eta)$.
 
-We can then obtain the equivalent expression by adding and subtracting $g(\eta)\phi(\eta)$ on the righthand side of equation \eqref{eq:1}:
-\begin{equation}
-    \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)[\xi - \phi(\eta)] 
-\end{equation}
-
-The above is repsented in figure \ref{fig:backstepping} b). The change of variables 
+\textbf{Step 2: Define the error from the desired value.} The change of variables
 $$ z = \xi - \phi(\eta) $$
-results in the system 
+gives the error between the actual value of $\xi$ and the desired value $\phi(\eta)$, with $z=0$ meaning $\xi=\phi(\eta)$. Adding and subtracting $g(\eta)\phi(\eta)$ on the righthand side of equation \eqref{eq:1} and substituting $z$ gives the new system equations:
+\begin{align}
+    \dot{\eta} &= [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z \\
+    \dot{z} &= u - \dot{\phi}
+\end{align}
+and 
+\begin{equation}
+\qquad \dot{\phi} = \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)\xi]
+\end{equation}
 
-$$ \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z  $$
-$$ \dot{z} = u - \dot{\phi} $$
+which is shown in figure \ref{fig:backstepping} b) and c). Going from b) to c) is called backstepping because the virtual control input $-\phi(\eta)$ is stepped back through the integrator. The bracketed term is the stable subsystem from Step 1, and $g(\eta)z$ is the perturbation from $\xi$ not yet matching $\phi(\eta)$.
 
-which is shown in Figure \ref{fig:backstepping} c). Going from step b) to c) is called backstepping because you are backstepping the control input $-\phi(\eta)$ through the integrator. Finding the derivative $\dot{\phi}$ 
-
-$$ \dot{\phi} = \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)] $$
-
-and taking $v = u - \dot{\phi}$ we obtain the cascade connection
-
+\textbf{Step 3: Cascade form.} Taking $v = u - \dot{\phi}$ gives the cascade connection
 $$ \dot{\eta} = [f(\eta) + g(\eta)\phi(\eta)] + g(\eta)z  $$
 $$ \dot{z} = v $$
 
@@ -111,7 +110,7 @@ gives us
 $$ \dot{V_c} = -W(\eta) - kz^2 $$
 
 where k influences the rate of convergence.
-This shows that the origin $(n=0, z=0)$ is asymptotically stable. Since $\phi(0) = 0$ we know that the origin $(n=0, \xi=0)$ is also asymptotically stable. Substituting for $v$, $z$ and $\phi$ we obtain the control law for the system:
+This shows that the origin $(\eta=0, z=0)$ is asymptotically stable. Since $\phi(0) = 0$ we know that the origin $(\eta=0, \xi=0)$ is also asymptotically stable. Substituting for $v$, $z$ and $\phi$ we obtain the control law for the system:
 
 \begin{equation}
     u =  \frac{\partial \phi}{\partial \eta} [f(\eta) + g(\eta)\xi] - \frac{\partial V}{\partial \eta}g(\eta)z - k[\xi - \phi(\eta)]
@@ -126,39 +125,45 @@ This process can be visualized in figure \ref{fig:backstepping}.
 \begin{figure}
     \centering
     \includegraphics[width=1.0\textwidth]{chapter_4/Backstepping_diagram.drawio.png}
-    \caption{Backstepping visualization block diagram series. a) Original system b) Introduce virtual control input c) Backstepping control input through integrator}
+    \caption{Backstepping visualization block diagram series. a) Original system b) Introduce virtual control input c) Backstepping virtual control input through integrator}
     \label{fig:backstepping}
 \end{figure}
 \newpage
 \section{Nadafi and Kabganian Controller}
 
-Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} present a robust backstepping attitude tracking controller for an underactuated spacecraft equipped with two reaction wheels, addressing the coupled kinematic--dynamic (cascade) model in the presence of actuator saturation and time-varying perturbations. The key contribution is a novel hypersurface that stabilises the unactuated attitude degrees of freedom via virtual inputs, enabling full asymptotic convergence of both angular velocity error and quaternion error using only two torques. They require no limitations on the reference quaternion.
+Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} present a robust backstepping attitude tracking controller for an underactuated spacecraft equipped with two reaction wheels, addressing the coupled kinematic--dynamic (cascade) model in the presence of actuator saturation and time-varying perturbations. They name this controller the FNDO-BS (`Finite-Time Nonlinear Disturbance Observer`-`Backstepping`) Controller. The key contribution is a novel hypersurface that stabilises the unactuated attitude degrees of freedom via virtual inputs, enabling full asymptotic convergence of both angular velocity error and quaternion error using only two torques. They require no limitations on the reference quaternion.
 
-\subsection*{Cascade Model}
+\subsection{Cascade Model}
 
-To design the controller, Nadafi and Kabganian consider the reduced spacecraft model error i.e.: the actuated dynamics and kinematics. Under the assumptions (z-axis is the unactuated axis; total angular momentum is zero so $\omega_z = 0$), the full spacecraft dynamics reduce to a two-part cascade system in the actuated angular velocity error $\boldsymbol{\omega}^r_e = [\omega_{ex},\, \omega_{ey}]^T \in \mathbb{R}^2$ and the quaternion error vector $\vec{q}_e \in \mathbb{R}^3$:
-\begin{align}
-    \dot{\boldsymbol{\omega}}^r_e &= \vec{u} + \vec{F} + \vec{d} \label{eq:cascade_dyn} \\
-    \dot{\vec{q}}_e &= A(\vec{q}_e)\,\boldsymbol{\omega}^r_e, \quad
-    A(\vec{q}_e) = \frac{1}{2}\begin{bmatrix}
-        q_{e0} & -q_{e3} \\
-        q_{e3} &  q_{e0} \\
-       -q_{e2} &  q_{e1}
-    \end{bmatrix} \label{eq:cascade_kin}
-\end{align}
-where $\vec{u} = \{J^r_0\}^{-1}\dot{\vec{h}}^r_w \in \mathbb{R}^2$ is the control input (reaction wheel torque), $\vec{F} = - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy} \} [\omega_{ey} \ -\omega_{ex}]^T$ captures the known gyroscopic and reference-trajectory terms, and $\vec{d}$ is the total bounded perturbation, which includes external disturbances, time-varying inertia uncertainty $\Delta J$, and internal reaction wheel disturbances.
+To design the controller, Nadafi and Kabganian consider the reduced spacecraft model error i.e.: the actuated dynamics and kinematics. In order to ensure the robustness of their controller actuator faults as a bounded disturbance $\dot{h}_dw$ on the actuated dynamics and assume some constant effectiveness reduction $\rho_w = 1$ on the actuated wheels
 
-\subsection*{Disturbance Observer}
+\begin{equation}
+    \dot{h}_{dw} = \rho_w \dot{h}_w
+\end{equation}
 
-To estimate$\vec{d}$ Nadafi and Kabganian employ a finite-time nonlinear disturbance observer (FNDO) derived in \cite{shihuaDisturbanceObserverBasedControl}. This is a sliding-mode observer that estimates the lumped disturbance $\vec{d}$ in finite time, with the following dynamics:
-\begin{align}
-    \dot{\boldsymbol{\chi}}_0 &= \boldsymbol{\nu}_0 + \vec{u} + \vec{F}, \quad
-    \boldsymbol{\nu}_0 = -\kappa_0\,\mathrm{diag}\!\left(L^{1/2}|\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e|^{1/2}\right)\mathrm{sign}(\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e) + \boldsymbol{\chi}_1 \notag \\
-    \dot{\boldsymbol{\chi}}_1 &= -\kappa_1 L\,\mathrm{sign}(\boldsymbol{\chi}_1 - \boldsymbol{\nu}_0)
-\end{align}
-where $\boldsymbol{\chi}_1$ converges to $\vec{d}$ for suitable choices of parameters $\kappa_0, \kappa_1 > 0$ and $L$.
+Under the assumptions (z-axis is the unactuated axis; total angular momentum is zero so $\omega_z = 0$), the full spacecraft dynamics reduce to a two-part cascade system in the actuated angular velocity error $\boldsymbol{\omega}^r_e = [\omega_{ex},\, \omega_{ey}]^T \in \mathbb{R}^2$ and the quaternion error vector $\vec{q}_e \in \mathbb{R}^3$:
+\begin{equation}
+    \begin{split}
+        \dot{\vec{q}}_e = \frac{1}{2}\begin{bmatrix}
+            q_{e0} & -q_{e3} \\
+            q_{e3} &  q_{e0} \\
+            -q_{e2} &  q_{e1}
+        \end{bmatrix} \label{eq:cascade_kin}
+        \vec{\dot{\omega}_e^r}
+        = A(\vec{q}_e)\vec{\dot{\omega}_e^r}
+    \end{split}
+\end{equation}
 
-\subsection*{Hypersurface Design}
+\begin{equation}
+\begin{split}
+        \vec{\dot{\omega}}^r_e &= \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy}\} + \{\vec{J}^r\}^{-1} \vec{T}_d^r + \{\vec{J}^r\}^{-1} \vec{\rho_w} \dot{\vec{h}}_w^r \\
+    &= \vec{u} + \vec{F} + \vec{d} \label{eq:cascade_dyn} \\
+\end{split}
+\end{equation}
+where $\vec{u} = \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w \in \mathbb{R}^2$ is the control input (reaction wheel torque), $\vec{F} = - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy} \} [\omega_{ey} \ -\omega_{ex}]^T$ captures the known gyroscopic and reference-trajectory terms and $\vec{d} = \{\vec{J}^r\}^{-1} (\vec{T}_d^r + \vec{\rho_w} \dot{\vec{h}}_w^r)$ is the lumped disturbance, which includes external disturbances and internal reaction wheel disturbances. Notice that $\vec{\rho_w} \in \mathbb{R}^{2\times2}$ is the complement of the actuator effectiveness matrix $\vec{E} = \vec{I} - \vec{\rho_w}$ defined in section \ref{chap:modelling}. The control input $\vec{u}$ is will be designed to drive the actuated angular velocity error $\boldsymbol{\omega}^r_e$ to zero in the following sections.
+
+\subsection{Virtual Control Input Design}
+\label{subsec:hypersurface_design}
 
 The unactuated quaternion error $q_{ez}$ cannot be driven directly by $\vec{u}$; it is driven only through the kinematic equation \eqref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. It's important to note that this is exploiting the kinematic (not gyroscopic) coupling between the actuated and unactuated states. No gyroscopic torque is involved instead this takes advantage of the Lie bracket geometry. The unactuated states are influenced in a manner analagous to nonholonomic steering. To illustrate this, consider the kinematic equation for the unactuated quaternion error rate:
 
@@ -178,11 +183,26 @@ The choice
     \end{bmatrix}, \quad a = \lambda_2 - \lambda_3,\quad b = \lambda_3 - \lambda_1
     \label{eq:hypersurface}
 \end{equation}
-with $\lambda_i > 0$, $|\lambda_1| = |\lambda_2|$, and $|a| \leq |\lambda_1|$, guarantees that the unactuated quaternion error $\vec{q}_e \to \vec{0}$ asymptotically.
+with constants $\lambda_i > 0$, $|\lambda_1| = |\lambda_2|$, and $|a| \leq |\lambda_1|$, guarantees that the unactuated quaternion error $\vec{q}_e \to \vec{0}$ asymptotically.
 
-The proof uses the Lyapunov function $V_a = \frac{1}{2}\vec{q}_e^T \Lambda \vec{q}_e$ with $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2, \lambda_3)$. Substituting equation \eqref{eq:hypersurface} yields $\dot{V}_a$ negative semi-definite, and LaSalle's invariance principle then shows that the only invariant set where $\dot{V}_a = 0$ is the origin $\vec{q}_e = \vec{0}$.
+The proof chooses the Lyapunov function 
+\begin{equation}
+    V_a = \frac{1}{2}\vec{q}_e^T \Lambda \vec{q}_e
+\end{equation}
 
-\subsection*{Backstepping Control Law}
+with $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2, \lambda_3)$. Taking the time derivative and substituting equation \eqref{eq:hypersurface} yields $\dot{V}_a$ negative semi-definite, and LaSalle's invariance principle then shows that the only invariant set where $\dot{V}_a = 0$ is the origin $\vec{q}_e = \vec{0}$. See Appendix~\ref{appen:derivations_nadafi_backstepping} for the full proof of asymptotic stability of $\vec{q}_e$.
+
+\subsection{Disturbance Observer}
+
+The backstepping controller relies on the hypersurface defined by equation \eqref{eq:hypersurface} to stear the unactuated axis. The actuated states have to sit on that surface for the argument to hold. Any external or internal disturbance is not captured by the dynamics the hypersurface relies on. Thus a persistent estimation error in the lumped disturbance would push the system off of the surface and lead to instability. To estimate $\vec{d} \in \mathbb{R}^2$ Nadafi and Kabganian employ a finite-time nonlinear disturbance observer (FNDO) presented in \cite{shihuaDisturbanceObserverBasedControl}. This is a sliding-mode observer that estimates $\vec{d}$ in finite time. It handles the disturbances and uncertainties in a robust manner simply with a fast response time \cite{huQinglei2014Dobf}. The FNDO is given by:
+\begin{align}
+    \dot{\boldsymbol{\chi}}_0 &= \boldsymbol{\nu}_0 + \vec{u} + \vec{F}, \quad
+    \boldsymbol{\nu}_0 = -\kappa_0\,\mathrm{diag}\!\left(L^{1/2}|\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e|^{1/2}\right)\mathrm{sign}(\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e) + \boldsymbol{\chi}_1 \notag \\
+    \dot{\boldsymbol{\chi}}_1 &= -\kappa_1 L\,\mathrm{sign}(\boldsymbol{\chi}_1 - \boldsymbol{\nu}_0)
+\end{align}
+where $\boldsymbol{\chi}_1$ converges to $\vec{d}$ for suitable choices of parameters $\kappa_0, \kappa_1 > 0$ and $L$.
+
+\subsection{Backstepping Control Law}
 
 With the variable transformation $\vec{Z} = \boldsymbol{\omega}^r_e - \boldsymbol{\Phi}(\vec{q}_e)$ measuring deviation from the hypersurface, the FNDO-based backstepping (FNDO-BS) control law is:
 \begin{equation}
@@ -194,8 +214,7 @@ where $\Gamma_z \in \mathbb{R}^{2\times 2}$ is a positive definite gain matrix. 
 
 \subsubsection*{Remark}
 
-The controller loses all authority over $q_{e3}$ when $q_{e1} = q_{e2} = 0$.
-Substituting $q_{e1} = q_{e2} = 0$ into equation \eqref{eq:hypersurface} gives
+As discussed in Section~\ref{subsec:hypersurface_design}, the controller loses all authority over $q_{e3}$ when $q_{e1} = q_{e2} = 0$. This can be observed in the control law by substituting $q_{e1} = q_{e2} = 0$ into equation \eqref{eq:hypersurface} gives
 \begin{equation}
     \boldsymbol{\Phi}\big|_{q_{e1}=q_{e2}=0}
     = -2\begin{bmatrix}
@@ -213,7 +232,7 @@ since the first two rows of $A(\vec{q}_e)$ couple only into $q_{e1}$ and $q_{e2}
 Consequently, at $\vec{q}_e = [q_{e0},\,0,\,0,\,q_{e3}]^T$ with $\boldsymbol{\omega}^r_e = \vec{0}$:
 $\boldsymbol{\Phi} = \vec{0}$, $\vec{Z} = \vec{0}$, and all quaternion feedback terms vanish,
 reducing the control law equation \eqref{eq:fndo_bs} to
-$\vec{u} \to -\boldsymbol{\chi}_1 - \vec{F} \to \vec{0}$.
+$\vec{u} = -\boldsymbol{\chi}_1 - \vec{F} \to \vec{0}$.
 This is a closed-loop equilibrium for \emph{any} $q_{e3}$: the entire $q_{e3}$-axis is an
 equilibrium manifold, and the controller is blind to a pure yaw error about
 the unactuated $z$-axis once the actuated components have converged to zero.
@@ -230,34 +249,215 @@ Every term is proportional to $\left(q_{e1}^2 + q_{e2}^2\right)$, so as the actu
 converge, $\dot{V}_a \to 0$ and all convergence---including that of $q_{e3}$---stalls.
 The driving authority for $q_{e3}$ is quadratic in the actuated error, so it vanishes as the trajectory approaches the target.
 
-\paragraph{Gap in the stability proof.}
-The LaSalle argument in Case~I of \cite{nadafiRobustBacksteppingAttitude2021}
-(equations~24--25) concludes $q_{e3} = 0$ from the condition
-\begin{equation}
-    \tfrac{1}{2}\,q_{e3}\!\left(\omega_{ex}^2 + \omega_{ey}^2\right) = 0
-\end{equation}
-However, on the invariant set $\{q_{e1} = q_{e2} = 0\}$, the virtual control
-$\boldsymbol{\Phi} = \vec{0}$ forces $\boldsymbol{\omega}^r_e = \vec{0}$, reducing the
-condition to $\tfrac{1}{2}\,q_{e3} \cdot 0 = 0$, which is satisfied for \emph{any}
-$q_{e3}$. The largest invariant set is therefore the entire $q_{e3}$-axis, not the
-origin alone. The proof implicitly assumes that trajectories maintain
-$\boldsymbol{\omega}^r_e \neq \vec{0}$ while on the invariant set; once the regulator
-has settled to rest, this assumption fails. The convergence seen in the simulations
-of \cite{nadafiRobustBacksteppingAttitude2021} is attributable to persistent external
-disturbances that keep $q_{e1}$ and $q_{e2}$ slightly excited, which in turn slowly
-drives $q_{e3}$ toward zero---a mechanism absent in a clean disturbance-free step
-response.
+This limitation is a significant practical concern as it means small manoeuvres which fail to sufficiently excite the actuated axes will leave the unactuated axis in an arbitrary orientation. This is particularly problematic for a satellite which may need to perform a slew manoeuvre to point at a target. If the unactuated axis is not sufficiently excited during the slew, the satellite may end up pointing in an arbitrary direction after the slew is complete. A way to counteract this behaviour is to construct a manoeuvre about the actuated axes which ultimately end at the desired attitude. The figures \ref{fig:large_angle_maneuver} and \ref{fig:small_angle_maneuver} illustrate this concept for large-angle and small-angle maneuvers, respectively.
 
-This limitation is a significant practical concern as it means small manoeuvres which fail to sufficiently excite the actuated axes will leave the unactuated axis in an arbitrary orientation. This is particularly problematic for a satellite which may need to perform a slew manoeuvre to point at a target. If the unactuated axis is not sufficiently excited during the slew, the satellite may end up pointing in an arbitrary direction after the slew is complete. A way to counter act this behaviour is to construct a manoeuvre about the actuated axes which ultimately end at the desired attitude by constructing a box
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapter_4/presentation_large_angle_q_sat_vs_ref.png}
+    \caption{Large-angle attitude maneuver executed by the underactuated controller given by equation \eqref{eq:fndo_bs} illustrating the ability of the controller to maneuver the unactuated axis during large maneuvers due to the large excitation in the actuated axes.}
+    \label{fig:large_angle_maneuver}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapter_4/presentation_small_angle_q_sat_vs_ref.png}
+    \caption{Small-angle attitude step maneuver executed by the underactuated controller given by equation \eqref{eq:fndo_bs} illustrating the weak authority of the controller to maneuver the unactuated axis during small maneuvers due to a lack of excitation in the actuated axes.}
+    \label{fig:small_angle_maneuver}
+\end{figure}
+
 \subsection*{Modification for Hard Actuator Saturation}
 
 The control law equation \eqref{eq:fndo_bs} requires unbounded torques and fails under hard actuator saturation i.e.: very low actuator saturation limits. The modified FNDO-BS (MFNDO-BS) controller replaces $\vec{u}$ with a saturated form through an auxiliary vector $\boldsymbol{\mu}$:
 \begin{equation}
     \vec{u} = \alpha_1\,\mathrm{sat}_\delta(\boldsymbol{\mu}) - \alpha_2\,\mathrm{sat}_\delta(\vec{Z})
 \end{equation}
-where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves via a stable auxiliary dynamics designed to compensate for the saturation nonlinearity. Theorem~3 shows that the augmented Lyapunov function $V_1 = V_a + \frac{1}{2}\vec{Z}^T\vec{Z} + \frac{1}{2}\boldsymbol{\mu}^T\boldsymbol{\mu} + V_{e\chi}$ remains negative definite, giving global asymptotic stability even under saturation. If one remains within the saturation limits, this  controller is not required and hinders performance. This controller is only required when very low saturation torques are present.
+where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves via a stable auxiliary dynamics designed to compensate for the saturation nonlinearity. Theorem~3 in \cite{nadafiRobustBacksteppingAttitude2021} shows that the augmented Lyapunov function $V_1 = V_a + \frac{1}{2}\vec{Z}^T\vec{Z} + \frac{1}{2}\boldsymbol{\mu}^T\boldsymbol{\mu} + V_{e\chi}$ remains negative definite, giving global asymptotic stability even under saturation. This does however affect performance of the controller and when nominal operation occurs within actuator limits then it is unnecessary so this modification will not be considered for this thesis.
 
-\subsection*{Results}
+\subsection{Practical Considerations}
+There are some practical considerations that must be taken into account when implementing the Nadafi and Kabganian controller. The first pertains to momentum dumping and the second pertains to continuous vs discrete-time implementation.
+
+
+\subsubsection*{Angular Momentum Dumping}
+
+Since there is the requirement that the total angular momentum to be zero, it is required to dump any residual angular momentum build up in the system from external disturbances. For demonstration purposes in this chapter, a perfect set of actuators is designed to be able to dump 3-axis angular momentum exactly from the system as follows:
+
+\begin{equation}
+    \vec{\tau_{dump}} = -k_{dump} \vec{H}^{BI}
+\end{equation}
+where $\vec{H}^{BI}$ is the total angular momentum of the system in the body frame and $k_{dump} = 1$ is the gain constant. 
+
+
+In further chapters, a magnetorquer controller will be designed to bleed angular momentum from the system. This addition is not accounted for by the Nadafi and Kabganian controller and must be added:
+
+\begin{equation}
+    \vec{u} = -\vec{F} - \vec{\tau_{dump}^r} - \boldsymbol{\chi}_1 + \frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})
+    - \left(\vec{q}_e^T \Lambda A(\vec{q}_e)\right)^T - \Gamma_z \vec{Z} 
+    \label{eq:fndo_bs_with_dump}
+\end{equation}
+
+Furthermore, the FNDO is designed to estimate the lumped disturbance $\vec{d}$ which includes the dumping torque. Since the dumping torque is known, it can be removed from the lumped disturbance and the FNDO can be used to estimate only the unknown disturbances. This is done by modifying the FNDO as follows:
+
+\begin{equation}
+    \dot{\boldsymbol{\chi}}_0 = \boldsymbol{\nu}_0 + \vec{u} + \vec{F} + \vec{\tau_{dump}^r}
+    \label{eq:modified_fndo}
+\end{equation}
+
+\subsubsection{Continuous vs Discrete-Time Implementation}
+Finally, it is important to note that the BS FNDO is a continuous controller and does not account for discrete-time implementation. In practice, the controller will be implemented in discrete time with a sample period $\Delta t$. The continuous-time control law is discretized using a zero-order hold, which can introduce additional dynamics and affect stability. For the simulations below a very fast sample time of $\Delta t = 0.01$~s is used. This mitigates the effects of discretization on the performance of the controller but is unrealistic for many controller applications. Designing the controller for discrete-time implementation will be an important area of future work.
+
+\section {Attitude Tracking Maneuver Simulations}
+\label{subsec:nadafi_tracking_sims}
+To evaluate the performance of the Nadafi and Kabganian controller, a sequence of large-angle attitude tracking manoeuvres is simulated as a baseline scenario. All attitudes are commanded with respect to the inertial frame $F_I$, so the reference is inertially fixed between manoeuvres and no orbit-referenced (nadir) pointing is involved. The spacecraft is commanded to slew from its initial attitude to a target attitude, hold that attitude, and then slew back, before repeating the sequence for a second target obtained by mirroring the eigenaxis of the first. The reference trajectory is generated by interpolating between the waypoints listed in \autoref{tab:nadafi_track_waypoints} using SLERP with smootherstep timing, so that the spacecraft comes to rest at every waypoint. The reference body rate $\boldsymbol{\omega}_d$ and angular acceleration $\dot{\boldsymbol{\omega}}_d$ required by the feedforward term $\vec{F}$ in equation \eqref{eq:fndo_bs} are obtained from this trajectory by central finite differences.
+
+\subsection{Simulation Setup}
+Each target attitude is a $70^\circ$ eigenaxis rotation about an axis lying in the body $xy$-plane, which is the plane spanned by the two healthy reaction wheels. Consequently the reference attitude has $q_{dz} = 0$ and the reference body rate has $\omega_{dz} = 0$ throughout, so the trajectory is admissible for the underactuated plant: the manoeuvre is large enough to excite the actuated axes, while never demanding torque about the unactuated $z$-axis. The manoeuvre is therefore representative of the favourable case identified in \autoref{subsec:hypersurface_design}.
+
+The simulation parameters are summarised in \autoref{tab:nadafi_track_setup}. The spacecraft is modelled as a rigid body of mass $91\ \mathrm{kg}$ with the diagonal inertia matrix
+\begin{equation}
+    \vec{J}_0 = \begin{bmatrix}
+        2.5 & 0   & 0 \\
+        0   & 3.5 & 0 \\
+        0   & 0   & 4.5
+    \end{bmatrix} \mathrm{kg\,m^2}
+    \label{eq:nadafi_inertia}
+\end{equation}
+taken from \cite{nadafiRobustBacksteppingAttitude2021} so that the results remain directly comparable with the original work. The inertia is diagonal, so there are no products of inertia to couple the axes beyond the gyroscopic coupling of equation \eqref{eq:sat_dynamics}, and it is held constant for the duration of the manoeuvre. Since the disturbance torque is prescribed analytically by equation \eqref{eq:nadafi_disturbance} and the momentum dumping actuator is idealised, the body geometry (face areas and centre-of-pressure offsets) does not enter the simulation and only the inertia and mass are relevant.
+
+The spacecraft carries three orthogonally mounted reaction wheels, giving the distribution matrix $\vec{D} = \vec{I}$. Each wheel is modelled as a solid cylinder of mass $0.31\ \mathrm{kg}$, radius $66\ \mathrm{mm}$ and height $25\ \mathrm{mm}$, giving a spin-axis inertia of $J_w = 6.75\times10^{-4}\ \mathrm{kg\,m^2}$ and, at the maximum wheel speed of $10\,000\ \mathrm{rpm}$, a storage capacity of $0.71\ \mathrm{N\,m\,s}$ per wheel. The wheels start at rest and the spacecraft starts at rest, so the total system angular momentum is initially zero, $\vec{H}(0) = \vec{0}$, satisfying the necessary condition for stabilisability established in \autoref{sec:controllability}. The $z$-axis wheel is failed in the stuck (zero-torque) mode, so only the $x$- and $y$-axis wheels are commanded and the $z$-axis is unactuated. Wheel friction is neglected and the torque limit of $1\ \mathrm{N\,m}$ is never reached, so the saturated MFNDO-BS form of the control law is not required.
+
+No multiplicative actuator fault is injected on the two remaining wheels: the actuator effectiveness matrix is $\vec{E} = \vec{I}$, hence $\boldsymbol{\rho}_w = \vec{0}$ and the lumped disturbance reduces to $\vec{d} = \{\vec{J}^r\}^{-1}\vec{T}_d^r$, which is the purely external disturbance
+\begin{equation}
+    \vec{T}_d = 7.5\times10^{-3}
+    \begin{bmatrix}
+        0.1 + 9\sin(0.5t) \\
+        0.1 + 7.5\sin(0.8t) \\
+        0
+    \end{bmatrix} \mathrm{N\,m}
+    \label{eq:nadafi_disturbance}
+\end{equation}
+used by Nadafi and Kabganian in \cite{nadafiRobustBacksteppingAttitude2021}. This is a deliberately aggressive disturbance, several orders of magnitude larger (and higher frequency) than the environmental torques derived in \autoref{chap:modelling}, and is retained here so that the disturbance rejection of the FNDO can be observed directly. Residual angular momentum is bled off with the idealised three-axis dumping law of equation \eqref{eq:fndo_bs_with_dump}, with the dumping torque removed from the observer input according to equation \eqref{eq:modified_fndo}.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}l l l@{}}
+\hline
+Time [s] & Commanded attitude & Segment \\
+\hline
+$0$   & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & start \\
+$12$  & target A: $70^\circ$ about $[1,\ 1,\ 0]^T/\sqrt{2}$  & slew \\
+$20$  & target A                                        & hold \\
+$32$  & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & slew back \\
+$40$  & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & hold \\
+$52$  & target B: $70^\circ$ about $[1,\ -1,\ 0]^T/\sqrt{2}$ & slew \\
+$60$  & target B                                        & hold \\
+$72$  & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & slew back \\
+$102$ & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & hold \\
+\hline
+\end{tabular}
+\caption{Inertial reference attitude waypoints for the tracking manoeuvre. Each target is a $70^\circ$ eigenaxis rotation from the initial attitude about an axis in the body $xy$-plane. The reference is interpolated between consecutive waypoints with SLERP and smootherstep timing which will be discussed in detail in chapter \ref{chap:path_planning}, so that the spacecraft is at rest at each waypoint.}
+\label{tab:nadafi_track_waypoints}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}l l l@{}}
+\hline
+Parameter & Symbol & Value \\
+\hline
+\multicolumn{3}{@{}l}{\textit{Spacecraft}} \\
+Moment of inertia      & $\vec{J}$   & $\mathrm{diag}(2.5,\ 3.5,\ 4.5)\ \mathrm{kg\,m^2}$ \\
+Actuated sub-block     & $\vec{J}^r$   & $\mathrm{diag}(2.5,\ 3.5)\ \mathrm{kg\,m^2}$ \\
+Inertia variation      & $\Delta\vec{J}$ & $\vec{0}$ (constant, known exactly) \\
+Mass                   & $m$           & $91\ \mathrm{kg}$ \\
+Orbit                  & $h$           & circular, $500\ \mathrm{km}$ altitude \\
+\hline
+\multicolumn{3}{@{}l}{\textit{Actuators}} \\
+Reaction wheel layout   & $\vec{D}$      & 3, orthogonal, $\vec{D} = \vec{I}$ \\
+Failed wheel            & --             & $z$-axis, stuck (zero torque) \\
+Wheel mass              & $m_w$          & $0.31\ \mathrm{kg}$ \\
+Wheel radius, height    & $r_w,\ h_w$    & $66\ \mathrm{mm}$, $25\ \mathrm{mm}$ \\
+Wheel spin inertia      & $J_w$          & $6.75\times10^{-4}\ \mathrm{kg\,m^2}$ \\
+Wheel speed limit       & $\omega_{w,\max}$ & $10\,000\ \mathrm{rpm}$ ($0.71\ \mathrm{N\,m\,s}$ per wheel) \\
+Wheel torque limit      & $\tau_{\max}$  & $1\ \mathrm{N\,m}$ (never reached) \\
+Wheel friction          & $b_w$          & $0$ \\
+Actuator effectiveness  & $\vec{E}$      & $\vec{I}$ (no multiplicative fault) \\
+Momentum dumping gain   & $k_{dump}$     & $1$, three-axis, $\|\vec{\tau}_{dump}\| \leq 0.1\ \mathrm{N\,m}$ \\
+\hline
+\multicolumn{3}{@{}l}{\textit{Environment}} \\
+External disturbance   & $\vec{T}_d$ & equation \eqref{eq:nadafi_disturbance} \\
+\hline
+\multicolumn{3}{@{}l}{\textit{Controller}} \\
+Hypersurface gains     & $\lambda_1,\ \lambda_2,\ \lambda_3$ & $3,\ 3,\ 6$ \quad ($a = -3$, $b = 3$) \\
+Backstepping gain      & $\Gamma_z$          & $\mathrm{diag}(1.5,\ 1.2)$ \\
+FNDO observer gain     & $L$                 & $\mathrm{diag}(10,\ 10)$ \\
+FNDO tuning constants  & $\kappa_0,\ \kappa_1$ & $0.1,\ 0.15$ \\
+Sample period          & $\Delta t$          & $0.01\ \mathrm{s}$ \\
+\hline
+\multicolumn{3}{@{}l}{\textit{Initial conditions}} \\
+Attitude               & $\vec{q}(0)$             & $[0,\ 0,\ 0,\ 1]^T$ (zero initial error) \\
+Body rate              & $\boldsymbol{\omega}(0)$ & $\vec{0}\ \mathrm{rad/s}$ \\
+Wheel speeds           & $\boldsymbol{\omega}_w(0)$ & $\vec{0}\ \mathrm{rad/s}$ \\
+Total momentum         & $\vec{H}(0)$            & $\vec{0}\ \mathrm{N\,m\,s}$ \\
+Simulation duration    & $T$                      & $120\ \mathrm{s}$ \\
+\hline
+\end{tabular}
+\caption{Simulation parameters for the attitude tracking manoeuvre of the FNDO backstepping controller.}
+\label{tab:nadafi_track_setup}
+\end{table}
+
+\newpage
+
+\subsection{Results and Discussion}
+From the simulation results shown in Figures~\ref{fig:fndo-bs_tracking_results}--\ref{fig:fndo-bs_tracking_results_chi_1}, it is clear that the FNDO backstepping controller is able to track the large-angle attitude manoeuvre in the presence of external disturbances. The controller is able to drive the actuated spacecraft quaternion $q_{1}$ and $q_{e2}$, which in turn drives the unactuated quaternion error $q_{e3}$ to zero as well. The Euler angles $\psi$, $\theta$, and $\phi$ are also able to track their respective reference values with small errors. The disturbance rejection estimation errors $\chi_{1x}$ and $\chi_{1y}$ in figure \ref{fig:fndo-bs_tracking_results_chi_1} converge very closely to zero, indicating that the FNDO is able to accurately estimate the external disturbances.
+
+Notice that the unactuated axis error $\psi_e$ gradually drifts from zero with each large maneuver. Also note the small amount of steady state chatter in the actuated axes $psi_e, theta_e$ and in the angular velocity error $\boldsymbol{\omega}_e$, a side effect of backstepping control. These two issues will be reduced by the magnetorquer controller in later chapters.
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapter_4/_track_test_thesis_v2_q_sat_vs_ref.png}
+    \caption{Comparison of body frame quaternion $q^{BI} = [q_{x}, q_{y}, q_{z}, q_{w}]^T$ vs reference quaternion $q^{RI} = [q_{dx}, q_{dy}, q_{dz}, q_{dw}]^T$ for attitude tracking of a smooth trajectory in the presence of disturbances by the FNDO backstepping controller for baseline scenario showcasing ability to track large angle maneuvers in the actuated (x-y) plane.}
+    \label{fig:fndo-bs_tracking_results}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapter_4/_track_test_thesis_v2_e321_vs_error_split.png}
+    \caption{Euler angle attitude yaw $\psi$, pitch $\theta$, and roll $\phi$ and their respective tracking errors  for the FNDO backstepping controller in the baseline scenario.}
+    \label{fig:fndo-bs_tracking_results_euler}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapter_4/_track_test_thesis_v2_chi_1_error.png}
+    \caption{Disturbance rejection estimation errors $\chi_{1x}$ and $\chi_{1y}$ for the FNDO backstepping controller under external disturbances in the baseline scenario.}
+    \label{fig:fndo-bs_tracking_results_chi_1}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapter_4/_track_test_thesis_v2_w_sat_error.png}
+    \caption{Body frame angular velocity tracking errors $\boldsymbol{\omega}_e$ for the FNDO backstepping controller in the baseline scenario.}
+    \label{fig:fndo-bs_tracking_results_omega}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{chapter_4/_track_test_thesis_v2_T_dist.png}
+    \caption{Disturbance torque $\vec{T}_d$ applied to the spacecraft in the baseline scenario. The disturbance is deliberately aggressive, several orders of magnitude larger (and higher frequency) than the environmental torques derived in \autoref{chap:modelling}, and is retained here so that the disturbance rejection of the FNDO can be observed directly.}
+    \label{fig:fndo-bs_tracking_results_tau}
+\end{figure}
+
+\newpage
+\section{Summary}
+Satellite attitude control is a critical aspect of spacecraft operations, especially in the presence of actuator failures and external disturbances. The Nadafi and Kabganian FNDO-BS controller, which employs a finite-time nonlinear disturbance observer (FNDO) in conjunction with a backstepping control law, has been shown to effectively manage these challenges.
+The controller's design allows it to handle large-angle attitude tracking maneuvers, even when one of the reaction wheels is inoperative. The simulation results demonstrate that the controller can accurately track the desired attitude while compensating for external disturbances, as evidenced by the convergence of the disturbance rejection estimation errors to near zero.
+
+
+% \subsection*{Results}
+
 
 % Simulations for a large-angle ($>90 \degree$) attitude tracking maneuver with inertia $J_0 = \mathrm{diag}(2.5,\, 3.5,\, 4.5)~\mathrm{kg\,m^2}$ and time-varying disturbances show:
 % \begin{itemize}
@@ -266,309 +466,60 @@ where $\alpha_1, \alpha_2 > 0$ are scalar gains and $\boldsymbol{\mu}$ evolves v
 %     \item Hard saturation (0.035~Nm, 3.5\% of soft level): MFNDO-BS still converges, within 150~s.
 % \end{itemize}
 
-@TODO: Add figure showing the results of the Nadafi and Kabganian controller.
-\section{Haochang Tian Controller}
-
-% Given the weaknesses cited in the previous controller, in \cite{tianUnderactuatedTethered} a backstepping sliding-mode adaptive controller is designed to control an underactuated tethered spacecraft. The controller is robust to external disturbances, time-varying inertia and reaction wheel torque disturbances. \cite{zarouratiUnderactuatedFaultTolerantControl} build on this controller to develop a fault tolerant controller which can adapt to a reaction wheel failure. The controller is designed to control the attitude of a spacecraft with 2 reaction wheels and 1 magnetorquer. The controller is designed to achieve pointing of the spacecraft in the presence of external disturbances, time-varying inertia and reaction wheel torque disturbances. The controller is designed to be robust to these disturbances and achieve pointing of the spacecraft.
-
-Given the weaknesses referred to in the previous controller, \cite{tianUnderactuatedTethered} design a backstepping controller for an underactuated tethered spacecraft. \cite{zarouratiUnderactuatedFaultTolerantControl} build on this controller to develop an underactuated attitude tracking control (UATC) law for a reaction-wheel failure, generalising the choice of unactuated axis to whichever wheel has failed and replacing the disturbance-handling stage with an adaptive bound estimator. Both controllers apply the two-stage kinematic-then-dynamic backstepping procedure of \autoref{subsec:backstepping_procedure} recursively to the reduced kinematic and dynamic error subsystems below. This controller does come with a trade-off however which is that it cannot track angular velocity along actuated axes. Thus it regulates towards an inertial point in space. The equations of both are presented together using Zarourati's notation, with the points where the two differ noted as they arise.
-They define the error kinematics of the system as follows:
-\subsection*{Reduced Attitude Error Model}
-
-Using the angular velocity error $\vec\omega_e = \vec\omega - [\vec C]^{BR}\vec\omega_d$ and quaternion error $\vec q_e$ of \autoref{chap:modelling}, the DCM $[\vec C]^{BR}$ evolves according to
-\begin{equation}
-    \dot{[\vec C]}^{BR} = -\vec\omega_e^\times [\vec C]^{BR}
-\end{equation}
-which, substituted into the rigid-body dynamics equation \eqref{eq:sat_dynamics}, gives the attitude tracking error dynamics
-\begin{equation}
-    \vec{J}\vec{\dot\omega}_e = -\vec\omega^\times \vec{h} + \vec{J}\vec\omega_e^\times[\vec C]^{BR}\vec\omega_d - \vec{J}[\vec C]^{BR}\vec{\dot\omega}_d + \vec{D}\vec{u}_c + \vec{d}
-    \label{eq:zarourati_dynamics}
-\end{equation}
-where $\vec{h} = \vec{J}\vec\omega + \vec{h}_w$ is the total (body plus wheel) angular momentum, $\vec{D}\vec{u}_c = -\dot{\vec{h}}_w$ is the body torque produced by the wheels through the wheel torque distribution matrix $\vec{D}$, and $\vec{d}$ is the total bounded disturbance (external torques, inertia uncertainty and internal reaction-wheel disturbances).
-
-With one wheel unavailable, let $e_u \in \mathbb{R}$ and $\vec\omega_{eu} \in \mathbb{R}$ denote the vector-part quaternion error and angular velocity error component on the unactuated axis, and $\vec e_a \in \mathbb{R}^2$, $\vec\omega_{ea} \in \mathbb{R}^2$ the corresponding actuated pairs, using the reduced representation of \autoref{subsec:underactuated}. For a failure on, e.g., the $y$-axis reaction wheel ($e_u = q_{ey}$, $\vec e_a = [q_{ex},\,q_{ez}]^T$), the reduced kinematic error model following from equation \eqref{eq:q_error_kinematics} is 
-%@TODO: move to chapter 3
-\begin{align}
-    \dot{e}_u &= \frac{1}{2}\left(q_{ew}\,\omega_{eu} + q_{ex}\,\omega_{d,z} - q_{ez}\,\omega_{d,x}\right) + \frac{1}{2}\vec{e}_a^T\vec{G}_1\vec\omega_{ea} \label{eq:reduced_kin_u} \\
-    \dot{\vec{e}}_a &= \frac{1}{2}\left(\vec{G}_1\vec{e}_a\,\omega_{eu} + \vec{G}_2\vec\omega_{ea}\right), \quad
-    \vec{G}_1 = \begin{bmatrix}0 & -1\\ 1 & 0\end{bmatrix}, \quad
-    \vec{G}_2 = \begin{bmatrix}q_{ew} & e_u \\ -e_u & q_{ew}\end{bmatrix} \label{eq:reduced_kin_a}
-\end{align}
-An equivalent pair of equations holds for a failure on any other axis by re-indexing. Equation \eqref{eq:reduced_kin_u} shows that $e_u$ cannot be driven directly: it is only excited through the coupling term $\vec{e}_a^T\vec{G}_1\vec\omega_{ea}$.
-
-\subsection*{Kinematic Backstepping Controller}
-
-A virtual kinematic control input $\vec{u}_k$, the desired value for $\vec\omega_{ea}$, is designed as
-\begin{equation}
-    \vec{u}_k = -k_a q_{ew}\vec{e}_a + \kappa_1\vec{G}_1\vec{e}_d + \kappa_2\vec{e}_d
-    \label{eq:kin_controller}
-\end{equation}
-where $k_a > 0$ and $\vec{e}_d \in \mathbb{R}^2$ is an auxiliary converging vector. Rather than driving $\vec e_a$ to zero directly, $\vec e_a$ is commanded to track $\vec{e}_d$, which is defined by the time-varying oscillator-like differential equation
-\begin{equation}
-    \dot{\vec{e}}_d = \frac{\dot\xi}{\xi}\vec{e}_d + \Lambda\vec{G}_1\vec{e}_d, \qquad \vec{e}_d^T(0)\vec{e}_d(0) = \xi^2(0)
-    \label{eq:oscillator}
-\end{equation}
-with
-\begin{align}
-    \kappa_1 &= \frac{1}{\xi^2}\left(k_u e_u + q_{ew}\omega_{eu}\right), \qquad
-    \kappa_2 = \frac{2\dot\xi}{q_{ew}\xi} + k_a q_{ew}, \qquad
-    \Lambda = \frac{1}{2}\left(k_a q_{ew} e_u + q_{ew}\kappa_1 + \omega_{eu}\right), \notag \\
-    \xi &= \gamma_0\exp(-\gamma_1 t) + \gamma_2
-    \label{eq:xi_def}
-\end{align}
-where $k_u, \gamma_0, \gamma_1, \gamma_2 > 0$ are constant design parameters. Because $\vec{G}_1$ is skew-symmetric, $\vec{e}_d^T\vec{G}_1\vec{e}_d \equiv 0$, so $\frac{d}{dt}(\vec{e}_d^T\vec{e}_d) = 2\frac{\dot\xi}{\xi}\vec{e}_d^T\vec{e}_d$; solving this with the matched initial condition of \eqref{eq:oscillator} gives $\|\vec{e}_d(t)\| = \xi(t)$ for all $t \geq 0$ \cite{tianUnderactuatedTethered} (see appendix \ref{appen:derivations_tian_oscillator}). Since $\xi(t) \to \gamma_2 > 0$ rather than to zero, $\vec{e}_d$ never converges to the origin, so the coupling term in equation \eqref{eq:reduced_kin_u} never vanishes identically and $e_u \to 0$ even once the actuated axes have settled onto their commanded trajectory. Using the Lyapunov function $V_1 = e_u^2 + \tilde{\vec{e}}_a^T\tilde{\vec{e}}_a$ with $\tilde{\vec{e}}_a = \vec{e}_d - \vec{e}_a$, \cite{tianUnderactuatedTethered} show that the kinematic control law equation \eqref{eq:kin_controller}-- equation \eqref{eq:oscillator} renders the equilibrium $(e_u, \tilde{\vec{e}}_a) = (0, \vec{0})$ uniformly exponentially stable.
-
-\subsection*{Dynamic Backstepping Controller}
-
-Define the dynamic tracking error $\vec\eta = \vec{u}_k - \vec\omega_{ea} \in \mathbb{R}^2$, the deviation of the actuated rate error from the kinematic control law equation \eqref{eq:kin_controller}. Differentiating and substituting equation \eqref{eq:zarourati_dynamics} gives the reduced dynamic error model
-\begin{equation}
-    \vec{J}^r\dot{\vec\eta} = \vec{J}^r\dot{\vec{u}}_k + (\vec\omega^\times)^r\vec{h}^r - \vec{J}^r(\vec\omega_e^\times)^r[\vec C]^{BR}_r\vec\omega_d^r + \vec{J}^r[\vec C]^{BR}_r\vec{\dot\omega}_d^r - \vec{D}^r\vec{u}_c^r - \vec{d}^r
-    \label{eq:eta_dyn}
-\end{equation}
-where $\vec{u}_c^r \in \mathbb{R}^2$ is the physical control torque and the reduced matrix notation $\vec P^r$ follows \autoref{subsec:underactuated}.
-
-\cite{tianUnderactuatedTethered} handle the bounded disturbance $\vec{d}^r$ with a positive-definite logarithmic barrier function
-\begin{equation}
-    H_B(x) = k\left(\ln\frac{s}{s - |x|}\right)^2, \qquad k, s > 0
-    \label{eq:barrier}
-\end{equation}
-whose resulting gain grows unboundedly as any component of $\vec\eta$ approaches a pre-selected bound $\pm s$, dominating the disturbance without an online estimate of it. \cite{zarouratiUnderactuatedFaultTolerantControl} instead replace this fixed a-priori bound with a scalar adaptive estimate $\hat\varphi$ of the disturbance bound $\|\vec{d}^r\| \leq \bar{d}$, updated by
-\begin{equation}
-    \dot{\hat\varphi} = \frac{k_\varphi}{k_d}\cosh^2(\hat\varphi)\,\|\vec\eta\|
-    \label{eq:phi_hat}
-\end{equation}
-with $k_\varphi, k_d > 0$. Using this estimate, the underactuated control torque is designed via backstepping as
-\begin{align}
-    \vec{u}_c^r = (\vec{D}^r)^T\Big[&(\vec\omega^\times)^r\vec{h}^r - \vec{J}^r(\vec\omega_e^\times)^r[\vec C]^{BR}_r\vec\omega_d^r + \vec{J}^r[\vec C]^{BR}_r\vec{\dot\omega}_d^r + \vec{J}^r\dot{\vec{u}}_k \notag \\
-    &+ k_\omega\tanh(\vec\eta) + \frac{1}{2}\vec{G}_1\vec{e}_a e_u + \frac{1}{2}\tilde{\vec{e}}_a + k_d\,\mathrm{sign}(\vec\eta)\tanh(\hat\varphi)\Big]
-    \label{eq:final_control}
-\end{align}
-where $k_\omega > 0$. The first four terms cancel the known gyroscopic coupling and feed forward the derivative of the kinematic control law; $k_\omega\tanh(\vec\eta)$ damps the dynamic tracking error; $\frac{1}{2}\vec{G}_1\vec{e}_a e_u + \frac{1}{2}\tilde{\vec{e}}_a$ cancels the cross-coupling term introduced by the kinematic Lyapunov function; and $k_d\,\mathrm{sign}(\vec\eta)\tanh(\hat\varphi)$ robustly rejects the disturbance using the adapted bound. Using the composite Lyapunov function $V = V_1 + \frac{1}{2}\vec\eta^T\vec\eta + \frac{k_d}{2k_\varphi}(\hat\varphi - \varphi)^2$, where $\varphi$ is the true disturbance bound, \cite{zarouratiUnderactuatedFaultTolerantControl} show that the closed-loop errors $e_u$, $\tilde{\vec{e}}_a$ and $\vec\eta$ converge asymptotically to zero.
+%@TODO: Add figure showing the results of the Nadafi and Kabganian controller.
 
 
-\begin{align}
-u_c^r &= C_r^{T}\Big[\underbrace{S_r(\omega)H_r - J_rS_r(\omega_e)A_r\omega_{d,r}+J_rA_r\dot\omega_{d,r}}_{\text{known/feedforward} \sim \vec F}
-+\underbrace{J_r\dot u_k}_{\partial\phi/\partial\eta,[f+g\xi]}
-+\underbrace{k_w\tanh(\eta)}_{-kz,\text{ saturated}}
-+\underbrace{0.5,G_1e_ae_u+0.5,\tilde e_a}_{-\partial V/\partial\eta,g(\eta)} \\
-&+\underbrace{k_d\tanh(\eta/\eta_{bl})\tanh(\hat\varphi)}_{\text{robust disturbance term}}\Big]
-\end{align}
 
-\section{Magnetorquer Controller}
-As mentioned previously, magnetorquers are used to bleed angular momentum from the system. A simple proportional controller is used to generate a torque that is opposite to the angular momentum of the system. The torque generated by the magnetorquer is given by:
-\begin{equation}
-    \vec{T}_m = \vec{m} \times \vec{B}
-    \label{eq:magt_torque}
-\end{equation}
 
-\subsection{Instantaneous Rank Deficiency}
-Equation \eqref{eq:magt_torque} is a cross product, so $\vec{T}_m \perp \vec{B}$ for every commanded dipole. The set of torques reachable at any instant is therefore the plane normal to the local field rather than the whole of $\mathbb{R}^3$. Writing $\hat{\vec{B}} = \vec{B}/\|\vec{B}\|$, the minimum-norm dipole realising a desired torque $\vec{T}_d$ is
-\begin{equation}
-    \vec{m} = \frac{\vec{B} \times \vec{T}_d}{\|\vec{B}\|^2}
-    \label{eq:magt_alloc}
-\end{equation}
-and the torque actually delivered is the orthogonal projection of the demand onto that plane,
-\begin{equation}
-    \vec{T}_m = \vec{m} \times \vec{B} = \left(\vec{I}_3 - \hat{\vec{B}}\hat{\vec{B}}^T\right)\vec{T}_d \triangleq \vec{P}_B\,\vec{T}_d
-    \label{eq:magt_projection}
-\end{equation}
-$\vec{P}_B$ is a rank-2 projector whose null space is the one-dimensional subspace $\mathrm{span}\{\hat{\vec{B}}\}$. A torque demand parallel to the instantaneous field direction produces a commanded dipole that is identically zero, not merely small. Increasing the available dipole does nothing to recover it. This single property governs both the momentum-dumping behaviour and the unactuated-axis behaviour analysed below.
 
-\subsection{Momentum Dumping and Null-Space Parking}
-\label{subsec:null_space_parking}
-The conventional cross-product dumping law sets the demand proportional to the total angular momentum, $\vec{T}_d = -k\,\vec{h}$, with $k > 0$. Since $\vec{T}_d$ enters through equation \eqref{eq:magt_projection}, only the component of $\vec{h}$ perpendicular to the field is removed,
-\begin{equation}
-    \dot{\vec{h}} = -k\,\vec{P}_B\,\vec{h} = -k\left(\vec{h} - \hat{\vec{B}}(\hat{\vec{B}}^T\vec{h})\right)
-    \label{eq:dump_continuous}
-\end{equation}
-Because the law is implemented at a sample period $\Delta t$ with a zero-order hold, the discrete update is
-\begin{equation}
-    \vec{h}_{k+1} = (1 - k\Delta t)\,\vec{h}_k + k\Delta t\,\hat{\vec{B}}_k(\hat{\vec{B}}_k^T\vec{h}_k)
-    \label{eq:dump_discrete}
-\end{equation}
-Note that $k$ carries units of $\mathrm{s}^{-1}$: with $\vec{T}_d = -k\vec{h}$ the gain \emph{is} the commanded decay rate, not a dimensionless tuning constant. Equation \eqref{eq:dump_discrete} then exposes a failure mode that is easily mistaken for insufficient actuator authority. Setting $k\Delta t = 1$ gives the deadbeat case
-\begin{equation}
-    \vec{h}_{k+1} = \hat{\vec{B}}_k(\hat{\vec{B}}_k^T\vec{h}_k)
-\end{equation}
-After a single sample the entire surviving momentum lies exactly along $\hat{\vec{B}}_k$, that is, inside the null space of $\vec{P}_B$. On the next cycle the demand is parallel to the field, the commanded dipole is zero, and the controller stalls. The momentum has been driven into the one direction the actuator cannot address. Intuitively, a greedy law removes all the momentum it can observe, and what it leaves behind is precisely the part it cannot observe.
+%@TODO work this in as possible future update to the controller or into next chapter
 
-Escape is possible only because $\hat{\vec{B}}$ rotates in the body frame. For a near-circular orbit this rotation occurs at approximately twice the orbital rate, $\omega_B \approx 2n$, which for the 500\,km, $i \approx 90^\circ$ orbit used throughout this work is $\omega_B \approx 2.2\times10^{-3}\,\mathrm{rad/s}$. Over one sample the field direction moves by $\varepsilon = \omega_B\Delta t$, so the momentum left pointing at the previous field direction is no longer quite aligned with the new one and a fraction $\sin\varepsilon$ becomes visible again. Under deadbeat action all of it is removed, leaving
-\begin{equation}
-    \|\vec{h}_{k+1}\| = \|\vec{h}_k\|\cos\varepsilon \approx \|\vec{h}_k\|\left(1 - \tfrac{1}{2}\varepsilon^2\right)
-    \label{eq:parking_leak}
-\end{equation}
-The leak is \emph{quadratic} in the sweep angle. For $\Delta t = 1\,\mathrm{s}$ this gives a decay rate of $2.4\times10^{-6}\,\mathrm{s}^{-1}$, a time constant of roughly $4.8$ days. A simulation of the law at $k = 1$, $\Delta t = 1\,\mathrm{s}$ reproduces this: the residual momentum settles at $0.00^\circ$ from the field direction and decays with a fitted time constant of $4.6$ days, effectively frozen on any timescale of operational interest.
+% \section{Haochang Tian Controller}
 
-Reducing the gain so that $k\Delta t \ll 1$ prevents the collapse. The momentum then never aligns with the field but settles at an equilibrium lag angle where the rate of removal balances the rate at which the field sweeps past, and the decay becomes linear rather than quadratic in the geometry,
-\begin{equation}
-    \dot{\|\vec{h}\|} \approx -k\,\|\vec{h}\|\sin^2\theta, \qquad \theta = \angle(\vec{h}, \hat{\vec{B}})
-    \label{eq:dump_linear_decay}
-\end{equation}
-\autoref{tab:dump_gain_sweep} shows this over a sweep of $k$, with the spacecraft inertia $\vec{J} = \mathrm{diag}(2.5, 3.5, 4.5)\,\mathrm{kg\,m^2}$ and an initial momentum of $0.0866\,\mathrm{N\,m\,s}$. The lag angle column is the diagnostic: at high gain the residual sits at $0^\circ$ from the field and is unreachable, while at $k = 3\times10^{-3}$ it rides at roughly $66^\circ$ and remains fully actuatable.
 
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}l l l l l@{}}
-\hline
-$k$ [s$^{-1}$] & $k\Delta t$ & $\|\vec{h}\|$ @ 2 orbits & $\|\vec{h}\|$ @ 5 orbits & $\angle(\vec{h}, \hat{\vec{B}})$ \\
-\hline
-$1\times10^{0}$  & 1.000 & $6.10\times10^{-3}$ & $5.85\times10^{-3}$ & $0.00^\circ$ \\
-$1\times10^{-1}$ & 0.100 & $2.55\times10^{-3}$ & $1.13\times10^{-3}$ & $1.62^\circ$ \\
-$3\times10^{-2}$ & 0.030 & $1.20\times10^{-4}$ & $7.17\times10^{-6}$ & $5.77^\circ$ \\
-$1\times10^{-2}$ & 0.010 & $3.94\times10^{-5}$ & $4.54\times10^{-9}$ & $17.62^\circ$ \\
-$3\times10^{-3}$ & 0.003 & $4.39\times10^{-9}$ & $2.26\times10^{-20}$ & $65.65^\circ$ \\
-$1\times10^{-3}$ & 0.001 & $2.86\times10^{-4}$ & $4.63\times10^{-8}$ & $66.99^\circ$ \\
-$3\times10^{-4}$ & 0.000 & $1.44\times10^{-2}$ & $1.09\times10^{-3}$ & $28.62^\circ$ \\
-\hline
-\end{tabular}
-\caption{Residual angular momentum after magnetic dumping, as a function of the dumping gain, at $\Delta t = 1\,\mathrm{s}$ and a dipole limit of $1000\,\mathrm{A\,m^2}$. Performance is non-monotonic in $k$: too high parks the residual in the null space, too low is simply slow.}
-\label{tab:dump_gain_sweep}
-\end{table}
+% Given the weaknesses referred to in the previous controller, \cite{tianUnderactuatedTethered} design a backstepping controller for an underactuated tethered spacecraft. \cite{zarouratiUnderactuatedFaultTolerantControl} build on this controller to develop an underactuated attitude tracking control (UATC) law for a reaction-wheel failure, generalising the choice of unactuated axis to whichever wheel has failed and replacing the disturbance-handling stage with an adaptive bound estimator. Both controllers apply the two-stage kinematic-then-dynamic backstepping procedure of \autoref{subsec:backstepping_procedure} recursively to the reduced kinematic and dynamic error subsystems below. This controller does come with a trade-off however which is that it cannot track angular velocity along actuated axes. Thus it regulates towards an inertial point in space. The equations of both are presented together using Zarourati's notation, with the points where the two differ noted as they arise.
+% They define the error kinematics of the system as follows:
+% \subsection*{Reduced Attitude Error Model}
 
-The resulting design rule is that the dumping gain must be \emph{slower} than the rate at which the field sweeps through the body frame,
-\begin{equation}
-    k \lesssim \omega_B \approx 2n
-    \label{eq:dump_gain_rule}
-\end{equation}
-which corresponds to a dumping time constant on the order of the orbital period. This is counter-intuitive relative to the usual instinct to raise a regulator gain when convergence is poor, and it is worth stating explicitly because the symptom of violating it is a commanded dipole that collapses towards zero, which presents as though the actuator were undersized.
+% Using the angular velocity error $\vec\omega_e = \vec\omega - [\vec C]^{BR}\vec\omega_d$ and quaternion error $\vec q_e$ of \autoref{chap:modelling}, the DCM $[\vec C]^{BR}$ evolves according to
+% \begin{equation}
+%     \dot{[\vec C]}^{BR} = -\vec\omega_e^\times [\vec C]^{BR}
+% \end{equation}
+% which, substituted into the rigid-body dynamics equation \eqref{eq:sat_dynamics}, gives the attitude tracking error dynamics
+% \begin{equation}
+%     \vec{J}\vec{\dot\omega}_e = -\vec\omega^\times \vec{h} + \vec{J}\vec\omega_e^\times[\vec C]^{BR}\vec\omega_d - \vec{J}[\vec C]^{BR}\vec{\dot\omega}_d + \vec{D}\vec{u}_c + \vec{d}
+%     \label{eq:zarourati_dynamics}
+% \end{equation}
+% where $\vec{h} = \vec{J}\vec\omega + \vec{h}_w$ is the total (body plus wheel) angular momentum, $\vec{D}\vec{u}_c = -\dot{\vec{h}}_w^r$ is the body torque produced by the wheels through the wheel torque distribution matrix $\vec{D}$, and $\vec{d}$ is the total bounded disturbance (external torques, inertia uncertainty and internal reaction-wheel disturbances).
 
-The same sweep shows that the available dipole is not the limiting factor at all. At $k = 3\times10^{-3}$ the dumping converges identically for dipole limits of $1000$, $100$, $30$ and $10\,\mathrm{A\,m^2}$, and still converges at $1\,\mathrm{A\,m^2}$; the peak dipole actually demanded is under $10\,\mathrm{A\,m^2}$ in every case.
+% With one wheel unavailable, let $e_u \in \mathbb{R}$ and $\vec\omega_{eu} \in \mathbb{R}$ denote the vector-part quaternion error and angular velocity error component on the unactuated axis, and $\vec e_a \in \mathbb{R}^2$, $\vec\omega_{ea} \in \mathbb{R}^2$ the corresponding actuated pairs, using the reduced representation of \autoref{subsec:underactuated}. For a failure on, e.g., the $y$-axis reaction wheel ($e_u = q_{ey}$, $\vec e_a = [q_{ex},\,q_{ez}]^T$), the reduced kinematic error model following from equation \eqref{eq:q_error_kinematics} is 
+% %@TODO: move to chapter 3
+% \begin{align}
+%     \dot{e}_u &= \frac{1}{2}\left(q_{ew}\,\omega_{eu} + q_{ex}\,\omega_{d,z} - q_{ez}\,\omega_{d,x}\right) + \frac{1}{2}\vec{e}_a^T\vec{G}_1\vec\omega_{ea} \label{eq:reduced_kin_u} \\
+%     \dot{\vec{e}}_a &= \frac{1}{2}\left(\vec{G}_1\vec{e}_a\,\omega_{eu} + \vec{G}_2\vec\omega_{ea}\right), \quad
+%     \vec{G}_1 = \begin{bmatrix}0 & -1\\ 1 & 0\end{bmatrix}, \quad
+%     \vec{G}_2 = \begin{bmatrix}q_{ew} & e_u \\ -e_u & q_{ew}\end{bmatrix} \label{eq:reduced_kin_a}
+% \end{align}
+% An equivalent pair of equations holds for a failure on any other axis by re-indexing. Equation \eqref{eq:reduced_kin_u} shows that $e_u$ cannot be driven directly: it is only excited through the coupling term $\vec{e}_a^T\vec{G}_1\vec\omega_{ea}$.
 
-\subsection{Dipole Saturation}
-Because equation \eqref{eq:magt_alloc} can demand an arbitrarily large dipole as $\|\vec{B}\|$ falls or the demand grows, the commanded moment must be limited to the physically available $m_{max}$. Saturating each body component independently, $m_i \leftarrow \mathrm{sat}(m_i, m_{max})$, rotates $\vec{m}$ away from the direction $\vec{B} \times \vec{T}_d$, so the delivered torque $\vec{m} \times \vec{B}$ is no longer anti-parallel to the momentum being removed and can add momentum on individual axes. Scaling the vector instead,
-\begin{equation}
-    \vec{m} \leftarrow \vec{m}\,\min\!\left(1, \frac{m_{max}}{\|\vec{m}\|}\right)
-    \label{eq:dipole_scaling}
-\end{equation}
-preserves the torque direction and reduces only its magnitude, which is the correct behaviour under authority limits.
+% \subsection*{Kinematic Backstepping Controller}
 
-\subsection{Orbit-Averaged Controllability}
-Since $\vec{P}_B$ is rank deficient at every instant, dumping in all three axes is possible only in an averaged sense as the field sweeps through the body frame. The relevant quantity is the time average of the projector,
-\begin{equation}
-    \bar{\vec{P}}_B(T) = \frac{1}{T}\int_0^{T}\left(\vec{I}_3 - \hat{\vec{B}}(t)\hat{\vec{B}}(t)^T\right)dt
-    \label{eq:avg_projector}
-\end{equation}
-whose smallest eigenvalue measures the authority available in the least favourable direction over a window of length $T$. \autoref{tab:avg_projector} evaluates this for the 500\,km orbit using the tilted-dipole field model of \autoref{chap:modelling}.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}l l l@{}}
-\hline
-Window $T$ & Field arc swept & $\lambda_{\min}(\bar{\vec{P}}_B)$ \\
-\hline
-$300\,\mathrm{s}$   & $43.2^\circ$  & 0.047 \\
-$600\,\mathrm{s}$   & $78.0^\circ$  & 0.141 \\
-$1200\,\mathrm{s}$  & $136.8^\circ$ & 0.339 \\
-$0.25\,T_{orb}$     & $157.7^\circ$ & 0.402 \\
-$0.5\,T_{orb}$      & $176.2^\circ$ & 0.499 \\
-$1\,T_{orb}$        & $176.2^\circ$ & 0.500 \\
-\hline
-\end{tabular}
-\caption{Smallest eigenvalue of the orbit-averaged projector as a function of averaging window, at 500\,km and $i \approx 90^\circ$. Over a full orbit no direction is starved, but over short windows one direction is close to unreachable.}
-\label{tab:avg_projector}
-\end{table}
-
-Over a full orbit the average is well conditioned and no direction is starved, confirming that complete magnetic dumping is achievable in principle. Over a $300\,\mathrm{s}$ window, however, the field sweeps only $43^\circ$ and the weakest direction retains under $5\%$ of isotropic authority. Magnetic momentum management is therefore an orbit-timescale process, and a simulation or operational window shorter than roughly one fifth of an orbit cannot dump all three axes regardless of gain or dipole capacity. This has a direct bearing on the controllability assumption of \autoref{chap:underactuated_controller}: the requirement $\vec{h} = \vec{0}$ inherited from \cite{aeyelsStabilizationNonLinear} cannot be established quickly by magnetic means, so any controller whose stability argument presumes it must tolerate a non-zero $\vec{h}$ for a substantial fraction of an orbit.
-
-\subsection{The Unactuated Axis Is the Binding Constraint}
-\label{subsec:dead_axis_constraint}
-The preceding analysis concerns $\|\vec{h}\|$ as a whole, but for the underactuated spacecraft the quantity that actually determines pointing performance is the single component of $\vec{h}$ along the unactuated axis. Reaction wheel torques are internal and cannot change $\vec{h}$ at all; they only redistribute it between body and wheels. With the $z$-axis wheel failed, $h_{wz} = \dot{h}_{wz} = 0$, so
-\begin{equation}
-    J_z\,\omega_z = h_z - h_{wz} = h_z
-    \label{eq:dead_axis_rate}
-\end{equation}
-and the yaw rate is fixed entirely by the projection of the total momentum onto the current body $z$ axis. No wheel command can influence it. Consequently the yaw angle is the \emph{double} integral of the dead-axis disturbance torque, with no restoring term of any kind,
-\begin{equation}
-    \psi(t) = \frac{1}{J_z}\int_0^t h_z(\tau)\,d\tau, \qquad \ddot{\psi} = \frac{T_{d,z}}{J_z}
-    \label{eq:yaw_double_integral}
-\end{equation}
-Closed-loop simulation confirms equation \eqref{eq:yaw_double_integral} exactly: over a $6000\,\mathrm{s}$ inertial-hold run the yaw reconstructed from $\frac{1}{J_z}\int h_z\,dt$ matches the logged attitude with an RMS mismatch of $0.00^\circ$, both peaking at $39.18^\circ$ at $t = 2207\,\mathrm{s}$.
-
-Two consequences follow. First, the dead axis is the most fragile despite carrying the \emph{smallest} disturbance. In the same run the dead-axis disturbance amplitude was $1.9\times10^{-6}\,\mathrm{N\,m}$, some $38$ times smaller than the pitch-axis disturbance of $7.2\times10^{-5}\,\mathrm{N\,m}$, yet it alone produced tens of degrees of error because the actuated axes regulate their disturbance while the unactuated axis integrates it twice.
-
-Second, and more usefully, the condition required for a non-drifting attitude is weaker than the $\vec{h} = \vec{0}$ normally quoted. Equation \eqref{eq:dead_axis_rate} is satisfied with $\omega_z = 0$ whenever
-\begin{equation}
-    \vec{h}\cdot\hat{\vec{e}}_z = h_{wz}
-    \label{eq:dead_axis_condition}
-\end{equation}
-which is a single scalar constraint rather than three. Momentum lying in the actuated plane is harmless: the two surviving wheels absorb it as a constant bias and hold attitude indefinitely. This distinction matters in practice because the scalar condition is reachable in seconds whereas $\vec{h} = \vec{0}$ requires orbits, as established in \autoref{tab:avg_projector}. It should be noted that this does not discharge the $\vec{h} = \vec{0}$ assumption under which the backstepping laws of this chapter are derived; the nonholonomic steering argument requires it for the reduced kinematics to close. Equation \eqref{eq:dead_axis_condition} is the weaker condition for a non-drifting hold, not for the validity of the control law.
-
-\subsection{Split Allocation}
-\label{subsec:split_allocation}
-The observations above motivate treating the magnetorquer not as a momentum dumper that incidentally keeps the unactuated axis clean, but as the dedicated actuator on that axis. Since the dead-axis dynamics are the double integrator of equation \eqref{eq:yaw_double_integral}, a proportional-derivative law is appropriate. Using the vector part of the body-frame attitude error, for which $q_{e,z} \approx -\psi/2$, and noting from equation \eqref{eq:dead_axis_rate} that $h_z$ is directly proportional to the yaw rate,
-\begin{equation}
-    T_{d,z} = -2\zeta\omega_n\,h_z + 2J_z\omega_n^2\,q_{e,z}
-    \label{eq:dead_axis_pd}
-\end{equation}
-giving the closed loop $\ddot{\psi} + 2\zeta\omega_n\dot{\psi} + \omega_n^2\psi = T_{dist,z}/J_z$ and hence a steady-state error of
-\begin{equation}
-    \psi_{ss} \approx \frac{T_{dist,z}}{J_z\,\omega_n^2}
-    \label{eq:yaw_ss_error}
-\end{equation}
-The remaining two axes retain the slow dumping law of \autoref{subsec:null_space_parking} applied to $\vec{h}$ with its dead-axis component removed. The bandwidth $\omega_n$ must lie well above the orbital rate so that the dead-axis disturbance is rejected, and well below $1/\Delta t$.
-
-Combining the two demands requires care. Naively summing them and passing the result through equation \eqref{eq:magt_alloc} does \emph{not} decouple them, because the dumping demand on the actuated axes projects a spurious torque onto the dead axis. In simulation this leakage was of order $3\times10^{-5}\,\mathrm{N\,m}$, more than ten times the $1.9\times10^{-6}\,\mathrm{N\,m}$ disturbance the dead-axis loop is attempting to reject, so the yaw error settled where the PD command balanced the leakage rather than the disturbance, degrading the achieved pointing by roughly two orders of magnitude.
-
-Exact decoupling follows from observing that the dead-axis torque is
-\begin{equation}
-    \vec{T}_m\cdot\hat{\vec{e}}_z = (\vec{m}\times\vec{B})\cdot\hat{\vec{e}}_z = \vec{m}\cdot(\vec{B}\times\hat{\vec{e}}_z) \triangleq \vec{m}\cdot\vec{u}
-    \label{eq:dead_axis_direction}
-\end{equation}
-so that only the component of $\vec{m}$ along $\vec{u} = \vec{B}\times\hat{\vec{e}}_z$ produces any dead-axis torque, and every dipole perpendicular to $\vec{u}$ produces none. Splitting the commanded dipole on $\vec{u}$ therefore separates the two objectives exactly,
-\begin{align}
-    \vec{m}_{\psi} &= \frac{T_{d,z}}{\|\vec{u}\|^2}\,\vec{u} \label{eq:m_yaw}\\
-    \vec{m}_{dump} &= \frac{\vec{B}\times\vec{T}_{d,\perp}}{\|\vec{B}\|^2} - \frac{(\vec{B}\times\vec{T}_{d,\perp})\cdot\vec{u}}{\|\vec{B}\|^2\,\|\vec{u}\|^2}\,\vec{u} \label{eq:m_dump}\\
-    \vec{m} &= \vec{m}_{\psi} + \vec{m}_{dump} \label{eq:m_total}
-\end{align}
-where $\vec{T}_{d,\perp}$ is the dumping demand on the actuated axes. Since $\vec{m}_{\psi} \parallel \vec{u}$ and $\vec{m}_{dump} \perp \vec{u}$ by construction, the two are orthogonal and saturation with the dead axis given priority has the closed form
-\begin{equation}
-    \vec{m}_{dump} \leftarrow \vec{m}_{dump}\min\!\left(1, \frac{\sqrt{m_{max}^2 - \|\vec{m}_{\psi}\|^2}}{\|\vec{m}_{dump}\|}\right)
-    \label{eq:priority_saturation}
-\end{equation}
-with $\vec{m}_{\psi}$ itself scaled back only if it alone exceeds $m_{max}$. In the degenerate case $\vec{B} \parallel \hat{\vec{e}}_z$ the vector $\vec{u}$ vanishes and no dead-axis authority exists for that cycle; the yaw term is then simply suppressed. For a nadir-pointing spacecraft this occurs where the field is radial, that is, near the magnetic poles. In the orbit studied the minimum angle between $\vec{B}$ and the dead axis was $1.5^\circ$ and the available dead-axis torque never fell below a factor of $59$ above the disturbance, so these windows proved to be of no practical consequence.
-
-\subsection{Simulation Results}
-\autoref{tab:split_allocation_results} compares the conventional isotropic dumping law against the split allocation on an inertially-referenced hold, driven by the disturbance torque history recorded from the full closed-loop simulation. Because reaction wheels cannot change $\vec{h}$, the dead-axis model used for this comparison is exact given the disturbance history.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}l l l@{}}
-\hline
-Configuration & Peak $|\psi|$ & Peak $\|\vec{m}\|$ \\
-\hline
-Isotropic dumping, $k = 3\times10^{-3}$          & $48.99^\circ$ & $2.05\,\mathrm{A\,m^2}$ \\
-Split allocation, $\omega_n = 0.005\,\mathrm{rad/s}$ & $1.04^\circ$  & $4.20\,\mathrm{A\,m^2}$ \\
-Split allocation, $\omega_n = 0.01\,\mathrm{rad/s}$  & $0.27^\circ$  & $4.19\,\mathrm{A\,m^2}$ \\
-Split allocation, $\omega_n = 0.02\,\mathrm{rad/s}$  & $0.07^\circ$  & $4.20\,\mathrm{A\,m^2}$ \\
-\hline
-\end{tabular}
-\caption{Unactuated-axis pointing error over a $6000\,\mathrm{s}$ inertial hold. The $\omega_n = 0.01$ result agrees with the $0.24^\circ$ predicted by equation \eqref{eq:yaw_ss_error}.}
-\label{tab:split_allocation_results}
-\end{table}
-
-The split allocation improves unactuated-axis pointing by more than two orders of magnitude, and the measured error agrees with the analytical prediction of equation \eqref{eq:yaw_ss_error}. The peak dipole demand is approximately $4\,\mathrm{A\,m^2}$ in all cases and the results are unchanged for $m_{max}$ anywhere from $100$ down to $5\,\mathrm{A\,m^2}$, confirming that the improvement comes from the allocation rather than from additional actuator capacity.
-
-A separate result emerged when the same allocation was exercised during a commanded yaw manoeuvre rather than a hold. Because the wheels cannot produce dead-axis torque, the box manoeuvre steers yaw by pumping $h_z$ through the gyroscopic term $-(\vec\omega\times\vec{h})_z$, which is precisely the quantity the rate feedback in equation \eqref{eq:dead_axis_pd} damps. It was therefore anticipated that the dead-axis loop would oppose the manoeuvre and that detuning it during the manoeuvre would improve tracking. \autoref{tab:manoeuvre_gain} shows the opposite.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}l l l@{}}
-\hline
-Dead-axis gain during manoeuvre & $q_{e,z}$ at $t = 240\,\mathrm{s}$ & Yaw error \\
-\hline
-$\omega_n = 0.015$ (unchanged)      & 0.1753  & $+0.19^\circ$  \\
-$\omega_n = 0.002$ (detuned)        & 0.0695  & $-11.95^\circ$ \\
-$\omega_n = 0$ (suppressed)         & $-0.2889$ & $-55.10^\circ$ \\
-$\omega_n = 0$ throughout           & $-0.3662$ & $-65.34^\circ$ \\
-\hline
-\end{tabular}
-\caption{Yaw tracking through a box manoeuvre at $m_{max} = 15\,\mathrm{A\,m^2}$, target $q_{e,z} = 0.1736$. Tracking improves monotonically with dead-axis magnetic authority.}
-\label{tab:manoeuvre_gain}
-\end{table}
-
-Tracking improves monotonically with dead-axis magnetic authority: with the loop suppressed the manoeuvre diverges to $-65^\circ$, in the wrong direction entirely, while with it fully active the error settles to $+0.19^\circ$. The magnetorquer is not competing with the wheels for yaw control but supplying the majority of it. The in-plane momentum available to the manoeuvre was within $15\%$ across these cases, so the difference is attributable to the dead-axis loop rather than to the dumping law depriving the manoeuvre of the momentum it requires.
-
-This also clarifies an earlier observation that the manoeuvre overshot its target by $168\%$ and then recovered only slowly. That behaviour occurred at an unrealistic $m_{max} = 1000\,\mathrm{A\,m^2}$; at a representative $15\,\mathrm{A\,m^2}$ the same configuration tracks to within $0.2^\circ$. The overshoot was a symptom of excessive dead-axis authority overdriving the loop, not of contention between the two actuators.
-
-\subsection{Limitations}
-Three limitations of the above should be noted. The gain sweep of \autoref{tab:dump_gain_sweep} and the hold results of \autoref{tab:split_allocation_results} were obtained from a reduced-order replay driven by logged disturbance and field histories; this is exact for the unactuated axis, since reaction wheels cannot alter $\vec{h}$, but does not capture the reaction of the backstepping controller and the fault observer to the magnetic torque appearing on the actuated axes. The manoeuvre results of \autoref{tab:manoeuvre_gain} are from full closed-loop simulation but represent a single trajectory at one orbital phase, so the quoted figures should be read as indicative rather than as general performance bounds. Finally, the loop of equation \eqref{eq:dead_axis_pd} is normalised in gain with respect to inertia but not in authority: the dipole required scales as $J_z\omega_n^2\psi/(\|\vec{B}\|\sin\angle(\vec{B},\hat{\vec{e}}_z))$, so a spacecraft of substantially larger moment of inertia will require proportionally more dipole to sustain the same bandwidth, and the $15\,\mathrm{A\,m^2}$ used here may not be sufficient.
+% A virtual kinematic control input $\vec{u}_k$, the desired value for $\vec\omega_{ea}$, is designed as
+% \begin{equation}
+%     \vec{u}_k = -k_a q_{ew}\vec{e}_a + \kappa_1\vec{G}_1\vec{e}_d + \kappa_2\vec{e}_d
+%     \label{eq:kin_controller}
+% \end{equation}
+% where $k_a > 0$ and $\vec{e}_d \in \mathbb{R}^2$ is an auxiliary converging vector. Rather than driving $\vec e_a$ to zero directly, $\vec e_a$ is commanded to track $\vec{e}_d$, which is defined by the time-varying oscillator-like differential equation
+% \begin{equation}
+%     \dot{\vec{e}}_d = \frac{\dot\xi}{\xi}\vec{e}_d + \Lambda\vec{G}_1\vec{e}_d, \qquad \vec{e}_d^T(0)\vec{e}_d(0) = \xi^2(0)
+%     \label{eq:oscillator}
+% \end{equation}
+% with
+% \begin{align}
+%     \kappa_1 &= \frac{1}{\xi^2}\left(k_u e_u + q_{ew}\omega_{eu}\right), \qquad
+%     \kappa_2 = \frac{2\dot\xi}{q_{ew}\xi} + k_a q_{ew}, \qquad
+%     \Lambda = \frac{1}{2}\left(k_a q_{ew} e_u + q_{ew}\kappa_1 + \omega_{eu}\right), \notag \\
+%     \xi &= \gamma_0\exp(-\gamma_1 t) + \gamma_2
+%     \label{eq:xi_def}
+% \end{align}
+% where $k_u, \gamma_0, \gamma_1, \gamma_2 > 0$ are constant design parameters. Because $\vec{G}_1$ is skew-symmetric, $\vec{e}_d^T\vec{G}_1\vec{e}_d \equiv 0$, so $\frac{d}{dt}(\vec{e}_d^T\vec{e}_d) = 2\frac{\dot\xi}{\xi}\vec{e}_d^T\vec{e}_d$; solving this with the matched initial condition of \eqref{eq:oscillator} gives $\|\vec{e}_d(t)\| = \xi(t)$ for all $t \geq 0$ \cite{tianUnderactuatedTethered} (see appendix \ref{appen:derivations_tian_oscillator}). Since $\xi(t) \to \gamma_2 > 0$ rather than to zero, $\vec{e}_d$ never converges to the origin, so the coupling term in equation \eqref{eq:reduced_kin_u} never vanishes identically and $e_u \to 0$ even once the actuated axes have settled onto their commanded trajectory. Using the Lyapunov function $V_1 = e_u^2 + \tilde{\vec{e}}_a^T\tilde{\vec{e}}_a$ with $\tilde{\vec{e}}_a = \vec{e}_d - \vec{e}_a$, \cite{tianUnderactuatedTethered} show that the kinematic control law equation \eqref{eq:kin_controller}-- equation \eqref{eq:oscillator} renders the equilibrium $(e_u, \tilde{\vec{e}}_a) = (0, \vec{0})$ uniformly exponentially stable.

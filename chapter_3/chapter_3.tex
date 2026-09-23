@@ -104,7 +104,7 @@ Quaternion multiplication is defined according to the Hamiltonian (right-handed)
 where $\vec{p} = [\vec{p}_v, p_w]^T$ and $\vec{q} = [\vec{q}_v, q_w]^T$ are quaternions, made up of their vector and scalar parts respectively. The conjugate of a quaternion is defined as $\vec{q}^* = [-\vec{q}_v, q_w]^T$ and the inverse of a quaternion is defined as $\vec{q}^{-1} = \frac{\vec{q}^*}{||\vec{q}||^2}$.
 
 \subsubsection{Rotation Operators}
-There are two ways of using rotation operators, either active or passive. An active rotation rotates a vector in a fixed frame, while a passive rotation rotates the frame itself. The active rotation is the conjugate of the passive rotation $\vec{q}_{active} = \vec{q}^{*}_{passive}$. In this thesis the passive rotation convention is used.
+There are two ways of using rotation operators, either active or passive. An active rotation rotates a vector in a fixed frame, while a passive rotation rotates the frame itself. The active rotation is the conjugate of the passive rotation $\vec{q}_{active} = \vec{q}^{*}_{passive}$. In this thesis the passive rotation convention is the default however active rotations are also used and will be denoted by $\vec{q}^{BA}$.
 
 Quaternions can be used to rotate a vector $\vec{v}$ from frame $A$ to frame $B$ using the following relation:
 
@@ -186,7 +186,7 @@ q_{ez} & q_{ew} \\
 \begin{equation}
     \vec{\dot{\omega}}_e^r = - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy} \} [\omega_{ey} \ -\omega_{ex}]^T + \vec{J}^{-1}(\vec{\tau}_d -\dot{\vec{h}}_w + \vec{\tau}_{mag})
 \end{equation}
-
+%@TODO Fix this
 where each vector in the form of $ \vec{O}^r \in R^{2 \times 1} $ is equal
 to  $ [O_x \ O_y]^T$ based on components of vector $\vec{O} \in R^3$, and
 each matrix in the form of $\vec{P}^r \in R^{2 \times 2}$ is equal to
@@ -324,15 +324,22 @@ $K_M$, $K$ and $V_m$ are usually not supplied by the manufacturer of a (commerci
 \subsection{Reaction Wheel Faults}
 Faults in reaction wheels can be broadly categorized as follows \cite{ZarouratiMohammad2023Daar}. Four representative fault types are defined according to how the wheel's speed characteristic deviates from its commanded value:
 
-\begin{itemize}
-    \item Speed decrease: the wheel speed remains proportional to, but scaled below, the desired value, producing a torque with high ripple. This is classified as a partial loss of effectiveness (PLOE) fault.
-    \item Deviation: the wheel speed deviates from the desired value for some reason, producing a continuous bias torque. Since the actuator still generates a (non-zero) torque, this is classified as a hard-over failure with total loss of effectiveness (TLOE).
-    \item Stuck: the wheel suddenly stops rotating following a step change, with bearing friction bringing the speed to zero over a characteristic time $T_z$.
-    \item Idle: the wheel stops responding to commands altogether, and its speed remains frozen at whatever value it had at the instant the fault occurred.
-\end{itemize} % TODO: rework this section
+\begin{enumerate}
+    \item \label{fault:speed_decrease} Speed decrease: the wheel speed remains proportional to, but scaled below, the desired value, producing a torque with high ripple.
+    \item \label{fault:deviation} Deviation: the wheel speed deviates from the desired value for some reason, producing a continuous bias torque.
+    \item \label{fault:stuck} Stuck: the wheel suddenly stops rotating following a step change, with bearing friction bringing the speed to zero over a characteristic time $t_z$.
+    \item \label{fault:idle} Idle: the wheel stops responding to commands altogether, and its speed remains frozen at whatever value it had at the instant the fault occurred.
+\end{enumerate} % TODO: rework this section
 
 Of these, only the stuck and idle faults produce no reaction torque whatsoever, and it is these two fault types that render the corresponding control axis underactuated, since all actuation authority on that axis is lost. The speed-decrease and deviation faults still produce some control torque and therefore do not by themselves create an underactuated configuration. When the latter two types of faults occur in a system using feedback control, they manifest as degraded pointing accuracy, reduced stability margins, and, for the remaining healthy wheels compensating for the fault, increased power consumption. Ultimately, this leads to degraded image resolution and manoeuvrability. The former of the faults can cause stability to be lost entirely as we see in the next section. 
 % @TODO: Add a figure showing the different types of reaction wheel faults.
+These faults can be modelled as a multiplicative fault on the commanded torque $\vec{u}_c$ of the reaction wheel with some additive biass fault, such that the actual torque applied to the satellite is given by:
+
+\begin{equation}
+    \vec{u} = \vec{E} \vec{u}_c + \vec{u}_a
+\end{equation}
+where $\vec{\tau}_a$ is the actual torque applied to the satellite, and $\vec{E} = diag(e_1, e_2, ... e_i)$ where $e_i$ is the effectiveness of the $i$-th reaction wheel. For a healthy wheel, the corresponding diagonal entry of $\vec{E}$ is $\approx 1$ where some viscous friction will slightly reduce the effectiveness. For a stuck or idle wheel, the corresponding diagonal entry of $\vec{E}$ is $0$ and the corresponding entry of $\vec{u}_a$ is also $0$. For a speed decrease fault, the corresponding diagonal entry of $\vec{E}$ is $< 1$ and the corresponding entry of $\vec{u}_a$ is $0$. For a deviation fault, the corresponding diagonal entry of $\vec{E}$ is $\approx 1$ and the corresponding entry of $\vec{u}_a$ is non-zero.
+
 
 \section{Quaternion Feedback Control}
 The kinematics and dynamics of the attitude error given by \eqref{eq:q_error_kinematics}, \eqref{eq:omega_error} and \eqref{eq:sat_dynamics}, are a non-linear system of equations and cannot be analyzed using linear control theory without linearisation. Wie \cite{wieSpaceVehicleDynamics1998} proved that they can be stabilised using a nonlinear proportional-derivative (PD) quaternion feedback law using Lyapunov theory which will be discussed in the next section. Denoting the net torque commanded from the reaction wheels as $\vec{\tau}_c \triangleq -\dot{\vec{h}}_w$, the control law is chosen as

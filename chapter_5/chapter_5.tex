@@ -1,0 +1,14 @@
+\chapter{Path Planning}
+\label{chap:path_planning}
+
+\section{Unactuated Axis Maneuver}
+Since there is only weak control authority on the unactuated axis, to be able to reach large angles in reasonable amount of time it is necessary to find a manoeuvre which can utilize the actuated axes to achieve the desired attitude. One can utilize the fact that a "box"
+
+\begin{equation}
+Rx(a)Ry(a)Ry(a)Rx(a)  \approx Rz(a^2)
+\end{equation}
+\cite{murray2017mathematical}
+
+\begin{equation}
+    s(u)=6u^5-15u^4+10u^3
+\end{equation}
