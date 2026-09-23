@@ -12,9 +12,9 @@
         \draw[->] (dyn.east) -- node[above]{$\vec{\omega}$} (kin.west);
         \draw[->] (kin.east) -- ++(1.4,0) node[right]{$\vec{q}$};
 
-        \node[draw, dashed, inner sep=0.35cm, fit=(dyn), label={above:Subsystem $i-1$}] {};
-        \node[draw, dashed, inner sep=0.35cm, fit=(kin), label={above:Subsystem $i$}] {};
+        \node[draw, dashed, inner sep=0.35cm, fit=(dyn), label={above:Subsystem $i$}] {};
+        \node[draw, dashed, inner sep=0.35cm, fit=(kin), label={above:Subsystem $i-1$}] {};
     \end{tikzpicture}
-    \caption{Simplified cascade block diagram of the satellite attitude dynamics (subsystem $i-1$) and kinematics (subsystem $i$).}
+    \caption{Simplified cascade block diagram of the satellite attitude dynamics (subsystem $i$) and kinematics (subsystem $i-1$).}
     \label{fig:cascade_simplified}
 \end{figure}
