@@ -17,10 +17,10 @@ The definitions of stability and asymptotic stability given above have a natural
             \node at (-1.55,-1.8) {$S(\delta)$};
 
             \filldraw (0,0) circle (1.2pt) node[below left=1pt] {$0$};
-            \filldraw (0.55,0.15) circle (1.2pt) node[right] {$x(0)$};
+            \filldraw[red] (0.55,0.15) circle (1.2pt) node[below, red] {$x(0)$};
 
-            \draw[->, thick, domain=0:760, samples=150, smooth, variable=\t]
-                plot ({(0.15+0.0018*\t)*cos(\t)+0.55*(1-\t/760)}, {(0.15+0.0018*\t)*sin(\t)+0.15*(1-\t/760)});
+            \draw[->, thick, red, domain=0:760, samples=150, smooth, variable=\t]
+                plot ({(0.15+0.0018*\t)*cos(\t)+0.40*(1-\t/760)}, {(0.15+0.0018*\t)*sin(\t)+0.15*(1-\t/760)});
 
             \node at (0,-2.7) {Lyapunov stable};
         \end{scope}
@@ -35,10 +35,10 @@ The definitions of stability and asymptotic stability given above have a natural
             \node at (-1.55,-1.8) {$S(\delta)$};
 
             \filldraw (0,0) circle (1.2pt) node[below left=1pt] {$0$};
-            \filldraw (0.7,0.1) circle (1.2pt) node[right] {$x(0)$};
+            \filldraw[red] (0.7,0.1) circle (1.2pt) node[right=2.5pt, red] {$x(0)$};
 
-            \draw[->, thick, domain=0:760, samples=150, smooth, variable=\t]
-                plot ({0.71*exp(-\t/280)*cos(\t)}, {0.71*exp(-\t/280)*sin(\t)});
+            \draw[->, thick, red, domain=0:300, samples=150, smooth, variable=\t]
+                plot ({0.7071*exp(-\t/85)*cos(\t+8.13)}, {0.7071*exp(-\t/85)*sin(\t+8.13)});
 
             \node at (0,-2.7) {Asymptotically stable};
         \end{scope}
@@ -53,10 +53,11 @@ The definitions of stability and asymptotic stability given above have a natural
             \node at (-1.55,-1.8) {$S(\delta)$};
 
             \filldraw (0,0) circle (1.2pt) node[below left=1pt] {$0$};
-            \filldraw (0.25,0.05) circle (1.2pt) node[above right=1pt] {$x(0)$};
+            \filldraw[red] (0.25,0.05) circle (1.2pt);
+            \node[red] at (0.55,-0.25) {$x(0)$};
 
-            \draw[->, thick, domain=0:430, samples=150, smooth, variable=\t]
-                plot ({0.26*exp(\t/240)*cos(\t)}, {0.26*exp(\t/240)*sin(\t)});
+            \draw[->, thick, red, domain=0:535, samples=150, smooth, variable=\t]
+                plot ({0.2550*exp(\t/240)*cos(\t+11.31)}, {0.2550*exp(\t/240)*sin(\t+11.31)});
 
             \node at (0,-2.7) {Unstable};
         \end{scope}
