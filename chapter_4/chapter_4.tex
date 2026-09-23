@@ -252,7 +252,6 @@ This limitation is a significant practical concern as it means small manoeuvres 
     \caption{Large-angle attitude manoeuvre executed by the underactuated controller given by equation \eqref{eq:fndo_bs} illustrating the ability of the controller to manoeuvre the unactuated axis during large manoeuvres due to the large excitation in the actuated axes.}
     \label{fig:large_angle_maneuver}
 \end{figure}
-% @TODO regenerate these graphs
 
 \begin{figure}
     \centering
@@ -451,20 +450,6 @@ Notice that the unactuated axis error $\psi_e$ gradually drifts from zero with e
 \section{Summary}
 Satellite attitude control is a critical aspect of spacecraft operations, especially in the presence of actuator failures and external disturbances. The Nadafi and Kabganian FNDO-BS controller, which employs a finite-time nonlinear disturbance observer (FNDO) in conjunction with a backstepping control law, has been shown to effectively manage these challenges.
 The controller's design allows it to handle large-angle attitude tracking manoeuvres, even when one of the reaction wheels is inoperative. The simulation results demonstrate that the controller can accurately track the desired attitude while compensating for external disturbances, as evidenced by the convergence of the disturbance rejection estimation errors to near zero.
-
-
-% \subsection*{Results}
-
-
-% Simulations for a large-angle ($>90 \degree$) attitude tracking maneuver with inertia $J_0 = \mathrm{diag}(2.5,\, 3.5,\, 4.5)~\mathrm{kg\,m^2}$ and time-varying disturbances show:
-% \begin{itemize}
-%     \item Without saturation: MFNDO-BS and FNDO-BS both converge within 60~s; the plain backstepping (BS) controller fails to converge.
-%     \item Soft saturation ($\pm 1$~Nm): only MFNDO-BS remains asymptotically stable, converging within 80~s.
-%     \item Hard saturation (0.035~Nm, 3.5\% of soft level): MFNDO-BS still converges, within 150~s.
-% \end{itemize}
-
-%@TODO: Add figure showing the results of the Nadafi and Kabganian controller.
-
 
 
 
