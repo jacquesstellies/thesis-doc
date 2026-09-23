@@ -4,50 +4,50 @@
 
 
 
-\chapter{Tian Backstepping Controller Derivation}
-\makeatletter\@mkboth{}{Appendix}\makeatother
-\label{appen:derivations_tian_oscillator}
+% \chapter{Tian Backstepping Controller Derivation}
+% \makeatletter\@mkboth{}{Appendix}\makeatother
+% \label{appen:derivations_tian_oscillator}
 
-The choice of the oscillatory term given by equation \eqref{eq:oscillator} is not immediately obvious.  The oscillatory property of this term can by understood by the time derivative of the term $\vec{e}_d^T\vec{e}_d = \norm{\vec{e}_d}^2$
-\begin{align*}
-    \frac{d \vec{e}_d^T \vec{e}_d}{dt} &= \vec{e}_d^T \Big[\frac{\dot\xi}{\xi}\vec{e}_d + \Lambda\vec{G}_1\vec{e}_d \Big] \\
-    &=2\vec{e}_d^T\frac{\dot\xi}{\xi}\vec{e}_d + 2\vec{e}_d^T\Lambda\vec{G}_1\vec{e}_d \\
-    &=2\vec{e}_d^T\frac{\dot\xi}{\xi}\vec{e}_d \numberthis \label{eq:oscillator_norm_ode}
-\end{align*}
-given $\vec{G}_1 = \begin{bmatrix}0 & 1 \\ -1 & 0\end{bmatrix}$ is skew-symmetric then it has the property where any vector $\vec{x}$ satisfies $\vec{x}^T\vec{G}_1\vec{x} = 0$. Since and $\Lambda$ is a scalar then the second term of the derivative becomes zero.
+% The choice of the oscillatory term given by equation \eqref{eq:oscillator} is not immediately obvious.  The oscillatory property of this term can by understood by the time derivative of the term $\vec{e}_d^T\vec{e}_d = \norm{\vec{e}_d}^2$
+% \begin{align*}
+%     \frac{d \vec{e}_d^T \vec{e}_d}{dt} &= \vec{e}_d^T \Big[\frac{\dot\xi}{\xi}\vec{e}_d + \Lambda\vec{G}_1\vec{e}_d \Big] \\
+%     &=2\vec{e}_d^T\frac{\dot\xi}{\xi}\vec{e}_d + 2\vec{e}_d^T\Lambda\vec{G}_1\vec{e}_d \\
+%     &=2\vec{e}_d^T\frac{\dot\xi}{\xi}\vec{e}_d \numberthis \label{eq:oscillator_norm_ode}
+% \end{align*}
+% given $\vec{G}_1 = \begin{bmatrix}0 & 1 \\ -1 & 0\end{bmatrix}$ is skew-symmetric then it has the property where any vector $\vec{x}$ satisfies $\vec{x}^T\vec{G}_1\vec{x} = 0$. Since and $\Lambda$ is a scalar then the second term of the derivative becomes zero.
 
-Given equation \eqref{eq:oscillator_norm_ode}, let $r(t)=\norm{\vec{e}_d(t)}$, so 
+% Given equation \eqref{eq:oscillator_norm_ode}, let $r(t)=\norm{\vec{e}_d(t)}$, so 
 
-\begin{align*}
-    \frac{d}{dt}r^2 &= 2\frac{\dot{\xi}}{\xi}r^2 \\
-    \therefore \ \frac{dr}{dt}2r &= 2\frac{\dot{\xi}}{\xi}r^2 \\
-    \therefore \ \frac{dr}{dt} \frac{1}{r} &= \frac{d\xi}{dt}\frac{1}{\xi} \\
-\end{align*}
+% \begin{align*}
+%     \frac{d}{dt}r^2 &= 2\frac{\dot{\xi}}{\xi}r^2 \\
+%     \therefore \ \frac{dr}{dt}2r &= 2\frac{\dot{\xi}}{\xi}r^2 \\
+%     \therefore \ \frac{dr}{dt} \frac{1}{r} &= \frac{d\xi}{dt}\frac{1}{\xi} \\
+% \end{align*}
 
-valid since $r>0$, guaranteed as long as $\xi>0$, which the $\gamma_2>0$ condition guarantees. Integrating from $0$ to $t$ gives
-$$\ln r(t)-\ln r(0) = \ln\xi(t)-\ln\xi(0) \Longrightarrow r(t) = r(0)\cdot\frac{\xi(t)}{\xi(0)}$$
+% valid since $r>0$, guaranteed as long as $\xi>0$, which the $\gamma_2>0$ condition guarantees. Integrating from $0$ to $t$ gives
+% $$\ln r(t)-\ln r(0) = \ln\xi(t)-\ln\xi(0) \Longrightarrow r(t) = r(0)\cdot\frac{\xi(t)}{\xi(0)}$$
 
-Applying the initial condition $r(0)=|e_d(0)|=\xi(0)$ and substituting gives
-$$r(t) = \xi(0)\cdot\frac{\xi(t)}{\xi(0)} = \xi(t)\qquad\text{for all }t\ge0$$
+% Applying the initial condition $r(0)=|e_d(0)|=\xi(0)$ and substituting gives
+% $$r(t) = \xi(0)\cdot\frac{\xi(t)}{\xi(0)} = \xi(t)\qquad\text{for all }t\ge0$$
 
-Now that it's been show that $$\norm{e_d(t)} = \xi(t)$$ for all $t\ge0$, and $\xi(t) > 0$ since $\gamma_2>0$ then it is valid to write to write $e_d(t)$ in polar form
-$$e_d(t) = \xi(t)\begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix}$$
-where $\theta(t)$ is the angle of the vector $e_d(t)$ in the 2D plane. Now substituting this into the ODE for $e_d(t)$ gives
+% Now that it's been show that $$\norm{e_d(t)} = \xi(t)$$ for all $t\ge0$, and $\xi(t) > 0$ since $\gamma_2>0$ then it is valid to write to write $e_d(t)$ in polar form
+% $$e_d(t) = \xi(t)\begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix}$$
+% where $\theta(t)$ is the angle of the vector $e_d(t)$ in the 2D plane. Now substituting this into the ODE for $e_d(t)$ gives
 
-\begin{align*}
-    \dot{e}_d(t) &= \dot{\xi}(t)\begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix} + \xi(t)\begin{bmatrix}-\sin\theta(t) \\ \cos\theta(t)\end{bmatrix}\dot{\theta}(t) \\
-    &= \dot{\xi}(t)\begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix} + \dot{\theta}(t) \vec{G}_1 \begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix} \xi(t)
-\end{align*}
+% \begin{align*}
+%     \dot{e}_d(t) &= \dot{\xi}(t)\begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix} + \xi(t)\begin{bmatrix}-\sin\theta(t) \\ \cos\theta(t)\end{bmatrix}\dot{\theta}(t) \\
+%     &= \dot{\xi}(t)\begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix} + \dot{\theta}(t) \vec{G}_1 \begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix} \xi(t)
+% \end{align*}
 
-Comparing coefficients from equation \eqref{eq:oscillator} shows that $\dot{\theta}(t) = \Lambda$. This indicates that $\Lambda$, which is function of $e_u, q_ew, \omega_{eu}$, determines the frequency of the oscillatory motion of $e_d(t)$.
-
-
+% Comparing coefficients from equation \eqref{eq:oscillator} shows that $\dot{\theta}(t) = \Lambda$. This indicates that $\Lambda$, which is function of $e_u, q_ew, \omega_{eu}$, determines the frequency of the oscillatory motion of $e_d(t)$.
 
 
-\chapter{Zarourati Closed-loop kinematic system development}
-\makeatletter\@mkboth{}{Appendix}\makeatother
-\label{appen:derivations_}
 
-$$\dot e_u = 0.5\Big(\underbrace{e_0\omega_{eu} - e_2\omega_{d3} + e_3\omega_{d2}}_{\text{this is }U\text{ from (11a)}} - k_ae_0,\vec e_a^T E\vec e_a + \vec e_a^TE(\kappa_1E\vec e_d+\kappa_2\vec e_d)\Big)$$
+
+% \chapter{Zarourati Closed-loop kinematic system development}
+% \makeatletter\@mkboth{}{Appendix}\makeatother
+% \label{appen:derivations_}
+
+% $$\dot e_u = 0.5\Big(\underbrace{e_0\omega_{eu} - e_2\omega_{d3} + e_3\omega_{d2}}_{\text{this is }U\text{ from (11a)}} - k_ae_0,\vec e_a^T E\vec e_a + \vec e_a^TE(\kappa_1E\vec e_d+\kappa_2\vec e_d)\Big)$$
 
 % This is another appendix.
