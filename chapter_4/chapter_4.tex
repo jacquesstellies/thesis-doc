@@ -2,32 +2,27 @@
 \label{chap:underactuated_controller}
 
 \section{Introduction}
-The underactuated system described in \autoref{chap:modelling} is a highly non-linear system thus traditional LTI control methods are not directly applicable. As discussed as part of the literature review in chapter \ref{chap:literature_review}, the backstepping controller is a suitable control method for underactuated systems. In this chapter, the underactuated backstepping controllers designed by Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} is analysed and its properties are discussed. A key defining feature of this controller is that it can achieve attitude tracking control i.e.: tracking a desired attitude profile under certain constraints, where most works are limited to regulation. It will be shown that this controller is robust to external disturbances, varying moment of inertia, reaction wheel torque disturbances and is performant in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite. This chapter will also discuss the controllability of the underactuated system and the limitations of the backstepping controller. A possible future modification to this controller is discussed using a technique developed by Haochang Tian in \cite{tianUnderactuatedTethered}. This controller uses a similar backstepping methodology but contains a modification to the kinematic virtual control input to excite the actuated axes during a slew manoeuvre. Simulation results are presented which illustrate key constraints of the design. Magnetorquer
+The underactuated system described in \autoref{chap:modelling} is a highly non-linear system thus traditional LTI control methods are not directly applicable. As discussed as part of the literature review in chapter \ref{chap:literature_review}, the backstepping controller is a suitable control method for underactuated systems. In this chapter, the underactuated backstepping controller designed by Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} is analysed and its properties are discussed. A key defining feature of this controller is that it can achieve attitude tracking control i.e.: tracking a desired attitude profile under certain constraints, where most works are limited to regulation. It will be shown that this controller is robust to external disturbances, varying moment of inertia, reaction wheel torque disturbances and is performant in contrast to a control method such as model predictive control. This latter benefit is highly valuable on limited compute resources such as a satellite. This chapter will also discuss the controllability of the underactuated system and the limitations of the backstepping controller. A possible future modification to this controller is discussed using a technique developed by Haochang Tian in \cite{tianUnderactuatedTethered}. This controller uses a similar backstepping methodology but contains a modification to the kinematic virtual control input to excite the actuated axes during a slew manoeuvre. Simulation results are presented which illustrate key constraints of the design and its tracking performance.
 
-\begin{comment}
- @TODO: Do I include Magnetorquers in this chapter?
-\end{comment}
 \section{Controllability}
 \label{sec:controllability}
-As mentioned in section \ref{underactuated_lit_review}, a controllability analysis of an underactuated satellite is presented in \cite{aeyelsStabilizationNonLinear} by Aeyels and Dirk. They show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time varying control law feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the central manifold theorem. In \cite{aeyelsComments} Aeyels and Szafranski show that a key requirement is that the total angular momentum of the satellite must be zero $\vec{H} = 0$ in order to achieve stability. 
+As mentioned in section \ref{underactuated_lit_review}, a controllability analysis of an underactuated satellite is presented in \cite{aeyelsStabilizationNonLinear} by Aeyels. They show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time-varying feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the centre manifold theorem. In \cite{aeyelsComments} Aeyels and Szafranski show that a key requirement is that the total angular momentum of the satellite must be zero $\vec{H} = 0$ in order to achieve stability. 
 
 Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} build on this work and present a time-varying backstepping controller.
 
 \section{Backstepping}
 \label{subsec:backstepping_procedure}
-In order to understand the backstepping controller designed by Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021}, it is necessary to understand the backstepping procedure. Backstepping is a non-linear design technique for stabilizing the origin of a system in strict-feedback form. It entails designing a series of virtual control inputs each of which stabilizes a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. The satellite kinematic and dynamic equations represent a 2nd order cascade system. A Lyapunov function is selected for each subsystem and the control law is designed to force the time derivative to this surface.
+In order to understand the backstepping controller designed by Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021}, it is necessary to understand the backstepping procedure. Backstepping is a non-linear design technique for stabilising the origin of a system in strict-feedback form. It entails designing a series of virtual control inputs each of which stabilises a subsystem and ultimately the overall system. The method is recursive in that the controller for the $i^{th}$ subsystem depends on the controller for the $(i-1)^{th}$ subsystem. The satellite kinematic and dynamic equations represent a 2nd order cascade system. A Lyapunov function is selected for each subsystem and the control law is designed to force the time derivative to this surface.
 
 The satellite attitude kinematics and dynamics can be viewed as two subsystems connected in cascade: the dynamics subsystem is driven directly by the control input $\vec{u}$, while the kinematics subsystem is driven only indirectly, through the angular velocity produced by the dynamics subsystem. This mirrors the general backstepping structure of equation \eqref{eq:1}, with the dynamics playing the role of the inner subsystem $i$ and the kinematics playing the role of the outer subsystem $i-1$ whose virtual control input is designed first. This simplified cascade structure is illustrated in Figure~\ref{fig:cascade_simplified}; the full expressions for $f$ and $g$ are given later in this chapter once the underactuated case has been introduced (equations \eqref{eq:cascade_dyn} and \eqref{eq:cascade_kin}).
 
 \input{chapter_4/satellite_dynamics_simplified}
 \subsection{Lyapunov Functions}
-To prove the stability of a non-linear system around an equilibrium point, a Lyapunov function is used. An equilibrium point is stable if all solutions starting close to the equilibrium point remain close to it for all time. An equilibrium point is asymptotically stable if it is stable and all solutions starting close to the equilibrium point converge to it as time goes to infinity. A Lyapunov function is a scalar function that is used to prove the stability of an equilibrium point of a dynamical system. It is a mathematical tool that provides a way to analyze the behavior of a system without explicitly solving its equations of motion. The basic idea behind Lyapunov functions is to find a function that decreases over time along the trajectories of the system, indicating that the system is moving towards a stable equilibrium point. Formally, let x = 0 be an equilibrium point of the system $\dot{x} = f(x)$ where $f : D \rightarrow \mathbb{R}^n$ is a locally Lipschitz map from a domain $D \subset R$ into $\mathbb{R}^n$ containing $x=0$.
+To prove the stability of a non-linear system around an equilibrium point, a Lyapunov function is used. An equilibrium point is stable if all solutions starting close to the equilibrium point remain close to it for all time. An equilibrium point is asymptotically stable if it is stable and all solutions starting close to the equilibrium point converge to it as time goes to infinity. A Lyapunov function is a scalar function that is used to prove the stability of an equilibrium point of a dynamical system. It is a mathematical tool that provides a way to analyse the behaviour of a system without explicitly solving its equations of motion. The basic idea behind Lyapunov functions is to find a function that decreases over time along the trajectories of the system, indicating that the system is moving towards a stable equilibrium point. Formally, let x = 0 be an equilibrium point of the system $\dot{x} = f(x)$ where $f : D \rightarrow \mathbb{R}^n$ is a locally Lipschitz map from a domain $D \subset \mathbb{R}^n$ into $\mathbb{R}^n$ containing $x=0$.
 
-which has an equilibrium point at $x=0$. The equilibrium point is stable if for each $\epsilon > 0$, there exists a $\delta > 0$ such that if $\|x(0)\| < \delta$, then $\|x(t)\| < \epsilon$ for all $t \geq 0$.
+The equilibrium point is stable if for each $\epsilon > 0$, there exists a $\delta > 0$ such that if $\|x(0)\| < \delta$, then $\|x(t)\| < \epsilon$ for all $t \geq 0$.
 
 \input{chapter_4/lyapunov_stability}
-% @TODO: Fix this
-
 
  A Lyapunov function is a scalar function $V : D \rightarrow \mathbb{R}$ that is continuously differentiable and satisfies the following conditions:
 \begin{equation}
@@ -42,9 +37,9 @@ then x is stable. If
 \end{equation}
 then x is asymptotically stable. If D = $\mathbb{R}^n$ and V is radially unbounded then x is globally asymptotically stable \cite{khalilNonlinearSystems2002}.
 
- A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite ie: $\dot{V}(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function or equivilantly $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
+ A Lyapunov function $V(\vec{x})$ is positive definite if $V(0)=0$ and $V(\vec{x})>0$ for all $\vec{x}\neq0$. It is radially unbounded if $V(\vec{x})\rightarrow\infty$ as $\vec{x}\rightarrow\infty$. A Lyapunov function is used to prove the stability of a system by showing that the time derivative of the Lyapunov function is negative definite i.e.: $\dot{V}(\vec{x}) \leq -W(\vec{x})$ where $W(\vec{x})$ is a positive definite function or equivalently $\dot{V}(\vec{x})<0$ for all $\vec{x}\neq0$. If this is true then the system is stable. 
 
-A common Lyapunov function chosen for electro-mechanical systems is the total energy of a system (pendulums, robot manipulators, converters, ship dynamics), since total energy V = kinetic + potential is already a natural positive-definite candidate. However this is not a requirement and other Lyapunov functions can be used along as it satisfies the conditions of being positive definite and differentiable \cite{khalilNonlinearSystems2002}.
+A common Lyapunov function chosen for electro-mechanical systems is the total energy of a system (pendulums, robot manipulators, converters, ship dynamics), since total energy V = kinetic + potential is already a natural positive-definite candidate. However this is not a requirement and other Lyapunov functions can be used as long as they satisfy the conditions of being positive definite and differentiable \cite{khalilNonlinearSystems2002}.
 \subsection{Backstepping Procedure}
 Using the Lyapunov stability theory, the backstepping procedure is outlined in \cite{khalilNonlinearSystems2002} as follows. Take the following 2nd order equation:
 
@@ -56,9 +51,9 @@ Using the Lyapunov stability theory, the backstepping procedure is outlined in \
 \end{equation}
 
 where $f(0)=0$ and g is non-zero over the region of interest.
-The goal is to design a control law $u$ such that the origin $\eta=0$ is asymptotically stable i.e.: $(\eta, z)$ returns to $(0,0)$ after starting from some arbitrary initial condition.
+The goal is to design a control law $u$ such that the origin $\eta=0$ is asymptotically stable i.e.: $(\eta, \xi)$ returns to $(0,0)$ after starting from some arbitrary initial condition.
 
-\textbf{Step 1: Treat $\xi$ as a virtual control.} Assume that equation \eqref{eq:1} can be stabilized by a smooth state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$, i.e. the subsystem
+\textbf{Step 1: Treat $\xi$ as a virtual control.} Assume that equation \eqref{eq:1} can be stabilised by a smooth state feedback law $\xi=\phi(\eta)$ with $\phi(0)=0$, i.e. the subsystem
 \begin{equation}
     \dot{\eta} = f(\eta) + g(\eta)\phi(\eta)
 \end{equation}
@@ -135,7 +130,7 @@ Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} present a robus
 
 \subsection{Cascade Model}
 
-To design the controller, Nadafi and Kabganian consider the reduced spacecraft model error i.e.: the actuated dynamics and kinematics. In order to ensure the robustness of their controller actuator faults as a bounded disturbance $\dot{h}_dw$ on the actuated dynamics and assume some constant effectiveness reduction $\rho_w = 1$ on the actuated wheels
+To design the controller, Nadafi and Kabganian consider the reduced spacecraft model error i.e.: the actuated dynamics and kinematics. In order to ensure the robustness of their controller actuator faults as a bounded disturbance $\dot{h}_{dw}$ on the actuated dynamics and assume some constant effectiveness reduction $\rho_w = 0$ on the actuated wheels
 
 \begin{equation}
     \dot{h}_{dw} = \rho_w \dot{h}_w
@@ -156,16 +151,16 @@ Under the assumptions (z-axis is the unactuated axis; total angular momentum is 
 
 \begin{equation}
 \begin{split}
-        \vec{\dot{\omega}}^r_e &= \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy}\} + \{\vec{J}^r\}^{-1} \vec{T}_d^r + \{\vec{J}^r\}^{-1} \vec{\rho_w} \dot{\vec{h}}_w^r \\
+        \vec{\dot{\omega}}^r_e &= \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy}\}[\omega_{ey} \ -\omega_{ex}]^T + \{\vec{J}^r\}^{-1} \vec{T}_d^r + \{\vec{J}^r\}^{-1} \vec{\rho_w} \dot{\vec{h}}_w^r \\
     &= \vec{u} + \vec{F} + \vec{d} \label{eq:cascade_dyn} \\
 \end{split}
 \end{equation}
-where $\vec{u} = \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w \in \mathbb{R}^2$ is the control input (reaction wheel torque), $\vec{F} = - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy} \} [\omega_{ey} \ -\omega_{ex}]^T$ captures the known gyroscopic and reference-trajectory terms and $\vec{d} = \{\vec{J}^r\}^{-1} (\vec{T}_d^r + \vec{\rho_w} \dot{\vec{h}}_w^r)$ is the lumped disturbance, which includes external disturbances and internal reaction wheel disturbances. Notice that $\vec{\rho_w} \in \mathbb{R}^{2\times2}$ is the complement of the actuator effectiveness matrix $\vec{E} = \vec{I} - \vec{\rho_w}$ defined in section \ref{chap:modelling}. The control input $\vec{u}$ is will be designed to drive the actuated angular velocity error $\boldsymbol{\omega}^r_e$ to zero in the following sections.
+where $\vec{u} = \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w \in \mathbb{R}^2$ is the control input (reaction wheel torque), $\vec{F} = - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy} \} [\omega_{ey} \ -\omega_{ex}]^T$ captures the known gyroscopic and reference-trajectory terms and $\vec{d} = \{\vec{J}^r\}^{-1} (\vec{T}_d^r + \vec{\rho_w} \dot{\vec{h}}_w^r)$ is the lumped disturbance, which includes external disturbances and internal reaction wheel disturbances. Notice that $\vec{\rho_w} \in \mathbb{R}^{2\times2}$ is the complement of the actuator effectiveness matrix $\vec{E} = \vec{I} - \vec{\rho_w}$ defined in section \ref{chap:modelling}. The control input $\vec{u}$ will be designed to drive the actuated angular velocity error $\boldsymbol{\omega}^r_e$ to zero in the following sections.
 
 \subsection{Virtual Control Input Design}
 \label{subsec:hypersurface_design}
 
-The unactuated quaternion error $q_{ez}$ cannot be driven directly by $\vec{u}$; it is driven only through the kinematic equation \eqref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. It's important to note that this is exploiting the kinematic (not gyroscopic) coupling between the actuated and unactuated states. No gyroscopic torque is involved instead this takes advantage of the Lie bracket geometry. The unactuated states are influenced in a manner analagous to nonholonomic steering. To illustrate this, consider the kinematic equation for the unactuated quaternion error rate:
+The unactuated quaternion error $q_{ez}$ cannot be driven directly by $\vec{u}$; it is driven only through the kinematic equation \eqref{eq:cascade_kin} via $\boldsymbol{\omega}^r_e$. It is important to note that this is exploiting the kinematic (not gyroscopic) coupling between the actuated and unactuated states. No gyroscopic torque is involved, instead this takes advantage of the Lie bracket geometry. The unactuated states are influenced in a manner analogous to nonholonomic steering. To illustrate this, consider the kinematic equation for the unactuated quaternion error rate:
 
 \begin{equation}
     \dot{q}_{e3} = \frac{1}{2}(-q_{e2}\omega_{ex} + q_{e1}\omega_{ey})
@@ -194,7 +189,7 @@ with $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2, \lambda_3)$. Taking the time
 
 \subsection{Disturbance Observer}
 
-The backstepping controller relies on the hypersurface defined by equation \eqref{eq:hypersurface} to stear the unactuated axis. The actuated states have to sit on that surface for the argument to hold. Any external or internal disturbance is not captured by the dynamics the hypersurface relies on. Thus a persistent estimation error in the lumped disturbance would push the system off of the surface and lead to instability. To estimate $\vec{d} \in \mathbb{R}^2$ Nadafi and Kabganian employ a finite-time nonlinear disturbance observer (FNDO) presented in \cite{shihuaDisturbanceObserverBasedControl}. This is a sliding-mode observer that estimates $\vec{d}$ in finite time. It handles the disturbances and uncertainties in a robust manner simply with a fast response time \cite{huQinglei2014Dobf}. The FNDO is given by:
+The backstepping controller relies on the hypersurface defined by equation \eqref{eq:hypersurface} to steer the unactuated axis. The actuated states have to sit on that surface for the argument to hold. Any external or internal disturbance is not captured by the dynamics the hypersurface relies on. Thus a persistent estimation error in the lumped disturbance would push the system off of the surface and lead to instability. To estimate $\vec{d} \in \mathbb{R}^2$ Nadafi and Kabganian employ a finite-time nonlinear disturbance observer (FNDO) presented in \cite{shihuaDisturbanceObserverBasedControl}. This is a sliding-mode observer that estimates $\vec{d}$ in finite time. It handles the disturbances and uncertainties in a robust manner simply with a fast response time \cite{huQinglei2014Dobf}. The FNDO is given by:
 \begin{align}
     \dot{\boldsymbol{\chi}}_0 &= \boldsymbol{\nu}_0 + \vec{u} + \vec{F}, \quad
     \boldsymbol{\nu}_0 = -\kappa_0\,\mathrm{diag}\!\left(L^{1/2}|\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e|^{1/2}\right)\mathrm{sign}(\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e) + \boldsymbol{\chi}_1 \notag \\
@@ -214,14 +209,14 @@ where $\Gamma_z \in \mathbb{R}^{2\times 2}$ is a positive definite gain matrix. 
 
 \subsubsection*{Remark}
 
-As discussed in Section~\ref{subsec:hypersurface_design}, the controller loses all authority over $q_{e3}$ when $q_{e1} = q_{e2} = 0$. This can be observed in the control law by substituting $q_{e1} = q_{e2} = 0$ into equation \eqref{eq:hypersurface} gives
+As discussed in Section~\ref{subsec:hypersurface_design}, the controller loses all authority over $q_{e3}$ when $q_{e1} = q_{e2} = 0$. This can be observed in the control law: substituting $q_{e1} = q_{e2} = 0$ into equation \eqref{eq:hypersurface} gives
 \begin{equation}
     \boldsymbol{\Phi}\big|_{q_{e1}=q_{e2}=0}
     = -2\begin{bmatrix}
-        a \cdot 0 \cdot q_{e3} + \lambda_1 q_{e0} \cdot 0 \
+        a \cdot 0 \cdot q_{e3} + \lambda_1 q_{e0} \cdot 0 \\
         b \cdot 0 \cdot q_{e3} + \lambda_2 q_{e0} \cdot 0
     \end{bmatrix}
-    = \begin{bmatrix} 0 \ 0 \end{bmatrix}
+    = \begin{bmatrix} 0 \\ 0 \end{bmatrix}
 \end{equation}
 so $\boldsymbol{\Phi}$ vanishes for any $q_{e3}$. The corrective quaternion feedback term in the
 control law also vanishes at this point: with $\vec{q}_e = [q_{e0},\,0,\,0,\,q_{e3}]^T$,
@@ -249,20 +244,20 @@ Every term is proportional to $\left(q_{e1}^2 + q_{e2}^2\right)$, so as the actu
 converge, $\dot{V}_a \to 0$ and all convergence---including that of $q_{e3}$---stalls.
 The driving authority for $q_{e3}$ is quadratic in the actuated error, so it vanishes as the trajectory approaches the target.
 
-This limitation is a significant practical concern as it means small manoeuvres which fail to sufficiently excite the actuated axes will leave the unactuated axis in an arbitrary orientation. This is particularly problematic for a satellite which may need to perform a slew manoeuvre to point at a target. If the unactuated axis is not sufficiently excited during the slew, the satellite may end up pointing in an arbitrary direction after the slew is complete. A way to counteract this behaviour is to construct a manoeuvre about the actuated axes which ultimately end at the desired attitude. The figures \ref{fig:large_angle_maneuver} and \ref{fig:small_angle_maneuver} illustrate this concept for large-angle and small-angle maneuvers, respectively.
+This limitation is a significant practical concern as it means small manoeuvres which fail to sufficiently excite the actuated axes will leave the unactuated axis in an arbitrary orientation. This is particularly problematic for a satellite which may need to perform a slew manoeuvre to point at a target. If the unactuated axis is not sufficiently excited during the slew, the satellite may end up pointing in an arbitrary direction after the slew is complete. A way to counteract this behaviour is to construct a manoeuvre about the actuated axes which ultimately end at the desired attitude. The figures \ref{fig:large_angle_maneuver} and \ref{fig:small_angle_maneuver} illustrate this concept for large-angle and small-angle manoeuvres, respectively.
 
 \begin{figure}
     \centering
     \includegraphics[width=1.0\textwidth]{chapter_4/presentation_large_angle_q_sat_vs_ref.png}
-    \caption{Large-angle attitude maneuver executed by the underactuated controller given by equation \eqref{eq:fndo_bs} illustrating the ability of the controller to maneuver the unactuated axis during large maneuvers due to the large excitation in the actuated axes.}
+    \caption{Large-angle attitude manoeuvre executed by the underactuated controller given by equation \eqref{eq:fndo_bs} illustrating the ability of the controller to manoeuvre the unactuated axis during large manoeuvres due to the large excitation in the actuated axes.}
     \label{fig:large_angle_maneuver}
 \end{figure}
-
+% @TODO regenerate these graphs
 
 \begin{figure}
     \centering
     \includegraphics[width=1.0\textwidth]{chapter_4/presentation_small_angle_q_sat_vs_ref.png}
-    \caption{Small-angle attitude step maneuver executed by the underactuated controller given by equation \eqref{eq:fndo_bs} illustrating the weak authority of the controller to maneuver the unactuated axis during small maneuvers due to a lack of excitation in the actuated axes.}
+    \caption{Small-angle attitude step manoeuvre executed by the underactuated controller given by equation \eqref{eq:fndo_bs} illustrating the weak authority of the controller to manoeuvre the unactuated axis during small manoeuvres due to a lack of excitation in the actuated axes.}
     \label{fig:small_angle_maneuver}
 \end{figure}
 
@@ -306,9 +301,9 @@ Furthermore, the FNDO is designed to estimate the lumped disturbance $\vec{d}$ w
 \subsubsection{Continuous vs Discrete-Time Implementation}
 Finally, it is important to note that the BS FNDO is a continuous controller and does not account for discrete-time implementation. In practice, the controller will be implemented in discrete time with a sample period $\Delta t$. The continuous-time control law is discretized using a zero-order hold, which can introduce additional dynamics and affect stability. For the simulations below a very fast sample time of $\Delta t = 0.01$~s is used. This mitigates the effects of discretization on the performance of the controller but is unrealistic for many controller applications. Designing the controller for discrete-time implementation will be an important area of future work.
 
-\section {Attitude Tracking Maneuver Simulations}
+\section {Attitude Tracking Manoeuvre Simulations}
 \label{subsec:nadafi_tracking_sims}
-To evaluate the performance of the Nadafi and Kabganian controller, a sequence of large-angle attitude tracking manoeuvres is simulated as a baseline scenario. All attitudes are commanded with respect to the inertial frame $F_I$, so the reference is inertially fixed between manoeuvres and no orbit-referenced (nadir) pointing is involved. The spacecraft is commanded to slew from its initial attitude to a target attitude, hold that attitude, and then slew back, before repeating the sequence for a second target obtained by mirroring the eigenaxis of the first. The reference trajectory is generated by interpolating between the waypoints listed in \autoref{tab:nadafi_track_waypoints} using SLERP with smootherstep timing, so that the spacecraft comes to rest at every waypoint. The reference body rate $\boldsymbol{\omega}_d$ and angular acceleration $\dot{\boldsymbol{\omega}}_d$ required by the feedforward term $\vec{F}$ in equation \eqref{eq:fndo_bs} are obtained from this trajectory by central finite differences.
+To evaluate the performance of the Nadafi and Kabganian controller, a sequence of large-angle attitude tracking manoeuvres is simulated as a baseline scenario. All attitudes are commanded with respect to the inertial frame $F_I$, so the reference is inertially fixed between manoeuvres and no orbit-referenced (nadir) pointing is involved. The spacecraft is commanded to slew from its initial attitude to a target attitude, hold that attitude, and then slew back, before repeating the sequence for a second target obtained by mirroring the eigenaxis of the first. The reference trajectory is generated by interpolating between the waypoints listed in \autoref{tab:nadafi_track_waypoints} using SLERP (spherical linear interpolation) with smootherstep timing, so that the spacecraft comes to rest at every waypoint. The reference body rate $\boldsymbol{\omega}_d$ and angular acceleration $\dot{\boldsymbol{\omega}}_d$ required by the feedforward term $\vec{F}$ in equation \eqref{eq:fndo_bs} are obtained from this trajectory by central finite differences.
 
 \subsection{Simulation Setup}
 Each target attitude is a $70^\circ$ eigenaxis rotation about an axis lying in the body $xy$-plane, which is the plane spanned by the two healthy reaction wheels. Consequently the reference attitude has $q_{dz} = 0$ and the reference body rate has $\omega_{dz} = 0$ throughout, so the trajectory is admissible for the underactuated plant: the manoeuvre is large enough to excite the actuated axes, while never demanding torque about the unactuated $z$-axis. The manoeuvre is therefore representative of the favourable case identified in \autoref{subsec:hypersurface_design}.
@@ -409,13 +404,13 @@ Simulation duration    & $T$                      & $120\ \mathrm{s}$ \\
 \newpage
 
 \subsection{Results and Discussion}
-From the simulation results shown in Figures~\ref{fig:fndo-bs_tracking_results}--\ref{fig:fndo-bs_tracking_results_chi_1}, it is clear that the FNDO backstepping controller is able to track the large-angle attitude manoeuvre in the presence of external disturbances. The controller is able to drive the actuated spacecraft quaternion $q_{1}$ and $q_{e2}$, which in turn drives the unactuated quaternion error $q_{e3}$ to zero as well. The Euler angles $\psi$, $\theta$, and $\phi$ are also able to track their respective reference values with small errors. The disturbance rejection estimation errors $\chi_{1x}$ and $\chi_{1y}$ in figure \ref{fig:fndo-bs_tracking_results_chi_1} converge very closely to zero, indicating that the FNDO is able to accurately estimate the external disturbances.
+From the simulation results shown in Figures~\ref{fig:fndo-bs_tracking_results}--\ref{fig:fndo-bs_tracking_results_chi_1}, it is clear that the FNDO backstepping controller is able to track the large-angle attitude manoeuvre in the presence of external disturbances. The controller is able to drive the actuated spacecraft quaternion errors $q_{e1}$ and $q_{e2}$ to zero, which in turn drives the unactuated quaternion error $q_{e3}$ to zero as well. The Euler angles $\psi$, $\theta$, and $\phi$ are also able to track their respective reference values with small errors. The disturbance rejection estimation errors $\chi_{1x}$ and $\chi_{1y}$ in figure \ref{fig:fndo-bs_tracking_results_chi_1} converge very closely to zero, indicating that the FNDO is able to accurately estimate the external disturbances.
 
-Notice that the unactuated axis error $\psi_e$ gradually drifts from zero with each large maneuver. Also note the small amount of steady state chatter in the actuated axes $psi_e, theta_e$ and in the angular velocity error $\boldsymbol{\omega}_e$, a side effect of backstepping control. These two issues will be reduced by the magnetorquer controller in later chapters.
+Notice that the unactuated axis error $\psi_e$ gradually drifts from zero with each large manoeuvre. Also note the small amount of steady state chatter in the actuated axes $\theta_e, \phi_e$ and in the angular velocity error $\boldsymbol{\omega}_e$, a side effect of backstepping control. These two issues will be reduced by the magnetorquer controller in later chapters.
 \begin{figure}
     \centering
     \includegraphics[width=1.0\textwidth]{chapter_4/_track_test_thesis_v2_q_sat_vs_ref.png}
-    \caption{Comparison of body frame quaternion $q^{BI} = [q_{x}, q_{y}, q_{z}, q_{w}]^T$ vs reference quaternion $q^{RI} = [q_{dx}, q_{dy}, q_{dz}, q_{dw}]^T$ for attitude tracking of a smooth trajectory in the presence of disturbances by the FNDO backstepping controller for baseline scenario showcasing ability to track large angle maneuvers in the actuated (x-y) plane.}
+    \caption{Comparison of body frame quaternion $q^{BI} = [q_{x}, q_{y}, q_{z}, q_{w}]^T$ vs reference quaternion $q^{RI} = [q_{dx}, q_{dy}, q_{dz}, q_{dw}]^T$ for attitude tracking of a smooth trajectory in the presence of disturbances by the FNDO backstepping controller for baseline scenario showcasing ability to track large angle manoeuvres in the actuated (x-y) plane.}
     \label{fig:fndo-bs_tracking_results}
 \end{figure}
 
@@ -453,7 +448,7 @@ Notice that the unactuated axis error $\psi_e$ gradually drifts from zero with e
 \newpage
 \section{Summary}
 Satellite attitude control is a critical aspect of spacecraft operations, especially in the presence of actuator failures and external disturbances. The Nadafi and Kabganian FNDO-BS controller, which employs a finite-time nonlinear disturbance observer (FNDO) in conjunction with a backstepping control law, has been shown to effectively manage these challenges.
-The controller's design allows it to handle large-angle attitude tracking maneuvers, even when one of the reaction wheels is inoperative. The simulation results demonstrate that the controller can accurately track the desired attitude while compensating for external disturbances, as evidenced by the convergence of the disturbance rejection estimation errors to near zero.
+The controller's design allows it to handle large-angle attitude tracking manoeuvres, even when one of the reaction wheels is inoperative. The simulation results demonstrate that the controller can accurately track the desired attitude while compensating for external disturbances, as evidenced by the convergence of the disturbance rejection estimation errors to near zero.
 
 
 % \subsection*{Results}
