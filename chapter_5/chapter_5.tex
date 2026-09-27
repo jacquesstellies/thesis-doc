@@ -1,14 +1,79 @@
 \chapter{Path Planning}
 \label{chap:path_planning}
+In this chapter the path planning problem for an underactuated spacecraft is discussed. The path planning problem is to find a trajectory for the spacecraft to follow in order to reach a desired attitude. The trajectory must be feasible given the underactuated nature of the spacecraft and the constraints on the actuators. First a smooth trajectory is generated via smootherstep interpolation with feedforward angular acceleration required obtained from this trajectory by central finite differences. Then a rotation sequence is constructed about the actuated axes to achieve the desired attitude about the unactuated axis.
+
+% Potentially include discussion on Tian Haochang controller for future work.
+\section{Smootherstep Interpolation}
+It is important to In order to reduce unwanted excitation of the unactuated axis and control the maximum torque demanded of the system, a smooth trajectory which minimizes jerk \cite{lynch2017modern} is generated for the actuated axes to follow between waypoints. This is achieved by using SLERP (Spherical Linear Interpolation) with smootherstep timing between waypoints. 
+
+Smootherstep interpolation is a polynomial interpolation method suggested by Perlin \cite{ebert1998texturing} and implemented for robotic motion planning  in \cite{lynch2017modern} that ensures smooth transitions between waypoints by ensuring the, first (velocity) and second derivatives (acceleration) $S_2', S_2'' = 0$, is zero at the endpoints. A set of interim waypoints is defined by the smootherstep function:
+
+\begin{equation}
+    \label{eq:smootherstep}
+    s(u) = 6u^5 - 15u^4 + 10u^3
+\end{equation}
+
+and then reparameterized by 
+
+\begin{equation}
+    u = \frac{t-t_1}{t_2-t_0}
+\end{equation}
+
+where $t_1$ is the time at the start of the segment and $t_2$ is the time at the end of the segment. SLERP is then used to interpolate between interim waypoints. It takes the form of:
+
+\begin{equation}
+    \text{SLERP}(q_1,q_2,s) = \frac{\sin\big((1-s)\Omega\big)}{\sin\Omega}q_1 + \frac{\sin(s\Omega)}{\sin\Omega}q_2, \qquad \Omega = \arccos(q_1\cdot q_2) = \theta/2
+\end{equation}
+
+where $q_1$ and $q_2$ are the quaternions at the start and end of the segment, $s$ is the smootherstep interpolation parameter, $\Omega$ is the angle between the two quaternions, and $\theta$ is the angle between the two attitudes. It is necessary to check that $q_1 \cdot q_2 > 0$ to ensure the shortest path is taken.
+The angular velocity and acceleration required to follow this trajectory can be obtained by deriving equation \eqref{eq:smootherstep} with respect to time multiplied by the euler axis of rotation for a given time step in the following manner:
+
+\begin{equation}
+    \omega = s'(u) \cdot \frac{d}{dt}\left(\frac{t-t_1}{t_2-t_1}\right) \cdot \mathbf{u}
+\end{equation}
+
+where
+\begin{equation}
+s'(u) = 30u^4 - 60u^3 + 30u^2, \qquad
+\end{equation}
 
 \section{Unactuated Axis Maneuver}
-Since there is only weak control authority on the unactuated axis, to be able to reach large angles in reasonable amount of time it is necessary to find a manoeuvre which can utilize the actuated axes to achieve the desired attitude. One can utilize the fact that a "box"
+Since there is only weak control authority on the unactuated axis, to be able to reach large angles in reasonable amount of time it is necessary to find a manoeuvre which can utilize the actuated axes to achieve the desired attitude. One can utilize the fact that on the SO(3) manifold, rotations about different axes do not commute. This means that a sequence of rotations about the actuated axes can be used to achieve a rotation about the unactuated axis \cite{murray2017mathematical}.
+
+One can use a 1st order approximation of the Baker-Campbell-Hausdorff formula to approximate the rotation about the unactuated axis by a sequence of rotations about the actuated axes. For example, a rotation about the $z$-axis can be approximated by a sequence of rotations about the $x$ and $y$ axes as follows \cite{Lambert_2021}:
 
 \begin{equation}
-Rx(a)Ry(a)Ry(a)Rx(a)  \approx Rz(a^2)
+\text{box}(a) = Rx(a)Ry(a)Rx(-a)Ry(-a)  = Rz(a^2) + Rx(\frac{a^3}{2})Ry(-\frac{a^3}{2}) + O(a^4) ...
 \end{equation}
-\cite{murray2017mathematical}
+% @TODO: check this
 
-\begin{equation}
-    s(u)=6u^5-15u^4+10u^3
-\end{equation}
+where $a$ is the angle of rotation about the actuated axes. The above is an infinite series and higher-order terms can be included for more accurate approximations of the rotation about the unactuated axis. There are residual x and y components to the rotation that grow with $a$, thus each box manoeuvre shoud be limited in size to prevent excessive residual rotation. $a$ is capped at $57.3\degree$ to limit the xy residual to $32.5\degree$ which corresponds to a yaw of $32.07\degree$
+
+An accurate yaw angle is required since there is limited authority on the unactuated axis when close to the desired attitude. Thus to determine the exact value, the Brent method $\text{Brent}(f(a), f(b))$ is a fast method of finding the root of a function which combines the bisection method, the secant method, and inverse quadratic interpolation \cite{BrentqSciPyV1180}. The Brent method requires a bracketing interval, with $f(a)$ and $f(b)$ having opposite signs. The Brent method is then used to find the root of the function $f(a) = \text{box}(a) - \psi$ which gives the exact value of $a$ required to achieve the desired yaw angle $\psi$.
+
+\subsection{Simulation}
+
+Using a similar set up to the simulation in \autoref{chap:underactuated_controller}, a series of waypoints are defined to test the path planning algorithm. The spacecraft is required to perform a series of rotations about the actuated axes to achieve a desired attitude about the unactuated axis. For a yaw of $\psi=$ waypoints are calculated as follows:
+
+
+The graph in figure 
+
+
+% Using the $a=\sqrt{\psi}$ is becomes increasingly inaccurate for larger manoevres and can be seen in the following table which shows the error in the yaw angle for different values of $a$:
+
+% \begin{table}
+%     \centering
+%     \begin{tabular}{|c|c|}
+%         \hline
+%         $a$ & Error in Yaw Angle \\
+%         \hline
+%         5\degree & -0.142\degree \\
+%         10\degree & -0.557\degree \\
+%         20\degree & -2.136\degree \\
+%         40\degree & -7.902\degree \\
+%         \hline
+%     \end{tabular}
+%     \caption{Error in Yaw Angle for Different Values of $a$}
+%     \label{tab:yaw_error}
+% \end{table}
+

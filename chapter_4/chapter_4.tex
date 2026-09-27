@@ -332,7 +332,7 @@ No multiplicative actuator fault is injected on the two remaining wheels: the ac
 \end{equation}
 used by Nadafi and Kabganian in \cite{nadafiRobustBacksteppingAttitude2021}. This is a deliberately aggressive disturbance, several orders of magnitude larger (and higher frequency) than the environmental torques derived in \autoref{chap:modelling}, and is retained here so that the disturbance rejection of the FNDO can be observed directly. Residual angular momentum is bled off with the idealised three-axis dumping law of equation \eqref{eq:fndo_bs_with_dump}, with the dumping torque removed from the observer input according to equation \eqref{eq:modified_fndo}.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \begin{tabular}{@{}l l l@{}}
 \hline
@@ -346,14 +346,14 @@ $40$  & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & hold \\
 $52$  & target B: $70^\circ$ about $[1,\ -1,\ 0]^T/\sqrt{2}$ & slew \\
 $60$  & target B                                        & hold \\
 $72$  & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & slew back \\
-$102$ & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & hold \\
+$102$ & $\vec{q}^{RI} = [0,\ 0,\ 0,\ 1]^T$                 & hold \\ % @TODO: check quaternion notation here
 \hline
 \end{tabular}
 \caption{Inertial reference attitude waypoints for the tracking manoeuvre. Each target is a $70^\circ$ eigenaxis rotation from the initial attitude about an axis in the body $xy$-plane. The reference is interpolated between consecutive waypoints with SLERP and smootherstep timing which will be discussed in detail in chapter \ref{chap:path_planning}, so that the spacecraft is at rest at each waypoint.}
 \label{tab:nadafi_track_waypoints}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \begin{tabular}{@{}l l l@{}}
 \hline
