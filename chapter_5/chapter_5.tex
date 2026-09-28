@@ -1,12 +1,12 @@
 \chapter{Path Planning}
 \label{chap:path_planning}
-In this chapter the path planning problem for an underactuated spacecraft is discussed. The path planning problem is to find a trajectory for the spacecraft to follow in order to reach a desired attitude. The trajectory must be feasible given the underactuated nature of the spacecraft and the constraints on the actuators. First a smooth trajectory is generated via smootherstep interpolation with feedforward angular acceleration required obtained from this trajectory by central finite differences. Then a rotation sequence is constructed about the actuated axes to achieve the desired attitude about the unactuated axis.
+In this chapter the path planning problem for an underactuated spacecraft is discussed. The path planning problem is to find a trajectory for the spacecraft to follow in order to reach a desired attitude. The trajectory must be feasible given the underactuated nature of the spacecraft and the constraints on the actuators. This is analogous to the problem of nonholonomic motion planning in robotics. First a smooth trajectory is generated via smootherstep interpolation with feedforward angular acceleration required obtained from this trajectory by central finite differences. Then a rotation sequence is constructed about the actuated axes to achieve the desired attitude about the unactuated axis.
 
 % Potentially include discussion on Tian Haochang controller for future work.
 \section{Smootherstep Interpolation}
-It is important to In order to reduce unwanted excitation of the unactuated axis and control the maximum torque demanded of the system, a smooth trajectory which minimizes jerk \cite{lynch2017modern} is generated for the actuated axes to follow between waypoints. This is achieved by using SLERP (Spherical Linear Interpolation) with smootherstep timing between waypoints. 
+As seen in the previous chapter, the underactuated controller has large overshoot when supplied with a step input. It is important to ensure that the spacecraft follows a smooth trajectory to avoid large transients and reduce the risk of instability. In order to reduce unwanted excitation of the unactuated axis and control the maximum torque demanded of the system, a smooth trajectory which minimizes jerk \cite{lynch2017modern} is generated for the actuated axes to follow between waypoints. This is achieved by using SLERP (Spherical Linear Interpolation) with smootherstep timing. 
 
-Smootherstep interpolation is a polynomial interpolation method suggested by Perlin \cite{ebert1998texturing} and implemented for robotic motion planning  in \cite{lynch2017modern} that ensures smooth transitions between waypoints by ensuring the, first (velocity) and second derivatives (acceleration) $S_2', S_2'' = 0$, is zero at the endpoints. A set of interim waypoints is defined by the smootherstep function:
+Smootherstep interpolation is a polynomial interpolation method suggested by Perlin \cite{ebert1998texturing} and implemented for robotic motion planning  in \cite{lynch2017modern} that ensures smooth transitions between waypoints by ensuring the, first (velocity) and second derivatives (acceleration) are zero at the endpoints $s', s'' = 0$. A set of interim waypoints is defined by the smootherstep function:
 
 \begin{equation}
     \label{eq:smootherstep}
@@ -16,34 +16,37 @@ Smootherstep interpolation is a polynomial interpolation method suggested by Per
 and then reparameterized by 
 
 \begin{equation}
-    u = \frac{t-t_1}{t_2-t_0}
+    u = \frac{\tau-t_1}{t_2-t_0}
 \end{equation}
 
-where $t_1$ is the time at the start of the segment and $t_2$ is the time at the end of the segment. SLERP is then used to interpolate between interim waypoints. It takes the form of:
+where $\tau$ is the current time, $t_1$ is the time at the start of the segment and $t_2$ is the time at the end of the segment. SLERP is then used to interpolate between interim waypoints. It takes the form of:
 
 \begin{equation}
     \text{SLERP}(q_1,q_2,s) = \frac{\sin\big((1-s)\Omega\big)}{\sin\Omega}q_1 + \frac{\sin(s\Omega)}{\sin\Omega}q_2, \qquad \Omega = \arccos(q_1\cdot q_2) = \theta/2
 \end{equation}
 
 where $q_1$ and $q_2$ are the quaternions at the start and end of the segment, $s$ is the smootherstep interpolation parameter, $\Omega$ is the angle between the two quaternions, and $\theta$ is the angle between the two attitudes. It is necessary to check that $q_1 \cdot q_2 > 0$ to ensure the shortest path is taken.
-The angular velocity and acceleration required to follow this trajectory can be obtained by deriving equation \eqref{eq:smootherstep} with respect to time multiplied by the euler axis of rotation for a given time step in the following manner:
+The reference angular velocity and acceleration required to follow this trajectory can be obtained by taking the finite difference of the quaternion attitude trajectory and the angular velocity trajectory respectively.
 
-\begin{equation}
-    \omega = s'(u) \cdot \frac{d}{dt}\left(\frac{t-t_1}{t_2-t_1}\right) \cdot \mathbf{u}
-\end{equation}
+% deriving equation \eqref{eq:smootherstep} with respect to time multiplied by the euler axis of rotation for a given time step in the following manner:
 
-where
-\begin{equation}
-s'(u) = 30u^4 - 60u^3 + 30u^2, \qquad
-\end{equation}
+% \begin{equation}
+%     \omega = s'(u) \cdot \frac{d}{dt}\left(\frac{t-t_1}{t_2-t_1}\right) \cdot \mathbf{u}
+% \end{equation}
+
+% where
+% \begin{equation}
+% s'(u) = 30u^4 - 60u^3 + 30u^2, \qquad
+% \end{equation}
 
 \section{Unactuated Axis Maneuver}
-Since there is only weak control authority on the unactuated axis, to be able to reach large angles in reasonable amount of time it is necessary to find a manoeuvre which can utilize the actuated axes to achieve the desired attitude. One can utilize the fact that on the SO(3) manifold, rotations about different axes do not commute. This means that a sequence of rotations about the actuated axes can be used to achieve a rotation about the unactuated axis \cite{murray2017mathematical}.
+Since there is only weak control authority on the unactuated axis, to be able to reach large angles in reasonable amount of time it is necessary to find a manoeuvre which can utilize the actuated axes to achieve the desired attitude. This is analogous the problem of nonholonomic motion planning in robotics (nonholonomic systems require an instantaneous velocity constraint on some degree(s) of freedom, which in this case do not occur \cite{murray2017mathematical}). One can utilize the fact that on the SO(3) manifold, rotations about different axes do not commute. This means that a sequence of rotations about the actuated axes can be used to achieve a rotation about the unactuated axis \cite{murray2017mathematical}.
 
 One can use a 1st order approximation of the Baker-Campbell-Hausdorff formula to approximate the rotation about the unactuated axis by a sequence of rotations about the actuated axes. For example, a rotation about the $z$-axis can be approximated by a sequence of rotations about the $x$ and $y$ axes as follows \cite{Lambert_2021}:
 
 \begin{equation}
-\text{box}(a) = Rx(a)Ry(a)Rx(-a)Ry(-a)  = Rz(a^2) + Rx(\frac{a^3}{2})Ry(-\frac{a^3}{2}) + O(a^4) ...
+\label{eq:box_manoeuvre}
+\text{box}(a) = Rx(a)Ry(a)Rx(-a)Ry(-a)  = Rz(a^2) + O(a^3)
 \end{equation}
 % @TODO: check this
 
@@ -53,11 +56,44 @@ An accurate yaw angle is required since there is limited authority on the unactu
 
 \subsection{Simulation}
 
-Using a similar set up to the simulation in \autoref{chap:underactuated_controller}, a series of waypoints are defined to test the path planning algorithm. The spacecraft is required to perform a series of rotations about the actuated axes to achieve a desired attitude about the unactuated axis. For a yaw of $\psi=$ waypoints are calculated as follows:
+Using a similar set up to the simulation in \autoref{chap:underactuated_controller}, a series of waypoints are defined to test the path planning algorithm. The spacecraft is required to perform a series of rotations about the actuated axes to achieve a desired attitude about the unactuated axis. For a yaw of $\psi=32\degree$ waypoints $i$ are calculated as follows:
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Waypoint & $t_i$ & $\vec{q}_i = [q_x \ q_y \ q_z \ q_w]$ \\
+\hline
+1 & 0.0 & $[0.0 \ 0.0 \ 0.0 \ 1.0]$ \\
+2 & 20.0 & $[0.404 \ 0.0 \ 0.0 \ 0.914]$ \\
+3 & 40.0 & $[0.370 \ 0.370 \ 0.164 \ 0.835]$ \\
+4 & 60.0 & $[0.0 \ 0.272 \ 0.299 \ 0.914]$ \\
+5 & 80.0 & $[0.121 \ -0.121 \ 0.274 \ 0.946 ]$\\ 
+6 & 100.0 & $[0.0 \ 0.0 \ 0.275 \ 0.961]$ \\
+\hline
+\end{tabular}
+\caption{Waypoints generated by the path planning algorithm given by \eqref{eq:box_manoeuvre} to achieve a yaw of $\psi=32\degree$ about the unactuated axis. The waypoints are defined in the inertial frame and are interpolated between with SLERP and smootherstep timing.}
+\label{tab:waypoints}
+\end{table}
 
 
-The graph in figure 
+The graphs in \autoref{fig:yaw_box_q_sat_vs_ref}, \autoref{fig:yaw_box_e321_sat}, and \autoref{fig:yaw_box_e321_sat} show the spacecraft attitude quaternion, yaw, pitch, and roll angles,for a yaw of $\psi=32\degree$ about the unactuated axis. The reference attitude is generated by the path planning algorithm given by \eqref{eq:box_manoeuvre} and interpolated between waypoints with SLERP and smootherstep timing. The spacecraft is able to follow the reference attitude closely, with some overshoot due to the limited authority on the unactuated axis.
 
+\begin{figure}
+    \includegraphics[width=1.0\textwidth]{chapter_5/yaw_box_test_large_angle_q_sat_vs_ref.png}
+    \caption{Spacecraft attitude quaternion and reference attitude quaternion  for a yaw of $\psi=32\degree$ about the unactuated axis. The reference attitude is generated by the path planning algorithm given by \eqref{eq:box_manoeuvre} and interpolated between waypoints with SLERP and smootherstep timing. The spacecraft is able to follow the reference attitude closely, with some overshoot due to the limited authority on the unactuated axis.}
+    \label{fig:yaw_box_q_sat_vs_ref}
+\end{figure}
+
+
+\begin{figure}
+    \includegraphics[width=1.0\textwidth]{chapter_5/yaw_box_test_large_angle_e321_vs_error_split.png}
+    \caption{Spacecraft attitude yaw, pitch, and roll angles, with respective errors, for a yaw of $\psi=32\degree$ about the unactuated axis. The reference attitude is generated by the path planning algorithm given by \eqref{eq:box_manoeuvre} and interpolated between waypoints with SLERP and smootherstep timing. The spacecraft is able to follow the reference attitude closely, with some overshoot due to the limited authority on the unactuated axis.}
+    \label{fig:yaw_box_e321_sat}
+\end{figure}
+
+\section{Summary}
+In this chapter, a method has been presented for manoeuvering the underactuated spacecraft about the unactuated axis via a path planning mechanism analogous to a nonholonomic steering. A box manoeuvre has been constructed such that the desired unactuated axis has achieved the desired orientation with minimal error. SLERP and smootherstep timing are utilized to interpolate between waypoints. The resulting trajectories are smooth and continuous, making them suitable for use with the FNDO-BS controller presented in Chapter \ref{chap:underactuated_controller}. A simulation was conducted to demonstrate the tracking of generated waypoints by the underactuated controller.  The results show that the spacecraft is able to follow the reference attitude closely, with a small final error on the underactuated axis.
 
 % Using the $a=\sqrt{\psi}$ is becomes increasingly inaccurate for larger manoevres and can be seen in the following table which shows the error in the yaw angle for different values of $a$:
 
