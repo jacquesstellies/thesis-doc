@@ -151,11 +151,11 @@ Under the assumptions (z-axis is the unactuated axis; total angular momentum is 
 
 \begin{equation}
 \begin{split}
-        \vec{\dot{\omega}}^r_e &= \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy}\}[\omega_{ey} \ -\omega_{ex}]^T + \{\vec{J}^r\}^{-1} \vec{T}_d^r + \{\vec{J}^r\}^{-1} \vec{\rho_w} \dot{\vec{h}}_w^r \\
+        \vec{\dot{\omega}}^r_e &= \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy}\}[\omega_{ey} \ -\omega_{ex}]^T + \{\vec{J}^r\}^{-1} \vec{\tau}_d^r + \{\vec{J}^r\}^{-1} \vec{\rho_w} \dot{\vec{h}}_w^r \\
     &= \vec{u} + \vec{F} + \vec{d} \label{eq:cascade_dyn} \\
 \end{split}
 \end{equation}
-where $\vec{u} = \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w \in \mathbb{R}^2$ is the control input (reaction wheel torque), $\vec{F} = - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy} \} [\omega_{ey} \ -\omega_{ex}]^T$ captures the known gyroscopic and reference-trajectory terms and $\vec{d} = \{\vec{J}^r\}^{-1} (\vec{T}_d^r + \vec{\rho_w} \dot{\vec{h}}_w^r)$ is the lumped disturbance, which includes external disturbances and internal reaction wheel disturbances. Notice that $\vec{\rho_w} \in \mathbb{R}^{2\times2}$ is the complement of the actuator effectiveness matrix $\vec{E} = \vec{I} - \vec{\rho_w}$ defined in section \ref{chap:modelling}. The control input $\vec{u}$ will be designed to drive the actuated angular velocity error $\boldsymbol{\omega}^r_e$ to zero in the following sections.
+where $\vec{u} = \{\vec{J}^r\}^{-1}\dot{\vec{h}}^r_w \in \mathbb{R}^2$ is the control input (reaction wheel torque), $\vec{F} = - \vec{C}^r \vec{\dot{\omega}}_d^r + \{ c_{31} \omega_{dx} + c_{32} \omega_{dy} \} [\omega_{ey} \ -\omega_{ex}]^T$ captures the known gyroscopic and reference-trajectory terms and $\vec{d} = \{\vec{J}^r\}^{-1} (\vec{\tau}_d^r + \vec{\rho_w} \dot{\vec{h}}_w^r)$ is the lumped disturbance, which includes external disturbances and internal reaction wheel disturbances. Notice that $\vec{\rho_w} \in \mathbb{R}^{2\times2}$ is the complement of the actuator effectiveness matrix $\vec{E} = \vec{I} - \vec{\rho_w}$ defined in section \ref{chap:modelling}. The control input $\vec{u}$ will be designed to drive the actuated angular velocity error $\boldsymbol{\omega}^r_e$ to zero in the following sections.
 
 \subsection{Virtual Control Input Design}
 \label{subsec:hypersurface_design}
@@ -320,9 +320,9 @@ taken from \cite{nadafiRobustBacksteppingAttitude2021} so that the results remai
 
 The spacecraft carries three orthogonally mounted reaction wheels, giving the distribution matrix $\vec{D} = \vec{I}$. Each wheel is modelled as a solid cylinder of mass $0.31\ \mathrm{kg}$, radius $66\ \mathrm{mm}$ and height $25\ \mathrm{mm}$, giving a spin-axis inertia of $J_w = 6.75\times10^{-4}\ \mathrm{kg\,m^2}$ and, at the maximum wheel speed of $10\,000\ \mathrm{rpm}$, a storage capacity of $0.71\ \mathrm{N\,m\,s}$ per wheel. The wheels start at rest and the spacecraft starts at rest, so the total system angular momentum is initially zero, $\vec{H}(0) = \vec{0}$, satisfying the necessary condition for stabilisability established in \autoref{sec:controllability}. The $z$-axis wheel is failed in the stuck (zero-torque) mode, so only the $x$- and $y$-axis wheels are commanded and the $z$-axis is unactuated. Wheel friction is neglected and the torque limit of $1\ \mathrm{N\,m}$ is never reached, so the saturated MFNDO-BS form of the control law is not required.
 
-No multiplicative actuator fault is injected on the two remaining wheels: the actuator effectiveness matrix is $\vec{E} = \vec{I}$, hence $\boldsymbol{\rho}_w = \vec{0}$ and the lumped disturbance reduces to $\vec{d} = \{\vec{J}^r\}^{-1}\vec{T}_d^r$, which is the purely external disturbance
+No multiplicative actuator fault is injected on the two remaining wheels: the actuator effectiveness matrix is $\vec{E} = \vec{I}$, hence $\boldsymbol{\rho}_w = \vec{0}$ and the lumped disturbance reduces to $\vec{d} = \{\vec{J}^r\}^{-1}\vec{\tau}_d^r$, which is the purely external disturbance
 \begin{equation}
-    \vec{T}_d = 7.5\times10^{-3}
+    \vec{\tau}_d = 7.5\times10^{-3}
     \begin{bmatrix}
         0.1 + 9\sin(0.5t) \\
         0.1 + 7.5\sin(0.8t) \\
@@ -331,7 +331,7 @@ No multiplicative actuator fault is injected on the two remaining wheels: the ac
     \label{eq:nadafi_disturbance}
 \end{equation}
 used by Nadafi and Kabganian in \cite{nadafiRobustBacksteppingAttitude2021}. This is a deliberately aggressive disturbance, several orders of magnitude larger (and higher frequency) than the environmental torques derived in \autoref{chap:modelling}, and is retained here so that the disturbance rejection of the FNDO can be observed directly. Residual angular momentum is bled off with the idealised three-axis dumping law of equation \eqref{eq:fndo_bs_with_dump}, with the dumping torque removed from the observer input according to equation \eqref{eq:modified_fndo}.
-
+% @TODO: Double check the quaternion active or passive here
 \begin{table}[ht]
 \centering
 \begin{tabular}{@{}l l l@{}}
@@ -379,7 +379,7 @@ Actuator effectiveness  & $\vec{E}$      & $\vec{I}$ (no multiplicative fault) \
 Momentum dumping gain   & $k_{dump}$     & $1$, three-axis, $\|\vec{\tau}_{dump}\| \leq 0.1\ \mathrm{N\,m}$ \\
 \hline
 \multicolumn{3}{@{}l}{\textit{Environment}} \\
-External disturbance   & $\vec{T}_d$ & equation \eqref{eq:nadafi_disturbance} \\
+External disturbance   & $\vec{\tau}_d$ & equation \eqref{eq:nadafi_disturbance} \\
 \hline
 \multicolumn{3}{@{}l}{\textit{Controller}} \\
 Hypersurface gains     & $\lambda_1,\ \lambda_2,\ \lambda_3$ & $3,\ 3,\ 6$ \quad ($a = -3$, $b = 3$) \\
@@ -421,7 +421,7 @@ Notice that the unactuated axis error $\psi_e$ gradually drifts from zero with e
     \caption{Euler angle attitude yaw $\psi$, pitch $\theta$, and roll $\phi$ and their respective tracking errors  for the FNDO backstepping controller in the baseline scenario.}
     \label{fig:fndo-bs_tracking_results_euler}
 \end{figure}
-
+% @TODO: Fix Euler angle plot (currently inverted)
 
 \begin{figure}
     \centering
@@ -441,7 +441,7 @@ Notice that the unactuated axis error $\psi_e$ gradually drifts from zero with e
 \begin{figure}
     \centering
     \includegraphics[width=1.0\textwidth]{chapter_4/_track_test_thesis_v2_T_dist.png}
-    \caption{Disturbance torque $\vec{T}_d$ applied to the spacecraft in the baseline scenario. The disturbance is deliberately aggressive, several orders of magnitude larger (and higher frequency) than the environmental torques derived in \autoref{chap:modelling}, and is retained here so that the disturbance rejection of the FNDO can be observed directly.}
+    \caption{Disturbance torque $\vec{\tau}_d$ applied to the spacecraft in the baseline scenario. The disturbance is deliberately aggressive, several orders of magnitude larger (and higher frequency) than the environmental torques derived in \autoref{chap:modelling}, and is retained here so that the disturbance rejection of the FNDO can be observed directly.}
     \label{fig:fndo-bs_tracking_results_tau}
 \end{figure}
 \FloatBarrier
