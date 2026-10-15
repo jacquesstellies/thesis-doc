@@ -6,7 +6,7 @@ The underactuated system described in \autoref{chap:modelling} is a highly non-l
 
 \section{Controllability}
 \label{sec:controllability}
-As mentioned in section \ref{underactuated_lit_review}, a controllability analysis of an underactuated satellite is presented in \cite{aeyelsStabilizationNonLinear} by Aeyels. They show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time-varying feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the centre manifold theorem. In \cite{aeyelsComments} Aeyels and Szafranski show that a key requirement is that the total angular momentum of the satellite must be zero $\vec{H} = 0$ in order to achieve stability. 
+As mentioned in section \ref{underactuated_lit_review}, a controllability analysis of an underactuated satellite is presented in \cite{aeyelsStabilizationNonLinear} by Aeyels. They show that a satellite with 2 reaction wheels is globally asymptotically stable by either a discontinuous or a smooth, time-varying feedback control law. It is also shown that it is not controllable via a smooth time invariant control law. The authors prove that their proposed control law can achieve global asymptotic stability for the system via the centre manifold theorem. In \cite{aeyelsComments} Aeyels and Szafranski show that a key requirement is that the total angular momentum of the satellite must be zero $\vec{h} = 0$ in order to achieve stability. 
 
 Nadafi and Kabganian \cite{nadafiRobustBacksteppingAttitude2021} build on this work and present a time-varying backstepping controller.
 
@@ -189,7 +189,7 @@ with $\Lambda = \mathrm{diag}(\lambda_1, \lambda_2, \lambda_3)$. Taking the time
 
 \subsection{Disturbance Observer}
 
-The backstepping controller relies on the hypersurface defined by equation \eqref{eq:hypersurface} to steer the unactuated axis. The actuated states have to sit on that surface for the argument to hold. Any external or internal disturbance is not captured by the dynamics the hypersurface relies on. Thus a persistent estimation error in the lumped disturbance would push the system off of the surface and lead to instability. To estimate $\vec{d} \in \mathbb{R}^2$ Nadafi and Kabganian employ a finite-time nonlinear disturbance observer (FNDO) presented in \cite{shihuaDisturbanceObserverBasedControl}. This is a sliding-mode observer that estimates $\vec{d}$ in finite time. It handles the disturbances and uncertainties in a robust manner simply with a fast response time \cite{huQinglei2014Dobf}. The FNDO is given by:
+The backstepping controller relies on the hypersurface defined by equation \eqref{eq:hypersurface} to steer the unactuated axis. The actuated states have to sit on that surface for the argument to hold. Any external or internal disturbance is not captured by the dynamics the hypersurface relies on. Thus a persistent estimation error in the lumped disturbance would push the system off of the surface and lead to instability. To estimate $\vec{d} \in \mathbb{R}^2$ Nadafi and Kabganian employ a finite-time nonlinear disturbance observer (FNDO) presented in \cite{shihuaDisturbanceObserverBasedControl}. This is a sliding-mode observer that estimates $\vec{d}$ in finite time. It handles the disturbances and uncertainties in a robust manner with a fast response time \cite{huQinglei2014Dobf}. The FNDO is given by:
 \begin{align}
     \dot{\boldsymbol{\chi}}_0 &= \boldsymbol{\nu}_0 + \vec{u} + \vec{F}, \quad
     \boldsymbol{\nu}_0 = -\kappa_0\,\mathrm{diag}\!\left(L^{1/2}|\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e|^{1/2}\right)\mathrm{sign}(\boldsymbol{\chi}_0 - \boldsymbol{\omega}^r_e) + \boldsymbol{\chi}_1 \notag \\
@@ -201,7 +201,7 @@ where $\boldsymbol{\chi}_1$ converges to $\vec{d}$ for suitable choices of param
 
 With the variable transformation $\vec{Z} = \boldsymbol{\omega}^r_e - \boldsymbol{\Phi}(\vec{q}_e)$ measuring deviation from the hypersurface, the FNDO-based backstepping (FNDO-BS) control law is:
 \begin{equation}
-    \vec{u} = -\vec{F} - \boldsymbol{\chi}_1 + \frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})
+    \vec{u} = -\vec{F} - \boldsymbol{\chi}_1 + \underbrace{\frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})}_{\text{backstepping term}}
     - \left(\vec{q}_e^T \Lambda A(\vec{q}_e)\right)^T - \Gamma_z \vec{Z}
     \label{eq:fndo_bs}
 \end{equation}
@@ -277,12 +277,12 @@ There are some practical considerations that must be taken into account when imp
 Since there is the requirement that the total angular momentum to be zero, it is required to dump any residual angular momentum build up in the system from external disturbances. For demonstration purposes in this chapter, a perfect set of actuators is designed to be able to dump 3-axis angular momentum exactly from the system as follows:
 
 \begin{equation}
-    \vec{\tau_{dump}} = -k_{dump} \vec{H}^{BI}
+    \vec{\tau}_{dump} = -k_{dump} \vec{h}^{BI}
 \end{equation}
-where $\vec{H}^{BI}$ is the total angular momentum of the system in the body frame and $k_{dump} = 1$ is the gain constant. 
+where $\vec{h}^{BI}$ is the total angular momentum of the system in the body frame and $k_{dump} = 1$ is the gain constant. 
 
 
-In further chapters, a magnetorquer controller will be designed to bleed angular momentum from the system. This addition is not accounted for by the Nadafi and Kabganian controller and must be added:
+In further chapters, a magnetorquer controller will be designed to dump angular momentum from the system. This addition is not accounted for by the Nadafi and Kabganian controller and must be added:
 
 \begin{equation}
     \vec{u} = -\vec{F} - \vec{\tau_{dump}^r} - \boldsymbol{\chi}_1 + \frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})
@@ -295,10 +295,28 @@ Furthermore, the FNDO is designed to estimate the lumped disturbance $\vec{d}$ w
 \begin{equation}
     \dot{\boldsymbol{\chi}}_0 = \boldsymbol{\nu}_0 + \vec{u} + \vec{F} + \vec{\tau_{dump}^r}
     \label{eq:modified_fndo}
-\end{equation}
+\end{equation}      
 
 \subsubsection{Continuous vs Discrete-Time Implementation}
 Finally, it is important to note that the BS FNDO is a continuous controller and does not account for discrete-time implementation. In practice, the controller will be implemented in discrete time with a sample period $\Delta t$. The continuous-time control law is discretized using a zero-order hold, which can introduce additional dynamics and affect stability. For the simulations below a very fast sample time of $\Delta t = 0.01$~s is used. This mitigates the effects of discretization on the performance of the controller but is unrealistic for many controller applications. Designing the controller for discrete-time implementation will be an important area of future work.
+% Fix this!!
+\subsection{Linearization and Gain Selection}
+
+In order to select the controller gains, the nonlinear system is linearised about the reference trajectory. The linearisation is performed in the error coordinates $\vec{q}_e$ and $\boldsymbol{\omega}^r_e$ defined in section \ref{subsec:attitude_error}. The linearised system is then used to design the gains $\Lambda$, $\Gamma_z$ for the backstepping controller. The gains are selected to achieve a desired closed-loop response, taking into account the trade-off between performance and robustness.
+
+Taking the error dynamics Equation \eqref{eq:cascade_dyn} and substituting the control law from \eqref{eq:fndo_bs} and ignoring disturbances and disturbance estimates, we obtain
+
+\begin{align*}
+    \vec{\dot{\omega}}^r_e &= u + \vec{F} \\
+    &= (- \vec{F} + \frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})
+    - \left(\vec{q}_e^T \Lambda A(\vec{q}_e)\right)^T - \Gamma_z \vec{Z}) + \vec{F} \\
+    &= \frac{\partial\boldsymbol{\Phi}}{\partial\vec{q}_e}A(\vec{q}_e)(\vec{Z} + \boldsymbol{\Phi})
+    - \left(\vec{q}_e^T \Lambda A(\vec{q}_e)\right)^T - \Gamma_z \vec{Z}
+\end{align*}
+
+The primary interest is the linearisation about the origin $\vec{q}_e = \vec{0}$, $\boldsymbol{\omega}^r_e = \vec{0}$ about the actuated axes since the unactuated axis is a function of both  
+
+% Mention awarenesss of wheel angular momentum limits, torque saturation
 
 \section {Attitude Tracking Manoeuvre Simulations}
 \label{subsec:nadafi_tracking_sims}
@@ -318,7 +336,7 @@ The simulation parameters are summarised in \autoref{tab:nadafi_track_setup}. Th
 \end{equation}
 taken from \cite{nadafiRobustBacksteppingAttitude2021} so that the results remain directly comparable with the original work. The inertia is diagonal, so there are no products of inertia to couple the axes beyond the gyroscopic coupling of equation \eqref{eq:sat_dynamics}, and it is held constant for the duration of the manoeuvre. Since the disturbance torque is prescribed analytically by equation \eqref{eq:nadafi_disturbance} and the momentum dumping actuator is idealised, the body geometry (face areas and centre-of-pressure offsets) does not enter the simulation and only the inertia and mass are relevant.
 
-The spacecraft carries three orthogonally mounted reaction wheels, giving the distribution matrix $\vec{D} = \vec{I}$. Each wheel is modelled as a solid cylinder of mass $0.31\ \mathrm{kg}$, radius $66\ \mathrm{mm}$ and height $25\ \mathrm{mm}$, giving a spin-axis inertia of $J_w = 6.75\times10^{-4}\ \mathrm{kg\,m^2}$ and, at the maximum wheel speed of $10\,000\ \mathrm{rpm}$, a storage capacity of $0.71\ \mathrm{N\,m\,s}$ per wheel. The wheels start at rest and the spacecraft starts at rest, so the total system angular momentum is initially zero, $\vec{H}(0) = \vec{0}$, satisfying the necessary condition for stabilisability established in \autoref{sec:controllability}. The $z$-axis wheel is failed in the stuck (zero-torque) mode, so only the $x$- and $y$-axis wheels are commanded and the $z$-axis is unactuated. Wheel friction is neglected and the torque limit of $1\ \mathrm{N\,m}$ is never reached, so the saturated MFNDO-BS form of the control law is not required.
+The spacecraft carries three orthogonally mounted reaction wheels, giving the distribution matrix $\vec{D} = \vec{I}$. Each wheel is modelled as a solid cylinder of mass $0.31\ \mathrm{kg}$, radius $66\ \mathrm{mm}$ and height $25\ \mathrm{mm}$, giving a spin-axis inertia of $J_w = 6.75\times10^{-4}\ \mathrm{kg\,m^2}$ and, at the maximum wheel speed of $10\,000\ \mathrm{rpm}$, a storage capacity of $0.71\ \mathrm{N\,m\,s}$ per wheel. The wheels start at rest and the spacecraft starts at rest, so the total system angular momentum is initially zero, $\vec{h}(0) = \vec{0}$, satisfying the necessary condition for stabilisability established in \autoref{sec:controllability}. The $z$-axis wheel is failed in the stuck (zero-torque) mode, so only the $x$- and $y$-axis wheels are commanded and the $z$-axis is unactuated. Wheel friction is neglected and the torque limit of $1\ \mathrm{N\,m}$ is never reached, so the saturated MFNDO-BS form of the control law is not required.
 
 No multiplicative actuator fault is injected on the two remaining wheels: the actuator effectiveness matrix is $\vec{E} = \vec{I}$, hence $\boldsymbol{\rho}_w = \vec{0}$ and the lumped disturbance reduces to $\vec{d} = \{\vec{J}^r\}^{-1}\vec{\tau}_d^r$, which is the purely external disturbance
 \begin{equation}
@@ -392,8 +410,8 @@ Sample period          & $\Delta t$          & $0.01\ \mathrm{s}$ \\
 Attitude               & $\vec{q}(0)$             & $[0,\ 0,\ 0,\ 1]^T$ (zero initial error) \\
 Body rate              & $\boldsymbol{\omega}(0)$ & $\vec{0}\ \mathrm{rad/s}$ \\
 Wheel speeds           & $\boldsymbol{\omega}_w(0)$ & $\vec{0}\ \mathrm{rad/s}$ \\
-Total momentum         & $\vec{H}(0)$            & $\vec{0}\ \mathrm{N\,m\,s}$ \\
-Simulation duration    & $T$                      & $120\ \mathrm{s}$ \\
+Total momentum         & $\vec{h}(0)$            & $\vec{0}\ \mathrm{N\,m\,s}$ \\
+Simulation duration    & $t_f$                      & $120\ \mathrm{s}$ \\
 \hline
 \end{tabular}
 \caption{Simulation parameters for the attitude tracking manoeuvre of the FNDO backstepping controller.}
