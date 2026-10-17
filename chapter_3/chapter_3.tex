@@ -193,7 +193,68 @@ each matrix in the form of $\vec{P}^r \in R^{2 \times 2}$ is equal to
 $\begin{bmatrix} P_{xx} & P_{xy} \\ P_{yx} & P_{yy} \end{bmatrix}$
 based on elements of matrix $\vec{P} \in R^{3 \times 3}$. Similar expressions can be derived for failures in other axes.
 \section{Orbit and Environment}
-A common orbit used for observation satellites is a sun-synchronous low Earth orbit (LEO). This orbit allows the satellite to pass over the same part of the Earth at the same local solar time. This is useful for imaging and observation as the lighting conditions will be similar for each pass. A typical altitude for a sun-synchronous LEO is between 400 and 800 km. 
+In this section the generalized orbit and environment of a LEO (Low Earth Orbit) satellite is described and the particular parameters of EOSSAT-1 are specified. Further attention is paid to the disturbances acting on a satellite at this altitude, and their effects on a rigid body.
+
+
+\subsection{Orbit}
+Orbits can be defined by six parameters, known as the Keplerian elements. These are the semi-major axis $a$, eccentricity $e$, inclination $i$, right ascension of the ascending node (RAAN) $\Omega$, argument of perigee $\omega$ and true anomaly $\theta$. The semi-major axis defines the size of the orbit, the eccentricity defines the shape of the orbit, the inclination defines the tilt of the orbit relative to the equatorial plane, the right ascension of the ascending node defines the orientation of the orbit in space, the argument of perigee defines where in the orbit the closest approach to Earth occurs and finally the true anomaly defines where in the orbit the satellite is at a given time.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{chapter_3/orbital_elements.png}
+    \caption{Diagram showing the six Keplerian elements which define a satellite's orbit taken from \cite{curtis2015orbital}.}
+    \label{fig:orbital_elements}
+\end{figure}
+
+
+
+EOSSAT-1 sits in a 500 km sun-synchronous orbit, common for an Earth Observation satellite. This orbit allows the satellite to pass over the same part of the Earth at the same local solar time. This is useful for imaging and observation as the lighting conditions will be similar for each pass. A sun-synchronous orbit is possible due to the Earth's oblateness, which causes the orbit to precess about the equator, making the argument of perigee and RAAN to move at a constant rate. The RAAN rate of a sun-synchronous orbit is given by \cite{curtis2015orbital}:
+
+\begin{equation}
+    \dot{\Omega} = -\Big[\frac{3}{2}\frac{\sqrt{\mu} J_2 R_E^2}{a^{7/2}(1-e^2)^2}\Big]\cos i
+\end{equation}
+
+where $\dot{\Omega}$ is the rate of change of the RAAN (the nodal precession rate), $\mu$ is the Earth's gravitational parameter, $J_2$ is the second zonal harmonic coefficient describing the Earth's oblateness, $R_E$ is the equatorial radius of the Earth, $a$ is the semi-major axis, $e$ is the eccentricity and $i$ is the inclination. For the orbit to be sun-synchronous, the node must precess at the same rate at which the Earth orbits the Sun, $\dot{\Omega} = 360^\circ / 365.2422 \text{ days} \approx 0.9856^\circ$/day. Since $\dot{\Omega}$ is negative for prograde inclinations ($i < 90^\circ$), this is only possible for retrograde orbits. Substituting this node rate into the equation for a given $a$ and $e$ this equation fixes the inclination of a sun-synchronous orbit. 
+
+Because the orbital plane then keeps a fixed orientation relative to the Sun, the RAAN is not a convenient way to specify the orbit. A given RAAN corresponds to a different local solar time depending on the date. Sun-synchronous orbits are instead described by the local time of the descending node (LTDN), which is the mean local solar time at which the satellite crosses the equator moving southward (typically specified in hours and minutes or fractions of hours i.e.: 12h30m or 12.5h). The local time of the ascending node (LTAN) is offset from this by twelve hours. The LTDN is constant over the lifetime of the orbit and fixes the RAAN at the epoch $t_0$ through
+\begin{equation}
+    \Omega = \alpha_{\text{ms}}(t_0) + 15^\circ \cdot \text{LTDN}_{[\text{h}]},
+\end{equation}
+where $\alpha_{\text{ms}}$ is the right ascension of the mean Sun at the epoch and the LTDN is expressed in hours. The LTDN is therefore listed in Table~\ref{tab:orbit_params} in place of the RAAN, and the RAAN is derived from it.
+
+Though not the exact orbit of EOSSAT-1, the following orbital parameters are used for simulation purposes in this thesis:
+
+
+\begingroup
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{}p{4.5cm} l l}
+        \hline
+        Inclination & $i$ & 97.4 degrees \\
+        \hline
+        Semi-major axis & $a$ & 500 km \\
+        \hline
+        Eccentricity & $e$ & 0.0 \\
+        \hline
+        Argument of Perigee & $\omega$ & 0.0 degrees \\
+        \hline
+        LTDN & $\Omega$ & 09h30 \\
+        \hline
+        Epoch & $t_0$ & 2023-01-01 00:00:00 \\
+        \hline
+    \end{tabular}
+\caption{Orbital parameters used for simulation in this thesis.}
+\label{tab:orbit_params}
+\end{table}
+\endgroup
+
+Figure~\ref{fig:ltdn_orbit} shows the geometry of this orbit relative to the Sun.
+\input{chapter_3/ltdn_diagram}
+
+\vspace{1cm}
+
+
+\subsection{Disturbances}
 
 Disturbance torques acting on a satellite in LEO are:
 \begin{itemize}
@@ -203,7 +264,7 @@ Disturbance torques acting on a satellite in LEO are:
     \item Magnetic dipole torque
 \end{itemize} 
 
-\subsection{Aerodynamic Torque}
+\subsubsection{Aerodynamic Torque}
 Aerodynamic drag forces arise from the interaction of the satellite with the residual atmosphere present in LEO. Although the drag force is complex and time-varying due to atmospheric density fluctuations, it can be approximated under simplifying assumptions \cite{auretDesignAerodynamicAttitude2011}. For a near-circular orbit, the angle $x_{o,east}$ between the co-rotating atmosphere and the orbital path is given by
 
 \begin{equation}
@@ -240,7 +301,7 @@ where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the 
 
 where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing equation \eqref{eq:aero_torque} over all exposed surfaces.
 
-\subsection{Gravity Gradient Torque}
+\subsubsection{Gravity Gradient Torque}
 The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $\vec{r}_{BE}$ cubed and is thus only significant in LEO.
 
 The gravity gradient torque can be determined by \cite{wertz1999space}:
@@ -250,7 +311,7 @@ The gravity gradient torque can be determined by \cite{wertz1999space}:
 
 where $\mu = 398600.5 km^3/s^2$ is the gravitational constant of Earth, $\vec{u}_e = [\vec{C}]^{OB} \begin{bmatrix}0 \ 0 \ 1\end{bmatrix}^T$ is the unit vector towards nadir in satellite body coordinates and $\vec{J}$ is the satellite's moment of inertia tensor.
 
-\subsection{Solar Radiation Pressure Torque}
+\subsubsection{Solar Radiation Pressure Torque}
 Solar radiation pressure (SRP) torque arises from the momentum transfer of incident photons striking the surfaces of the satellite. Although the pressure exerted by solar radiation is small, it acts continuously and over long durations can produce a significant secular disturbance, particularly for satellites with large surface areas such as solar panels offset from the centre of mass. Unlike aerodynamic drag and gravity gradient torques, SRP does not vanish with altitude and therefore remains relevant even outside of LEO.
 
 The solar radiation pressure at a distance of one astronomical unit from the sun is given by \cite{wertz1999space}:
@@ -273,7 +334,7 @@ As with the aerodynamic torque, the disturbance torque about the satellite centr
 
 Since the direction of $\bar{\vec{s}}$ changes slowly over the course of an orbit relative to the orbital period, and reverses only when the satellite passes through the Earth's shadow, the SRP torque is typically treated as a slowly-varying or constant disturbance over the timescale of an attitude control manoeuvre.
 
-\subsection{Magnetic Dipole Torque}
+\subsubsection{Magnetic Dipole Torque}
 Satellites have a significant current running through their solar panels and wiring. The interaction between this current and the Earth's magnetic field produces a disturbance torque on the satellite. However with clever design this can be minimized. Solar panel manufacturers design their solar panels to mitigate this effect by using a balanced wiring layout. As such this torque is usually negligible and will be ignored in the analysis of the satellite's attitude dynamics.
 
 \section{Attitude Control}

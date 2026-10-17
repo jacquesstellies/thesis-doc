@@ -1,5 +1,7 @@
 \chapter{Path Planning}
 \label{chap:path_planning}
+
+\chapter{Introduction}
 In this chapter the path planning problem for an underactuated spacecraft is discussed. The path planning problem is to find a trajectory for the spacecraft to follow in order to reach a desired attitude. The trajectory must be feasible given the underactuated nature of the spacecraft and the constraints on the actuators. As seen in the previous chapter, the controller has large overshoot when supplied with a step input which can lead to instability when the spacecraft is subjected to rapid changes in attitude. The smootherstep interpolation method utilised to generate the smooth trajectories between waypoints in the previous chapter is laid out here. This allows for motion on the 2D plane accessible to the actuated axes. However, the problem of achieving the desired attitude about the unactuated axis remains. This problem can be solved by using techniques from nonholonomic motion planning in robotics. This involves constructing a box shaped rotation sequence about the actuated axes. A simulation of this path planning algorithm is presented to demonstrate the ability of the underactuated controller to achieve a desired attitude about the unactuated axis.
 
 % Potentially include discussion on Tian Haochang controller for future work.
