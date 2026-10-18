@@ -10,7 +10,7 @@
 \newcommand{\triad}[3]{%
   % #1 = origin coordinate, #2 = axis length, #3 = subscript label
   \begin{scope}[shift=(#1)]
-    \draw[-{Latex[length=2.2mm]}, axred, thick]  (0,0) -- ++(210:#2) node[left=1pt] {\small $x_{#3}$};
+    \draw[-{Latex[length=2.2mm]}, axred, thick]  (0,0) -- ++(210:#2) node[sloped, anchor=center, below=0.0pt] {\small $x_{#3}$};
     \draw[-{Latex[length=2.2mm]}, axgreen, thick] (0,0) -- ++(330:#2) node[right=1pt] {\small $y_{#3}$};
     \draw[-{Latex[length=2.2mm]}, axblue, thick] (0,0) -- ++(90:#2)  node[above=1pt] {\small $z_{#3}$};
     \fill (0,0) circle (0.9pt);
@@ -55,13 +55,15 @@
 
 % radius vector from earth centre to the orbit point
 \draw[thick, ->] (Ecen) -- (OrbPt);
-\node[sloped] at ($(Ecen)+(1.0,1.4)$) {\small $\vec{r}_{BE}$}; %{\small $[\bm{R}]^{OI},\ [\bm{t}]^{OI}$}
+\node[sloped] at ($(Ecen)+(1.0,1.4)$) {\small $\vec{r}$}; %{\small $[\bm{R}]^{OI},\ [\bm{t}]^{OI}$}
 
+% velocity vector, along x_O (330 deg after the 120 deg rotation) and a bit longer; drawn first so the x_O arrow sits on top
+\draw[-{Latex[length=2.4mm]}, black, thick] (OrbPt) -- ++(330:1.7) node[below right=-1pt] {\small $\vec{v}$};
+
+\begin{scope}[rotate around={120:(OrbPt)}]
 \triad{OrbPt}{1.05}{O}
+\end{scope}
 \node[below=2pt] at (OrbPt) {\small $F_O$};
-
-% velocity vector, tangent to the orbit at the orbit point
-% \draw[-{Latex[length=2.4mm]}, black, thick] (OrbPt) -- ++(0:1.4) node[right] {\small $\vec{v}$};
 
 % ============ SATELLITE + BODY FRAME (offset from O for clarity, as in ref.) ============
 \coordinate (Sat) at ($(OrbPt)+(3.7,-0.55)$);

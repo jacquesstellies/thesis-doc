@@ -2,9 +2,25 @@
 \label{chap:modelling}
 
 \section{Introduction}
+% @TODO: rework this
 In this chapter the framework is built to represent the underactuated spacecraft problem. First the attitude control of a satellite is described, including the kinematics and dynamics. Then the orbit and environment are described, including the dominant disturbances acting on a satellite in low Earth orbit. Finally the reaction wheel dynamics are described, with relevant fault mechanisms investigated.
 
+% @TODO: Mention EOSSAT-1 here. 
+
+\section{EOSSAT-1 Satellite}
+EOSSAT-1 is a 176kg microsatellite launched in 2023 into sun-synchronous orbit with a perigee altitude of 516 km and an apogee altitude of 537 km. The satellite is an optical Earth observation agricultural land monitoring and is equipped with a camera able to image 11 spectral bands .  and a set of solar panels. The satellite's attitude control system consists of four reaction wheels and a set of magnetorquers.
+
+\section{Visualisation of the Simulation}
+An internal tool was provided by Dragonfly Aerospace to visualise the simulation results used in this thesis. The tool allows for the visualisation of the satellite's attitude and position in orbit. The visualisation tool is used to present the results of the simulations in a clear and intuitive manner, allowing for easy interpretation of the results. Figure \ref{fig:visualizer_introduction} shows a screenshot of the visualisation tool, with the satellite in orbit.
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{chapter_3/visualizer_introduction.png}
+    \caption{}
+    \label{fig:visualizer_introduction}
+\end{figure}
+
 \subsection{Reference Frames}
+\label{subsec:reference_frames}
 Since the goal is to control the attitude of a satellite, an appropriate representation should be used. Any orientation can be represented as a rotation from one frame to another. Typical reference frames would be Earth centreed inertial (ECI), Earth-centred-Earth-fixed (ECEF), orbit or body-fixed. A list of reference frames used with their abbreviation is given as:
 
 \vspace{1cm}
@@ -38,8 +54,55 @@ Since the goal is to control the attitude of a satellite, an appropriate represe
 \vspace{1cm}
 
 
-In Figure \ref{fig:reference_frames} the Earth, orbit and satellite are shown with the relevant reference frames. The inertial frame $F_I$ is fixed at the centre of the Earth, the orbit frame $F_O$ is fixed at a point on the orbit and the body frame $F_B$ is fixed to the satellite. The radius vector $\vec{r}_{BE}$ points from the Earth centre to the satellite.
+In Figure \ref{fig:reference_frames} the Earth, orbit and satellite are shown with the relevant reference frames. The inertial frame $F_I$ is fixed at the centre of the Earth, the orbit frame $F_O$ is fixed at a point on the orbit and the body frame $F_B$ is fixed to the satellite. The radius vector $\vec{r}$ points from the Earth centre to the satellite.
+
+The orbit frame $F_O$, also known as the Local Vertical Local Horizontal (LVLH) frame, has its origin at the centre of mass of the satellite and rotates with it as it moves along the orbit. The $z_O$ axis points towards nadir and the $x_O$ axis points in the direction of the velocity vector $\vec{v}$, while the $y_O$ axis points along the negative orbit normal, completing the right-handed triad. More precisely, using the position $\vec{r}$ and velocity $\vec{v}$ of the satellite relative to the Earth, the axes are constructed as:
+\begin{equation}
+    z_O = -\frac{\vec{r}}{\lVert\vec{r}\rVert}, \qquad
+    y_O = -\frac{\vec{r}\times\vec{v}}{\lVert\vec{r}\times\vec{v}\rVert}, \qquad
+    x_O = y_O \times z_O.
+\end{equation}
+For a circular orbit, $x_O$ is exactly parallel to $\vec{v}$. For an elliptical orbit the velocity has a radial component, so $x_O$ is instead the in-plane direction perpendicular to nadir. In this case, the frame rotates relative to the inertial frame about $y_O$ at the orbital rate $\omega_o = \sqrt{\mu/a^3}$, so that $[\vec{\omega}_{OI}]^O = [0,\ -\omega_o,\ 0]^T$.
 \input{chapter_3/reference_frames}
+
+EOSSAT-1's body frame can be described as the x-axis defined along a vector splitting the two solar panels evenly, the z-axis defined along the normal of the camera, and the y-axis completing the right-handed co-ordinate system. This can be seen in Figure \ref{fig:visualizer_body_frame} where the x-axis is shown in red, the y-axis is shown in green, and the z-axis is shown in blue. The pink line indicates the orbital path. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{chapter_3/EOSSAT_body_frame_axes.png}
+    \caption{Figure showing the body frame axes of EOSSAT-1. The x-axis is shown in red, the y-axis is shown in green, and the z-axis is shown in blue. The pink line indicates the orbital path.}
+    \label{fig:visualizer_body_frame}
+\end{figure}
+
+The external surfaces of the satellite are modelled as seven flat panels. The outward unit normal $n_k$ of each panel, expressed in the body frame, is given in Table~\ref{tab:panel_normals}.
+
+\begingroup
+\begin{table}[H]
+    \centering
+    \begin{tabular}{@{}c r r r l}
+        \hline
+        Panel $k$ & $n_{x}$ & $n_{y}$ & $n_{z}$ & Note \\
+        \hline
+        1 & $0$ & $0$ & $1$ & \\
+        \hline
+        2 & $0$ & $0$ & $-1$ & \\
+        \hline
+        3 & $0.869$ & $0.495$ & $0$ & Solar panel \\
+        \hline
+        4 & $0.869$ & $-0.495$ & $0$ & Solar panel \\
+        \hline
+        5 & $-1$ & $0$ & $0$ & \\
+        \hline
+        6 & $-0.82$ & $0.572$ & $0$ & \\
+        \hline
+        7 & $-0.82$ & $-0.572$ & $0$ & \\
+        \hline
+    \end{tabular}
+\caption{Outward unit normal vectors $[n_k]^B$ of the body panels of EOSSAT-1, expressed in the body frame.}
+\label{tab:panel_normals}
+\end{table}
+\endgroup
+
 
 \section{Satellite Attitude Dynamics}
 Given a sufficient representation of the satellite attitude, the kinematics and dynamics can be described. The satellite is modelled as a rigid body with three reaction wheels and three magnetorquers. The reaction wheels are used to control the attitude of the satellite, while the magnetorquers are used to dump angular momentum from the reaction wheels and provide a small amount of torque for attitude control. The satellite is assumed to be in a low Earth orbit (LEO) with a sun-synchronous orbit. Both the fully actuated and underactuated dynamics are described, with the underactuated case assuming a reaction wheel has failed on the z-axis and is no longer able to provide torque about its axis.
@@ -119,7 +182,8 @@ Since it is required to determine the attitude error for the controller, another
 \end{align}
 
 \subsection{Attitude Kinematics}
-To describe the kinematics, the inertial angular velocity of the spacecraft $\vec{\omega} = \begin{bmatrix}\omega_x \ \omega_y \ \omega_z \end{bmatrix}$ now can be expressed in terms of quaternions in the following manner:
+\label{subsec:attitude_error}
+To describe the kinematics, the inertial angular velocity of the spacecraft $\vec{\omega} = \vec{\omega}^{BI} = \begin{bmatrix}\omega_x \ \omega_y \ \omega_z \end{bmatrix}$ now can be expressed in terms of quaternions in the following manner:
 
 
 $$\begin{bmatrix} \omega_x \\ \omega_y \\ \omega_z \\ 0 \end{bmatrix} = 2 
@@ -308,7 +372,7 @@ where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the 
     \label{eq:aero_torque}
 \end{equation}
 
-where $\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing equation \eqref{eq:aero_torque} over all exposed surfaces.
+where $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector in the body frame,$\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing equation \eqref{eq:aero_torque} over all exposed surfaces.
 
 \subsubsection{Gravity Gradient Torque}
 The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $\vec{r}_{BE}$ cubed and is thus only significant in LEO.

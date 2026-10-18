@@ -7,39 +7,16 @@ A simulation was conducted using the parameters derived in chapter \ref{chap:mod
 
 The simulation was conducted in python, and the results are presented in this chapter.
 
-\section{Visualisation of the Simulation}
-An internal tool was provided by Dragonfly Aerospace to visualise the simulation results. The tool allows for the visualisation of the satellite's attitude and position in orbit. The visualisation tool is used to present the results of the simulations in a clear and intuitive manner, allowing for easy interpretation of the results. Figure \ref{fig:visualizer_introduction} shows a screenshot of the visualisation tool, with the satellite in orbit and the nadir and sun pointing frames defined. The visualisation tool allows for the visualisation of the satellite's attitude and position in orbit, as well as the reference frames defined for the nadir and sun pointing operations. The visualisation tool is used to present the results of the simulations in a clear and intuitive manner, allowing for easy interpretation of the results.
-\begin{figure}
-    \centering
-    \includegraphics[width=1.0\linewidth]{simulation/visualizer_introduction.png}
-    \caption{}
-    \label{fig:visualizer_introduction}
-\end{figure}
-
-
 \section{Experimental Design}
 In Chapter \ref{chap:modelling} the EOSSAT-1 orbit was defined and it's un-synchronous orbit poses some unique challenges for the underactuated controller. Typical Earth Observation satellites operations involve a combination of nadir and sun pointing. In this section, these operations are defined and their implications for the underactuated controller are discussed. Given this information, choices and constraints for the experimental setup are discussed and metrics for evaluating the performance of the underactuated controller are defined. 
 
 \subsection{Satellite Operations}
 
-The two main important operations are important for Earth Observation satellites: imaging and sun pointing. During imaging, the satellite's camera is pointed towards the Earth to capture images sometimes at nadir and other times at other roll angles relative to nadir. During sun pointing  the satellite's solar panels are pointed towards the Sun to maximize power generation. At 500km altitude, EOSSAT-1 will spend roughly half of its orbit in eclipse and the other half in sunlight. Typically the satellite will spend the sunlit portion of the orbit sun pointing with short bursts of nadir pointing for imaging. During eclipse any orientation is possible as no specific orientation is required, however a common method of operating is to point nadir. This is convienient for the experimental setup as it allows for a simple and repeatable scenario where the satellite is required to switch between nadir and sun pointing which will give an indication for the performance of the underactuated controller in a realistic scenario. 
+The two main important operations are important for Earth Observation satellites: imaging and sun pointing. During imaging, the satellite's camera is pointed towards the Earth to capture images usually towards nadir but can also be at other roll angles relative to nadir. During sun pointing the satellite's solar panels are pointed towards the Sun to maximize power generation. At 500km altitude, EOSSAT-1 will spend roughly half of its orbit in eclipse and the other half in sunlight. Typically the satellite will spend the sunlit portion of the orbit sun pointing with short bursts of nadir pointing for imaging. During eclipse any orientation is possible as no specific orientation is required, however a common method of operating is to point nadir. This is convienient for the experimental setup as it allows for a simple and repeatable scenario where the satellite is required to switch between nadir and sun pointing which will give an indication for the performance of the underactuated controller in a realistic scenario. 
 
 
 \subsection{Nadir and Sun Pointing Frame Definitions}
-
-EOSSAT-1 has it's body frame defined with its x-axis defined along normal of the 2 solar panels, z-axis defined along the normal of the camera, and y-axis completing the right-handed coordinate system. Below in 
-
-
-
-% EOSSAT-1 has a body frame $F_B$ defined in chapter \ref{chap:modelling}.
-
-
-For the purposes of this simulation, two additional reference frames are defined: the nadir pointing frame $F_N$ and the sun pointing frame $F_S$. The nadir pointing frame is defined such that the $z$-axis points towards the center of the Earth, the $x$-axis points in the direction of motion, and the $y$-axis completes the right-handed coordinate system. The sun pointing frame is defined such that the $z$-axis points towards the Sun, the $x$-axis points in the direction of motion, and the $y$-axis completes the right-handed coordinate system. The orientation of these frames relative to the body frame is defined by a set of Euler angles which are used to define the desired attitude for each operation.
-
-
-\subsection{Underactuated Controller Limiations}
-
-Now which wheel is failed constrains the method of operating
+Given the way that EOSSAT-1's body frame axes are defined in Section \ref{subsec:reference_frames}, nadir pointing becomes the orbit (aka. LVLH) frame $F_O$. For the purposes of this simulation, an additional reference frame is defined: the sun pointing frame $F_S$. The sun pointing frame is defined such that the $x$-axis points anti-parallel to the body-sun vector $x_S = -\vec{r}_{SB}$. The nadir pointing frame is therefore fully constrained where as the sun pointing frame is not fully and the z-axis can be chosen to be any vector perpendicular to the $x$-axis. Typically the $z$-axis is chosen to be closest to the nadir vector, however it will be shown that this choice has important implications given the constraints of the underactuated system.
 
 
 \subsection{Eclipse Transition Planning}
@@ -60,7 +37,7 @@ Using the parameters derived in previous Chapters, a simulation using the
 \vspace{1cm}
 
 \begingroup
-\begin{table}
+\begin{table}[H]
     \centering
     \begin{tabular}{@{}p{5cm} p{2cm} p{5cm} c}
         Parameter & Notation & Value & Unit \\

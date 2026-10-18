@@ -47,7 +47,7 @@ Note that $k$ carries units of $\mathrm{s}^{-1}$ with $\vec{\tau}_c = -k\vec{h}$
 \begin{equation}
     \vec{h}_{k+1} = \hat{\vec{B}}_k(\hat{\vec{B}}_k^T\vec{h}_k)
 \end{equation}
-After a single sample the entire surviving momentum lies exactly along $\hat{\vec{B}}_k$, that is, inside the null space of $\vec{P}_B$. On the next cycle the demand is parallel to the field, the commanded dipole is zero, and the controller stalls. The momentum has been driven into the one direction the actuator cannot address. Intuitively, a greedy law removes all the momentum it can observe, and what it leaves behind is precisely the part it cannot observe.
+After a single sample the entire surviving momentum lies entirely along $\hat{\vec{B}}_k$, that is, inside the null space of $\vec{P}_B$. On the next cycle the demand is parallel to the field, the commanded dipole is zero, and the controller stalls. The momentum has been driven into the one direction the actuator cannot address. Intuitively, a greedy law removes all the momentum it can observe, and what it leaves behind is precisely the part it cannot observe.
 
 Escape is possible only because $\hat{\vec{B}}$ rotates in the body frame. For a near-circular orbit this rotation occurs at approximately twice the orbital rate, $\omega_B \approx 2n$, which for the 500\,km, $i \approx 90^\circ$ orbit used throughout this work is $\omega_B \approx 2.2\times10^{-3}\,\mathrm{rad/s}$. Over one sample the field direction moves by $\varepsilon = \omega_B\Delta t$, so the momentum left pointing at the previous field direction is no longer quite aligned with the new one and a fraction $\sin\varepsilon$ becomes visible again. Under deadbeat action all of it is removed, leaving
 \begin{equation}
