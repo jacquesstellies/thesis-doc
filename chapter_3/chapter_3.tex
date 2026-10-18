@@ -10,7 +10,7 @@ Since the goal is to control the attitude of a satellite, an appropriate represe
 \vspace{1cm}
 
 \begingroup
-\begin{table}
+\begin{table}[H]
     \centering
     \begin{tabular}{@{}p{2.5cm} l}
         \hline
@@ -197,6 +197,15 @@ In this section the generalized orbit and environment of a LEO (Low Earth Orbit)
 
 
 \subsection{Orbit}
+
+The motion of a satellite about the Earth is governed, to first order, by the two-body equation
+\begin{equation}
+    \ddot{\vec{r}} = -\frac{\mu}{\lVert\vec{r}\rVert^3}\vec{r} + \vec{a}_p,
+    \label{eq:orbit_motion}
+\end{equation}
+where $\vec{r}$ is the position of the satellite relative to the centre of the Earth in the inertial frame, $\mu$ is the Earth's gravitational parameter and $\vec{a}_p$ is the acceleration due to perturbations. In LEO the dominant perturbations are the Earth's oblateness ($J_2$) and atmospheric drag. Without perturbations the solution to \eqref{eq:orbit_motion} is a Keplerian orbit, described by the six orbital elements defined below. In the simulation, the orbit is not obtained by numerically integrating Equation \eqref{eq:orbit_motion}. Instead, the SGP4 (Simplified General Perturbations 4) analytical propagator, as implemented in the \texttt{sgp4} Python library, is used to calculate the position and velocity of the satellite at each time step. SGP4 takes the mean orbital elements at an epoch, together with a ballistic drag term, and models the secular and periodic effects of the Earth's zonal harmonics and atmospheric drag. It returns the position and velocity of the satellite in the True Equator Mean Equinox (TEME) frame, which is then converted to the frames used in this thesis.
+
+
 Orbits can be defined by six parameters, known as the Keplerian elements. These are the semi-major axis $a$, eccentricity $e$, inclination $i$, right ascension of the ascending node (RAAN) $\Omega$, argument of perigee $\omega$ and true anomaly $\theta$. The semi-major axis defines the size of the orbit, the eccentricity defines the shape of the orbit, the inclination defines the tilt of the orbit relative to the equatorial plane, the right ascension of the ascending node defines the orientation of the orbit in space, the argument of perigee defines where in the orbit the closest approach to Earth occurs and finally the true anomaly defines where in the orbit the satellite is at a given time.
 
 \begin{figure}
