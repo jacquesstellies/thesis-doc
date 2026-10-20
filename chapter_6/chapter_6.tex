@@ -63,8 +63,13 @@ Reducing the gain so that $k\Delta t \ll 1$ prevents the residual momentum from
 being driven onto $\hat{\vec{B}}$: each sample removes only a fraction $k\Delta t$
 of the perpendicular component, so the field's rotation keeps a non-zero
 actuatable component available. 
-The analysis above rests on the assumptions that the control law \eqref{eq:mag_dump_law} commands a dipole moment $\vec{m}$ that is always perpendicular to the Earth's magnetic field $B$ and a static magnetic field, both of which are not accurate. Thus, no analytical method for $k$ is available \cite{sidiAttitudeDynamicsKinematics1997}, so gain is selected by trial-and-error in simulation. 
-
+No analytical procedure for selecting $k$ is available
+\cite{sidiAttitudeDynamicsKinematics1997}: the closed loop is time-varying, since
+$\vec{B}$ varies in direction and magnitude around the orbit, and the allocation
+\eqref{eq:magt_alloc} delivers only the projection $\vec{P}_B\vec{\tau}_c$ of the
+demanded torque rather than $\vec{\tau}_c$ itself, so $k$ does not set the decay
+rate directly. As in \cite{sidiAttitudeDynamicsKinematics1997}, $k$ is therefore
+selected by simulation.
 \subsection{Gain Sweep}
 
 The sweep is a free-decay test: the dumping law is integrated from an initial momentum along the orbit's field history with no disturbance torques. Since $\vec{\tau}_m = -k\vec{P}_B\vec{h}$ is frame-independent and reaction wheels cannot alter $\vec{h}$, the result is independent of the spacecraft attitude. In operation the residual settles at a floor set by the disturbance torques rather than decaying indefinitely. \autoref{tab:dump_gain_sweep} and \autoref{fig:dump_gain_sweep} show $\|\vec{h}\|$ over five orbits for a sweep of $k$, with an initial momentum of $\|\vec{h}_0\| = 0.226\,\mathrm{N\,m\,s}$, directed equally along the three body axes and limited to $m_{max} = 17\,\mathrm{A\,m^2}$. This corresponds to the total momentum accumulated over one orbit without dumping, in a full closed-loop simulation of the nominal day/night profile under the disturbance model of chapter \ref{chap:modelling}. Because the dumping law is linear in $\vec{h}$ and independent of the spacecraft inertia, the normalised decay does not depend on $\vec{J}$, nor on $\|\vec{h}_0\|$ while the dipole limit is not reached. Performance is non-monotonical in $k$: at high gain the residual is parked along $\hat{\vec{B}}$ and barely decays, and at low gain dumping is simply too slow. The best result, $k = 3\times10^{-3}\,\mathrm{s^{-1}}$, is of the same order as the field rotation rate $\omega_B \approx 2n$. It is also the only gain that drives the residual below numerical precision within the window.
@@ -140,42 +145,75 @@ The preceding analysis concerns $\|\vec{h}\|$ as a whole, but for the underactua
     J_z\,\omega_z = h_z - h_{wz} = h_z
     \label{eq:dead_axis_rate}
 \end{equation}
-and the yaw rate is fixed entirely by the projection of the total momentum onto the current body $z$ axis. Consequently the yaw angle is the double integral of the dead-axis disturbance torque, with no restoring term of any kind,
+and the yaw rate is fixed entirely by the projection of the total momentum onto the current body $z$ axis. Since only external torques change $\vec{h}$, the yaw angle is the double integral of the dead-axis disturbance and magnetic torques, with no restoring term from the wheels of any kind,
 \begin{equation}
-    \psi(t) = \frac{1}{J_z}\int_0^t h_z(\tau)\,d\tau, \qquad \ddot{\psi} = \frac{T_{d,z}}{J_z}
+    \psi(t) = \frac{1}{J_z}\int_0^t h_z(t')\,dt', \qquad \ddot{\psi} = \frac{\tau_{dist,z} + \tau_{m,z}}{J_z}
     \label{eq:yaw_double_integral}
 \end{equation}
-Closed-loop simulation confirms equation \eqref{eq:yaw_double_integral} exactly: over a $6000\,\mathrm{s}$ inertial-hold run the yaw reconstructed from $\frac{1}{J_z}\int h_z\,dt$ matches the logged attitude with an RMS mismatch of $0.00^\circ$, both peaking at $39.18^\circ$ at $t = 2207\,\mathrm{s}$.
+where $\tau_{dist,z}$ is the environmental disturbance torque and $\tau_{m,z} = \vec{\tau}_m\cdot\hat{\vec{e}}_z$ is the magnetorquer torque on the dead axis. The magnetorquer is therefore the only actuator with any authority over $\psi$.
 
-Two consequences follow. First, the dead axis is the most fragile despite carrying the \emph{smallest} disturbance. In the same run the dead-axis disturbance amplitude was $1.9\times10^{-6}\,\mathrm{N\,m}$, some $38$ times smaller than the pitch-axis disturbance of $7.2\times10^{-5}\,\mathrm{N\,m}$, yet it alone produced tens of degrees of error because the actuated axes regulate their disturbance while the unactuated axis integrates it twice.
+\autoref{fig:inertial_hold_magt} shows a $6000\,\mathrm{s}$ inertial hold with the $z$-axis wheel failed and the momentum dumping law of equation \eqref{eq:mag_dump_law} active at $k = 3\times10^{-3}\,\mathrm{s^{-1}}$. The actuated roll and pitch axes are held to within $10^{-4}\,^\circ$, and the dumping keeps $\|\vec{h}\|$ below $0.036\,\mathrm{N\,m\,s}$ with a peak dipole of $3.1\,\mathrm{A\,m^2}$. Yaw is nevertheless left uncontrolled, peaking at $56.0^\circ$ at $t \approx 5424\,\mathrm{s}$. Integrating the dead-axis disturbance and magnetic torques twice reproduces the logged yaw to within $0.1^\circ$ RMS, confirming equation \eqref{eq:yaw_double_integral}. For comparison, the disturbance torque alone integrates to $276^\circ$ over the same run, so the dumping does slow the drift. However, it acts on $\vec{h}$ isotropically, at an orbit-scale rate set by $k$, and applies no feedback on $\psi$ itself, so the dead-axis error it leaves behind is still tens of degrees.
 
-Second, the condition for the dead axis to be instantaneously quiescent is weaker than the $\vec{h} = \vec{0}$ normally quoted. Equation \eqref{eq:dead_axis_rate} gives $\omega_z = 0$ whenever
-\begin{equation}
-    \vec{h}\cdot\hat{\vec{e}}_z = h_{wz}
-    \label{eq:dead_axis_condition}
-\end{equation}
-which is a single scalar constraint rather than three. This is, however, a pointwise condition and not an invariant one, and the distinction is decisive. In the absence of external torque $\vec{h}$ is fixed in \emph{inertial} space while $\hat{\vec{e}}_z$ is fixed in the \emph{body}, so the projection $\vec{h}\cdot\hat{\vec{e}}_z$ changes whenever the spacecraft slews. For the manoeuvre of \autoref{subsec:nadafi_tracking_sims}, a $70^\circ$ eigenaxis rotation about an axis lying in the body $xy$-plane, the body $z$ axis itself sweeps through $70^\circ$, and momentum that began entirely in the actuated plane is tipped onto the dead axis by as much as $\|\vec{h}\|\sin 70^\circ = 0.94\|\vec{h}\|$. Momentum stored in the actuated plane is therefore latent rather than disposed of. An inertial hold is precisely the special case in which it stays latent, because $\hat{\vec{e}}_z$ does not move and a yaw drift is a rotation \emph{about} $\hat{\vec{e}}_z$; this is why the verification of equation \eqref{eq:yaw_double_integral} above, which was performed on an inertial hold, is consistent with equation \eqref{eq:dead_axis_condition} while a tracking manoeuvre need not be.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{chapter_6/EOS_FNDO_orbit_inertial_hold_e321_sat.png}
+\caption{Attitude (ZYX Euler angles) during a $6000\,\mathrm{s}$ inertial hold with the $z$-axis wheel failed and isotropic magnetic momentum dumping active ($k = 3\times10^{-3}\,\mathrm{s^{-1}}$). The actuated roll and pitch axes are held to within $10^{-4}\,^\circ$, while yaw follows the double integral of the dead-axis disturbance and magnetic torques, equation \eqref{eq:yaw_double_integral}, reaching $56^\circ$.}
+\label{fig:inertial_hold_magt}
+\end{figure}
 
-A second mechanism defeats the same shortcut independently of any slew of $\hat{\vec{e}}_z$. Holding attitude against a secular disturbance with $\vec{h} \neq \vec{0}$ obliges the two surviving wheels to carry a standing bias $h_{wx}, h_{wy} \neq 0$, and the dead-axis row of equation \eqref{eq:sat_dynamics} then reads
-\begin{equation}
-    J_z\dot{\omega}_z = -(J_y - J_x)\,\omega_x\omega_y \;-\; \left(\omega_x h_{wy} - \omega_y h_{wx}\right) \;+\; T_{d,z}
-    \label{eq:dead_axis_gyroscopic}
-\end{equation}
-so any actuated rate is converted into dead-axis angular acceleration through the wheel bias. This is not an incidental coupling: the hypersurface of equation \eqref{eq:hypersurface} steers the unactuated axis precisely by commanding non-zero $\omega_{ex}$ and $\omega_{ey}$, so the manoeuvre the controller requires in order to function is also the manoeuvre that excites this term. A wheel bias is an active source on the one axis that has no actuator, not passive storage.
 
-Both mechanisms trace to the same step in the derivation. Assumption~1 of \cite{nadafiRobustBacksteppingAttitude2021} discards the gyroscopic terms $\vec{\omega}^\times\vec{J}\vec{\omega}$ and $\vec{\omega}^\times\vec{h}_w$ from the actuated rows of equation \eqref{eq:sat_dynamics}, and with $h_{wz} = \dot{h}_{wz} = 0$ every surviving entry of both terms in those two rows carries a factor of $\omega_z$. The cascade model of equation \eqref{eq:cascade_dyn} is therefore exact only while $\omega_z \equiv 0$, which by equation \eqref{eq:dead_axis_rate} demands $h_z \equiv 0$ along the \emph{whole} trajectory; and since $h_z(t) = \hat{\vec{e}}_z^T\vec{T}_{BI}(t)\,\vec{h}_I$ must then vanish for every attitude the trajectory visits, this recovers $\vec{h} = \vec{0}$ rather than the weaker $\vec{h} \perp \hat{\vec{e}}_z$ at a single instant. Equation \eqref{eq:dead_axis_condition} is thus a diagnostic for when the dead axis is momentarily quiescent, and a design target for the magnetorquer on an inertial hold, but it is not a relaxation of the assumption under which the control law is derived.
+% Two consequences follow. First, the dead axis is the most fragile despite carrying the \emph{smallest} disturbance. In the same run the dead-axis disturbance amplitude was $1.9\times10^{-6}\,\mathrm{N\,m}$, some $38$ times smaller than the pitch-axis disturbance of $7.2\times10^{-5}\,\mathrm{N\,m}$, yet it alone produced tens of degrees of error because the actuated axes regulate their disturbance while the unactuated axis integrates it twice.
+
+% Second, the condition for the dead axis to be instantaneously quiescent is weaker than the $\vec{h} = \vec{0}$ normally quoted. Equation \eqref{eq:dead_axis_rate} gives $\omega_z = 0$ whenever
+% \begin{equation}
+%     \vec{h}\cdot\hat{\vec{e}}_z = h_{wz}
+%     \label{eq:dead_axis_condition}
+% \end{equation}
+% which is a single scalar constraint rather than three. This is, however, a pointwise condition and not an invariant one, and the distinction is decisive. In the absence of external torque $\vec{h}$ is fixed in \emph{inertial} space while $\hat{\vec{e}}_z$ is fixed in the \emph{body}, so the projection $\vec{h}\cdot\hat{\vec{e}}_z$ changes whenever the spacecraft slews. For the manoeuvre of \autoref{subsec:nadafi_tracking_sims}, a $70^\circ$ eigenaxis rotation about an axis lying in the body $xy$-plane, the body $z$ axis itself sweeps through $70^\circ$, and momentum that began entirely in the actuated plane is tipped onto the dead axis by as much as $\|\vec{h}\|\sin 70^\circ = 0.94\|\vec{h}\|$. Momentum stored in the actuated plane is therefore latent rather than disposed of. An inertial hold is precisely the special case in which it stays latent, because $\hat{\vec{e}}_z$ does not move and a yaw drift is a rotation \emph{about} $\hat{\vec{e}}_z$; this is why the verification of equation \eqref{eq:yaw_double_integral} above, which was performed on an inertial hold, is consistent with equation \eqref{eq:dead_axis_condition} while a tracking manoeuvre need not be.
+
+% A second mechanism defeats the same shortcut independently of any slew of $\hat{\vec{e}}_z$. Holding attitude against a secular disturbance with $\vec{h} \neq \vec{0}$ obliges the two surviving wheels to carry a standing bias $h_{wx}, h_{wy} \neq 0$, and the dead-axis row of equation \eqref{eq:sat_dynamics} then reads
+% \begin{equation}
+%     J_z\dot{\omega}_z = -(J_y - J_x)\,\omega_x\omega_y \;-\; \left(\omega_x h_{wy} - \omega_y h_{wx}\right) \;+\; \tau_{dist,z}
+%     \label{eq:dead_axis_gyroscopic}
+% \end{equation}
+% so any actuated rate is converted into dead-axis angular acceleration through the wheel bias. This is not an incidental coupling: the hypersurface of equation \eqref{eq:hypersurface} steers the unactuated axis precisely by commanding non-zero $\omega_{ex}$ and $\omega_{ey}$, so the manoeuvre the controller requires in order to function is also the manoeuvre that excites this term. A wheel bias is an active source on the one axis that has no actuator, not passive storage.
+
+% Both mechanisms trace to the same step in the derivation. Assumption~1 of \cite{nadafiRobustBacksteppingAttitude2021} discards the gyroscopic terms $\vec{\omega}^\times\vec{J}\vec{\omega}$ and $\vec{\omega}^\times\vec{h}_w$ from the actuated rows of equation \eqref{eq:sat_dynamics}, and with $h_{wz} = \dot{h}_{wz} = 0$ every surviving entry of both terms in those two rows carries a factor of $\omega_z$. The cascade model of equation \eqref{eq:cascade_dyn} is therefore exact only while $\omega_z \equiv 0$, which by equation \eqref{eq:dead_axis_rate} demands $h_z \equiv 0$ along the \emph{whole} trajectory; and since $h_z(t) = \hat{\vec{e}}_z^T\vec{T}_{BI}(t)\,\vec{h}_I$ must then vanish for every attitude the trajectory visits, this recovers $\vec{h} = \vec{0}$ rather than the weaker $\vec{h} \perp \hat{\vec{e}}_z$ at a single instant. Equation \eqref{eq:dead_axis_condition} is thus a diagnostic for when the dead axis is momentarily quiescent, and a design target for the magnetorquer on an inertial hold, but it is not a relaxation of the assumption under which the control law is derived.
 
 
 \subsection{Split Allocation}
 \label{subsec:split_allocation}
-The observations above motivate treating the magnetorquer not as a momentum dumper that incidentally keeps the unactuated axis clean, but as the dedicated actuator on that axis. Since the dead-axis dynamics are the double integrator of equation \eqref{eq:yaw_double_integral}, a proportional-derivative law is appropriate. Using the vector part of the body-frame attitude error, for which $q_{e,z} \approx -\psi/2$, and noting from equation \eqref{eq:dead_axis_rate} that $h_z$ is directly proportional to the yaw rate,
+The observations above motivate treating the magnetorquer not as a momentum dumper that incidentally keeps the unactuated axis clean, but as the dedicated actuator on that axis. Since the dead-axis dynamics are the double integrator of equation \eqref{eq:yaw_double_integral}, a proportional-derivative law is appropriate, and its gains can be chosen by pole placement.
+
+Let $\psi_e$ denote the yaw error relative to the reference, so that $\dot{\psi}_e = \omega_z - \omega_{d,z}$, where $\omega_{d,z}$ is the desired angular rate about the dead axis. Assuming the reference acceleration $\dot{\omega}_{d,z}$ is negligible, equation \eqref{eq:yaw_double_integral} gives the error dynamics
 \begin{equation}
-    T_{d,z} = -2\zeta\omega_n\,h_z + 2J_z\omega_n^2\,q_{e,z}
+    J_z\ddot{\psi}_e = \tau_{dist,z} + \tau_{m,z}
+    \label{eq:yaw_error_dynamics}
+\end{equation}
+The desired closed loop is a damped second-order system driven by the disturbance,
+\begin{equation}
+    \ddot{\psi}_e + 2\zeta\omega_n\dot{\psi}_e + \omega_n^2\psi_e = \frac{\tau_{dist,z}}{J_z}
+    \label{eq:yaw_closed_loop}
+\end{equation}
+where $\omega_n$ is the natural frequency and $\zeta$ the damping ratio. Multiplying equation \eqref{eq:yaw_closed_loop} by $J_z$ and subtracting equation \eqref{eq:yaw_error_dynamics} yields the required torque,
+\begin{equation}
+    \tau_{m,z} = -J_z\left(2\zeta\omega_n\dot{\psi}_e + \omega_n^2\psi_e\right)
+    \label{eq:yaw_pd_ideal}
+\end{equation}
+Neither $\dot{\psi}_e$ nor $\psi_e$ needs to be measured directly. From equation \eqref{eq:dead_axis_rate}, $J_z\omega_z = h_z$, so the rate error is available from the total momentum already measured for dumping,
+\begin{equation}
+    J_z\dot{\psi}_e = h_z - J_z\omega_{d,z}
+\end{equation}
+For the angle, the vector part of the body-frame error quaternion for a rotation $\psi_e$ about $\hat{\vec{e}}_z$ is $q_{e,z} = -\sin(\psi_e/2)$, so for small errors $\psi_e \approx -2q_{e,z}$. Substituting both into equation \eqref{eq:yaw_pd_ideal} gives the dead-axis control law
+\begin{equation}
+    \tau_{m,z} = -2\zeta\omega_n\left(h_z - J_z\omega_{d,z}\right) + 2J_z\omega_n^2\,q_{e,z}
     \label{eq:dead_axis_pd}
 \end{equation}
-giving the closed loop $\ddot{\psi} + 2\zeta\omega_n\dot{\psi} + \omega_n^2\psi = T_{dist,z}/J_z$ and hence a steady-state error of
+The rate term acts on the momentum error rather than on $h_z$ itself: with a rotating reference the body must carry $h_z = J_z\omega_{d,z}$ simply to keep up, and damping that momentum outright would leave a standing lag of $2\zeta\omega_{d,z}/\omega_n$. For an inertial hold $\omega_{d,z} = 0$ and the rate term reduces to $-2\zeta\omega_n h_z$. Beyond small angles the proportional term applies a restoring torque proportional to $2\sin(\psi_e/2)$ rather than $\psi_e$, which agrees to within about $1\%$ up to $30^\circ$ and remains restoring for larger errors.
+
+Setting the derivatives in equation \eqref{eq:yaw_closed_loop} to zero, a slowly varying disturbance leaves a steady-state error of
 \begin{equation}
-    \psi_{ss} \approx \frac{T_{dist,z}}{J_z\,\omega_n^2}
+    \psi_{e,ss} \approx \frac{\tau_{dist,z}}{J_z\,\omega_n^2}
     \label{eq:yaw_ss_error}
 \end{equation}
 The remaining two axes retain the slow dumping law of \autoref{subsec:null_space_parking} applied to $\vec{h}$ with its dead-axis component removed. The bandwidth $\omega_n$ must lie well above the orbital rate so that the dead-axis disturbance is rejected, and well below $1/\Delta t$.
@@ -189,11 +227,11 @@ Exact decoupling follows from observing that the dead-axis torque is
 \end{equation}
 so that only the component of $\vec{m}$ along $\vec{u} = \vec{B}\times\hat{\vec{e}}_z$ produces any dead-axis torque, and every dipole perpendicular to $\vec{u}$ produces none. Splitting the commanded dipole on $\vec{u}$ therefore separates the two objectives,
 \begin{align}
-    \vec{m}_{\psi} &= \frac{T_{d,z}}{\|\vec{u}\|^2}\,\vec{u} \label{eq:m_yaw}\\
-    \vec{m}_{dump} &= \frac{\vec{B}\times\vec{T}_{d,\perp}}{\|\vec{B}\|^2} - \frac{(\vec{B}\times\vec{T}_{d,\perp})\cdot\vec{u}}{\|\vec{B}\|^2\,\|\vec{u}\|^2}\,\vec{u} \label{eq:m_dump}\\
+    \vec{m}_{\psi} &= \frac{\tau_{m,z}}{\|\vec{u}\|^2}\,\vec{u} \label{eq:m_yaw}\\
+    \vec{m}_{dump} &= \frac{\vec{B}\times\vec{\tau}_{c,\perp}}{\|\vec{B}\|^2} - \frac{(\vec{B}\times\vec{\tau}_{c,\perp})\cdot\vec{u}}{\|\vec{B}\|^2\,\|\vec{u}\|^2}\,\vec{u} \label{eq:m_dump}\\
     \vec{m} &= \vec{m}_{\psi} + \vec{m}_{dump} \label{eq:m_total}
 \end{align}
-where $\vec{T}_{d,\perp}$ is the dumping demand on the actuated axes. Since $\vec{m}_{\psi} \parallel \vec{u}$ and $\vec{m}_{dump} \perp \vec{u}$ by construction, the two are orthogonal and saturation with the dead axis given priority has the closed form
+where $\vec{\tau}_{c,\perp}$ is the dumping demand on the actuated axes. Since $\vec{m}_{\psi} \parallel \vec{u}$ and $\vec{m}_{dump} \perp \vec{u}$ by construction, the two are orthogonal and saturation with the dead axis given priority has the closed form
 \begin{equation}
     \vec{m}_{dump} \leftarrow \vec{m}_{dump}\min\!\left(1, \frac{\sqrt{m_{max}^2 - \|\vec{m}_{\psi}\|^2}}{\|\vec{m}_{dump}\|}\right)
     \label{eq:priority_saturation}
