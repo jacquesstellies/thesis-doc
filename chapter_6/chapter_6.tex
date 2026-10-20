@@ -30,6 +30,7 @@ and the torque actually delivered is the orthogonal projection of the demand ont
 The conventional momentum dumping control law sets the demand proportional to the total angular momentum, 
 \begin{equation}
     \vec{\tau}_c = -k\,\vec{\Delta h}, \ k > 0
+    \label{eq:mag_dump_law}
 \end{equation}
 where $\vec{\Delta h} = \vec{h} - \vec{h}_d$ is the difference between the current and desired angular momentum.
 
@@ -43,53 +44,58 @@ Because the law is implemented at a sample period $\Delta t$ with a zero-order h
     \vec{h}_{k+1} = (1 - k\Delta t)\,\vec{h}_k + k\Delta t\,\hat{\vec{B}}_k(\hat{\vec{B}}_k^T\vec{h}_k)
     \label{eq:dump_discrete}
 \end{equation}
-Note that $k$ carries units of $\mathrm{s}^{-1}$ with $\vec{\tau}_c = -k\vec{h}$ the gain \emph{is} the commanded decay rate, not a dimensionless tuning constant. Equation \eqref{eq:dump_discrete} then exposes a failure mode that is easily mistaken for insufficient actuator authority. Setting $k\Delta t = 1$ gives the deadbeat case
+Note that $k$ carries units of $\mathrm{s}^{-1}$ with $\vec{\tau}_c = -k\vec{h}$ the gain \emph{is} the commanded decay rate, not a dimensionless tuning constant. It is instructive to consider the deadbeat control law case. Setting $k\Delta t = 1$ gives the deadbeat case
 \begin{equation}
     \vec{h}_{k+1} = \hat{\vec{B}}_k(\hat{\vec{B}}_k^T\vec{h}_k)
 \end{equation}
-After a single sample the entire surviving momentum lies entirely along $\hat{\vec{B}}_k$, that is, inside the null space of $\vec{P}_B$. On the next cycle the demand is parallel to the field, the commanded dipole is zero, and the controller stalls. The momentum has been driven into the one direction the actuator cannot address. Intuitively, a greedy law removes all the momentum it can observe, and what it leaves behind is precisely the part it cannot observe.
+After a single sample the entire surviving momentum lies entirely along $\hat{\vec{B}}_k$, that is, inside the null space of $\vec{P}_B$. On the next cycle the demand is parallel to the field, the commanded dipole is zero, and the controller stalls. The momentum has been driven into the one direction the actuator cannot address. Intuitively, a it removes all the momentum it can actuate, and what it leaves behind is what cannot. However total momentum can be removed over the span of orbits as $\hat{\vec{B}}$ rotates relative to $\vec{h}$. 
 
-Escape is possible only because $\hat{\vec{B}}$ rotates in the body frame. For a near-circular orbit this rotation occurs at approximately twice the orbital rate, $\omega_B \approx 2n$, which for the 500\,km, $i \approx 90^\circ$ orbit used throughout this work is $\omega_B \approx 2.2\times10^{-3}\,\mathrm{rad/s}$. Over one sample the field direction moves by $\varepsilon = \omega_B\Delta t$, so the momentum left pointing at the previous field direction is no longer quite aligned with the new one and a fraction $\sin\varepsilon$ becomes visible again. Under deadbeat action all of it is removed, leaving
-\begin{equation}
-    \|\vec{h}_{k+1}\| = \|\vec{h}_k\|\cos\varepsilon \approx \|\vec{h}_k\|\left(1 - \tfrac{1}{2}\varepsilon^2\right)
-    \label{eq:parking_leak}
-\end{equation}
-The leak is \emph{quadratic} in the sweep angle. For $\Delta t = 1\,\mathrm{s}$ this gives a decay rate of $2.4\times10^{-6}\,\mathrm{s}^{-1}$, a time constant of roughly $4.8$ days. A simulation of the law at $k = 1$, $\Delta t = 1\,\mathrm{s}$ reproduces this: the residual momentum settles at $0.00^\circ$ from the field direction and decays with a fitted time constant of $4.6$ days, effectively frozen on any timescale of operational interest.
+% For a near-circular orbit this rotation occurs at approximately twice the orbital rate, $\omega_B \approx 2n$, which for the 500\,km, $i \approx 90^\circ$ orbit used throughout this work is $\omega_B \approx 2.2\times10^{-3}\,\mathrm{rad/s}$. Over one sample the field direction moves by $\varepsilon = \omega_B\Delta t$, so the momentum left pointing at the previous field direction is no longer quite aligned with the new one and a fraction $\sin\varepsilon$ becomes visible again. Under deadbeat action all of it is removed, leaving
+% \begin{equation}
+%     \|\vec{h}_{k+1}\| = \|\vec{h}_k\|\cos\varepsilon \approx \|\vec{h}_k\|\left(1 - \tfrac{1}{2}\varepsilon^2\right)
+%     \label{eq:parking_leak}
+% \end{equation}
+% The leak is \emph{quadratic} in the sweep angle. For $\Delta t = 1\,\mathrm{s}$ this gives a decay rate of $2.4\times10^{-6}\,\mathrm{s}^{-1}$, a time constant of roughly $4.8$ days. A simulation of the law at $k = 1$, $\Delta t = 1\,\mathrm{s}$ reproduces this: the residual momentum settles at $0.00^\circ$ from the field direction and decays with a fitted time constant of $4.6$ days, effectively frozen on any timescale of operational interest.
 
-Reducing the gain so that $k\Delta t \ll 1$ prevents the collapse. The momentum then never aligns with the field but settles at an equilibrium lag angle where the rate of removal balances the rate at which the field sweeps past, and the decay becomes linear rather than quadratic in the geometry,
-\begin{equation}
-    \dot{\|\vec{h}\|} \approx -k\,\|\vec{h}\|\sin^2\theta, \qquad \theta = \angle(\vec{h}, \hat{\vec{B}})
-    \label{eq:dump_linear_decay}
-\end{equation}
-\autoref{tab:dump_gain_sweep} shows this over a sweep of $k$, with the spacecraft inertia $\vec{J} = \mathrm{diag}(2.5, 3.5, 4.5)\,\mathrm{kg\,m^2}$ and an initial momentum of $0.0866\,\mathrm{N\,m\,s}$. The lag angle column is the diagnostic: at high gain the residual sits at $0^\circ$ from the field and is unreachable, while at $k = 3\times10^{-3}$ it rides at roughly $66^\circ$ and remains fully actuatable.
+% Reducing the gain so that $k\Delta t \ll 1$ prevents the collapse, since the momentum is no longer driven fully into the null space of $\vec{P}_B$ on each sample. 
+
+Reducing the gain so that $k\Delta t \ll 1$ prevents the residual momentum from
+being driven onto $\hat{\vec{B}}$: each sample removes only a fraction $k\Delta t$
+of the perpendicular component, so the field's rotation keeps a non-zero
+actuatable component available. 
+The analysis above rests on the assumptions that the control law \eqref{eq:mag_dump_law} commands a dipole moment $\vec{m}$ that is always perpendicular to the Earth's magnetic field $B$ and a static magnetic field, both of which are not accurate. Thus, no analytical method for $k$ is available \cite{sidiAttitudeDynamicsKinematics1997}, so gain is selected by trial-and-error in simulation. 
+
+\subsection{Gain Sweep}
+
+The sweep is a free-decay test: the dumping law is integrated from an initial momentum along the orbit's field history with no disturbance torques. Since $\vec{\tau}_m = -k\vec{P}_B\vec{h}$ is frame-independent and reaction wheels cannot alter $\vec{h}$, the result is independent of the spacecraft attitude. In operation the residual settles at a floor set by the disturbance torques rather than decaying indefinitely. \autoref{tab:dump_gain_sweep} and \autoref{fig:dump_gain_sweep} show $\|\vec{h}\|$ over five orbits for a sweep of $k$, with an initial momentum of $\|\vec{h}_0\| = 0.226\,\mathrm{N\,m\,s}$, directed equally along the three body axes and limited to $m_{max} = 17\,\mathrm{A\,m^2}$. This corresponds to the total momentum accumulated over one orbit without dumping, in a full closed-loop simulation of the nominal day/night profile under the disturbance model of chapter \ref{chap:modelling}. Because the dumping law is linear in $\vec{h}$ and independent of the spacecraft inertia, the normalised decay does not depend on $\vec{J}$, nor on $\|\vec{h}_0\|$ while the dipole limit is not reached. Performance is non-monotonical in $k$: at high gain the residual is parked along $\hat{\vec{B}}$ and barely decays, and at low gain dumping is simply too slow. The best result, $k = 3\times10^{-3}\,\mathrm{s^{-1}}$, is of the same order as the field rotation rate $\omega_B \approx 2n$. It is also the only gain that drives the residual below numerical precision within the window.
 
 \begin{table}[h]
 \centering
-\begin{tabular}{@{}l l l l l@{}}
+\begin{tabular}{@{}l l l l@{}}
 \hline
-$k$ [s$^{-1}$] & $k\Delta t$ & $\|\vec{h}\|$ @ 2 orbits & $\|\vec{h}\|$ @ 5 orbits & $\angle(\vec{h}, \hat{\vec{B}})$ \\
+$k$ [s$^{-1}$] & $k\Delta t$ & $\|\vec{h}\|$ @ 2 orbits & $\|\vec{h}\|$ @ 5 orbits \\
 \hline
-$1\times10^{0}$  & 1.000 & $6.10\times10^{-3}$ & $5.85\times10^{-3}$ & $0.00^\circ$ \\
-$1\times10^{-1}$ & 0.100 & $2.55\times10^{-3}$ & $1.13\times10^{-3}$ & $1.62^\circ$ \\
-$3\times10^{-2}$ & 0.030 & $1.20\times10^{-4}$ & $7.17\times10^{-6}$ & $5.77^\circ$ \\
-$1\times10^{-2}$ & 0.010 & $3.94\times10^{-5}$ & $4.54\times10^{-9}$ & $17.62^\circ$ \\
-$3\times10^{-3}$ & 0.003 & $4.39\times10^{-9}$ & $2.26\times10^{-20}$ & $65.65^\circ$ \\
-$1\times10^{-3}$ & 0.001 & $2.86\times10^{-4}$ & $4.63\times10^{-8}$ & $66.99^\circ$ \\
-$3\times10^{-4}$ & 0.000 & $1.44\times10^{-2}$ & $1.09\times10^{-3}$ & $28.62^\circ$ \\
+$1\times10^{0}$  & 1.000 & $6.30\times10^{-2}$ & $6.03\times10^{-2}$ \\
+$1\times10^{-1}$ & 0.100 & $4.22\times10^{-2}$ & $1.85\times10^{-2}$ \\
+$3\times10^{-2}$ & 0.030 & $1.24\times10^{-2}$ & $7.02\times10^{-4}$ \\
+$1\times10^{-2}$ & 0.010 & $2.54\times10^{-4}$ & $2.44\times10^{-8}$ \\
+$3\times10^{-3}$ & 0.003 & $1.82\times10^{-8}$ & $<10^{-12}$ \\
+$1\times10^{-3}$ & 0.001 & $7.19\times10^{-4}$ & $1.62\times10^{-7}$ \\
+$3\times10^{-4}$ & 0.0003 & $3.98\times10^{-2}$ & $2.98\times10^{-3}$ \\
 \hline
 \end{tabular}
-\caption{Residual angular momentum after magnetic dumping, as a function of the dumping gain, at $\Delta t = 1\,\mathrm{s}$ and a dipole limit of $1000\,\mathrm{A\,m^2}$. Performance is non-monotonic in $k$: too high parks the residual in the null space, too low is simply slow.}
+\caption{Residual angular momentum $\|\vec{h}\|$ [N\,m\,s] after magnetic dumping, as a function of the dumping gain, at $\Delta t = 1\,\mathrm{s}$ with $\|\vec{h}_0\| = 0.226\,\mathrm{N\,m\,s}$ and $m_{max} = 17\,\mathrm{A\,m^2}$. Performance is non-monotonic in $k$: too high parks the residual in the null space, too low is simply slow.}
 \label{tab:dump_gain_sweep}
 \end{table}
 
-The resulting design rule is that the dumping gain must be \emph{slower} than the rate at which the field sweeps through the body frame,
-\begin{equation}
-    k \lesssim \omega_B \approx 2n
-    \label{eq:dump_gain_rule}
-\end{equation}
-which corresponds to a dumping time constant on the order of the orbital period. This is counter-intuitive relative to the usual instinct to raise a regulator gain when convergence is poor, and it is worth stating explicitly because the symptom of violating it is a commanded dipole that collapses towards zero, which presents as though the actuator were undersized.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{chapter_6/dump_gain_sweep.png}
+\caption{Normalised residual momentum $\|\vec{h}\|/\|\vec{h}_0\|$ over five orbits for each dumping gain. Values below $10^{-12}$ are clipped.}
+\label{fig:dump_gain_sweep}
+\end{figure}
 
-The same sweep shows that the available dipole is not the limiting factor at all. At $k = 3\times10^{-3}$ the dumping converges identically for dipole limits of $1000$, $100$, $30$ and $10\,\mathrm{A\,m^2}$, and still converges at $1\,\mathrm{A\,m^2}$; the peak dipole actually demanded is under $10\,\mathrm{A\,m^2}$ in every case.
+For gains of $k \geq 10^{-2}$ the dipole limit is reached, and at $k = 3\times10^{-3}$ the peak demanded dipole is $15.8\,\mathrm{A\,m^2}$, just inside the available $17\,\mathrm{A\,m^2}$. The selected gain is nonetheless not sensitive to dipole capacity: repeating the $k = 3\times10^{-3}$ case with $m_{max}$ reduced to $10$ and $5\,\mathrm{A\,m^2}$ slows the decay only marginally ($\|\vec{h}\| = 1.2\times10^{-4}$ and $2.3\times10^{-4}\,\mathrm{N\,m\,s}$ after one orbit, against $8.4\times10^{-5}$ at $17\,\mathrm{A\,m^2}$), and even at $1\,\mathrm{A\,m^2}$ the residual falls to $1.6\times10^{-3}\,\mathrm{N\,m\,s}$ within two orbits.
 
 \subsection{Dipole Saturation}
 Because equation \eqref{eq:magt_alloc} can demand an arbitrarily large dipole as $\|\vec{B}\|$ falls or the demand grows, the commanded moment must be limited to the physically available $m_{max}$. Saturating each body component independently, $m_i \leftarrow \mathrm{sat}(m_i, m_{max})$, rotates $\vec{m}$ away from the direction $\vec{B} \times \vec{\tau}_c$, so the delivered torque $\vec{m} \times \vec{B}$ is no longer parallel to the momentum being removed and can add momentum on individual axes. Scaling the vector instead,
@@ -139,25 +145,25 @@ and the yaw rate is fixed entirely by the projection of the total momentum onto 
     \psi(t) = \frac{1}{J_z}\int_0^t h_z(\tau)\,d\tau, \qquad \ddot{\psi} = \frac{T_{d,z}}{J_z}
     \label{eq:yaw_double_integral}
 \end{equation}
-% Closed-loop simulation confirms equation \eqref{eq:yaw_double_integral} exactly: over a $6000\,\mathrm{s}$ inertial-hold run the yaw reconstructed from $\frac{1}{J_z}\int h_z\,dt$ matches the logged attitude with an RMS mismatch of $0.00^\circ$, both peaking at $39.18^\circ$ at $t = 2207\,\mathrm{s}$.
+Closed-loop simulation confirms equation \eqref{eq:yaw_double_integral} exactly: over a $6000\,\mathrm{s}$ inertial-hold run the yaw reconstructed from $\frac{1}{J_z}\int h_z\,dt$ matches the logged attitude with an RMS mismatch of $0.00^\circ$, both peaking at $39.18^\circ$ at $t = 2207\,\mathrm{s}$.
 
-% Two consequences follow. First, the dead axis is the most fragile despite carrying the \emph{smallest} disturbance. In the same run the dead-axis disturbance amplitude was $1.9\times10^{-6}\,\mathrm{N\,m}$, some $38$ times smaller than the pitch-axis disturbance of $7.2\times10^{-5}\,\mathrm{N\,m}$, yet it alone produced tens of degrees of error because the actuated axes regulate their disturbance while the unactuated axis integrates it twice.
+Two consequences follow. First, the dead axis is the most fragile despite carrying the \emph{smallest} disturbance. In the same run the dead-axis disturbance amplitude was $1.9\times10^{-6}\,\mathrm{N\,m}$, some $38$ times smaller than the pitch-axis disturbance of $7.2\times10^{-5}\,\mathrm{N\,m}$, yet it alone produced tens of degrees of error because the actuated axes regulate their disturbance while the unactuated axis integrates it twice.
 
-% Second, the condition for the dead axis to be instantaneously quiescent is weaker than the $\vec{h} = \vec{0}$ normally quoted. Equation \eqref{eq:dead_axis_rate} gives $\omega_z = 0$ whenever
-% \begin{equation}
-%     \vec{h}\cdot\hat{\vec{e}}_z = h_{wz}
-%     \label{eq:dead_axis_condition}
-% \end{equation}
-% which is a single scalar constraint rather than three. This is, however, a pointwise condition and not an invariant one, and the distinction is decisive. In the absence of external torque $\vec{h}$ is fixed in \emph{inertial} space while $\hat{\vec{e}}_z$ is fixed in the \emph{body}, so the projection $\vec{h}\cdot\hat{\vec{e}}_z$ changes whenever the spacecraft slews. For the manoeuvre of \autoref{subsec:nadafi_tracking_sims}, a $70^\circ$ eigenaxis rotation about an axis lying in the body $xy$-plane, the body $z$ axis itself sweeps through $70^\circ$, and momentum that began entirely in the actuated plane is tipped onto the dead axis by as much as $\|\vec{h}\|\sin 70^\circ = 0.94\|\vec{h}\|$. Momentum stored in the actuated plane is therefore latent rather than disposed of. An inertial hold is precisely the special case in which it stays latent, because $\hat{\vec{e}}_z$ does not move and a yaw drift is a rotation \emph{about} $\hat{\vec{e}}_z$; this is why the verification of equation \eqref{eq:yaw_double_integral} above, which was performed on an inertial hold, is consistent with equation \eqref{eq:dead_axis_condition} while a tracking manoeuvre need not be.
+Second, the condition for the dead axis to be instantaneously quiescent is weaker than the $\vec{h} = \vec{0}$ normally quoted. Equation \eqref{eq:dead_axis_rate} gives $\omega_z = 0$ whenever
+\begin{equation}
+    \vec{h}\cdot\hat{\vec{e}}_z = h_{wz}
+    \label{eq:dead_axis_condition}
+\end{equation}
+which is a single scalar constraint rather than three. This is, however, a pointwise condition and not an invariant one, and the distinction is decisive. In the absence of external torque $\vec{h}$ is fixed in \emph{inertial} space while $\hat{\vec{e}}_z$ is fixed in the \emph{body}, so the projection $\vec{h}\cdot\hat{\vec{e}}_z$ changes whenever the spacecraft slews. For the manoeuvre of \autoref{subsec:nadafi_tracking_sims}, a $70^\circ$ eigenaxis rotation about an axis lying in the body $xy$-plane, the body $z$ axis itself sweeps through $70^\circ$, and momentum that began entirely in the actuated plane is tipped onto the dead axis by as much as $\|\vec{h}\|\sin 70^\circ = 0.94\|\vec{h}\|$. Momentum stored in the actuated plane is therefore latent rather than disposed of. An inertial hold is precisely the special case in which it stays latent, because $\hat{\vec{e}}_z$ does not move and a yaw drift is a rotation \emph{about} $\hat{\vec{e}}_z$; this is why the verification of equation \eqref{eq:yaw_double_integral} above, which was performed on an inertial hold, is consistent with equation \eqref{eq:dead_axis_condition} while a tracking manoeuvre need not be.
 
-% A second mechanism defeats the same shortcut independently of any slew of $\hat{\vec{e}}_z$. Holding attitude against a secular disturbance with $\vec{h} \neq \vec{0}$ obliges the two surviving wheels to carry a standing bias $h_{wx}, h_{wy} \neq 0$, and the dead-axis row of equation \eqref{eq:sat_dynamics} then reads
-% \begin{equation}
-%     J_z\dot{\omega}_z = -(J_y - J_x)\,\omega_x\omega_y \;-\; \left(\omega_x h_{wy} - \omega_y h_{wx}\right) \;+\; T_{d,z}
-%     \label{eq:dead_axis_gyroscopic}
-% \end{equation}
-% so any actuated rate is converted into dead-axis angular acceleration through the wheel bias. This is not an incidental coupling: the hypersurface of equation \eqref{eq:hypersurface} steers the unactuated axis precisely by commanding non-zero $\omega_{ex}$ and $\omega_{ey}$, so the manoeuvre the controller requires in order to function is also the manoeuvre that excites this term. A wheel bias is an active source on the one axis that has no actuator, not passive storage.
+A second mechanism defeats the same shortcut independently of any slew of $\hat{\vec{e}}_z$. Holding attitude against a secular disturbance with $\vec{h} \neq \vec{0}$ obliges the two surviving wheels to carry a standing bias $h_{wx}, h_{wy} \neq 0$, and the dead-axis row of equation \eqref{eq:sat_dynamics} then reads
+\begin{equation}
+    J_z\dot{\omega}_z = -(J_y - J_x)\,\omega_x\omega_y \;-\; \left(\omega_x h_{wy} - \omega_y h_{wx}\right) \;+\; T_{d,z}
+    \label{eq:dead_axis_gyroscopic}
+\end{equation}
+so any actuated rate is converted into dead-axis angular acceleration through the wheel bias. This is not an incidental coupling: the hypersurface of equation \eqref{eq:hypersurface} steers the unactuated axis precisely by commanding non-zero $\omega_{ex}$ and $\omega_{ey}$, so the manoeuvre the controller requires in order to function is also the manoeuvre that excites this term. A wheel bias is an active source on the one axis that has no actuator, not passive storage.
 
-% Both mechanisms trace to the same step in the derivation. Assumption~1 of \cite{nadafiRobustBacksteppingAttitude2021} discards the gyroscopic terms $\vec{\omega}^\times\vec{J}\vec{\omega}$ and $\vec{\omega}^\times\vec{h}_w$ from the actuated rows of equation \eqref{eq:sat_dynamics}, and with $h_{wz} = \dot{h}_{wz} = 0$ every surviving entry of both terms in those two rows carries a factor of $\omega_z$. The cascade model of equation \eqref{eq:cascade_dyn} is therefore exact only while $\omega_z \equiv 0$, which by equation \eqref{eq:dead_axis_rate} demands $h_z \equiv 0$ along the \emph{whole} trajectory; and since $h_z(t) = \hat{\vec{e}}_z^T\vec{T}_{BI}(t)\,\vec{h}_I$ must then vanish for every attitude the trajectory visits, this recovers $\vec{h} = \vec{0}$ rather than the weaker $\vec{h} \perp \hat{\vec{e}}_z$ at a single instant. Equation \eqref{eq:dead_axis_condition} is thus a diagnostic for when the dead axis is momentarily quiescent, and a design target for the magnetorquer on an inertial hold, but it is not a relaxation of the assumption under which the control law is derived.
+Both mechanisms trace to the same step in the derivation. Assumption~1 of \cite{nadafiRobustBacksteppingAttitude2021} discards the gyroscopic terms $\vec{\omega}^\times\vec{J}\vec{\omega}$ and $\vec{\omega}^\times\vec{h}_w$ from the actuated rows of equation \eqref{eq:sat_dynamics}, and with $h_{wz} = \dot{h}_{wz} = 0$ every surviving entry of both terms in those two rows carries a factor of $\omega_z$. The cascade model of equation \eqref{eq:cascade_dyn} is therefore exact only while $\omega_z \equiv 0$, which by equation \eqref{eq:dead_axis_rate} demands $h_z \equiv 0$ along the \emph{whole} trajectory; and since $h_z(t) = \hat{\vec{e}}_z^T\vec{T}_{BI}(t)\,\vec{h}_I$ must then vanish for every attitude the trajectory visits, this recovers $\vec{h} = \vec{0}$ rather than the weaker $\vec{h} \perp \hat{\vec{e}}_z$ at a single instant. Equation \eqref{eq:dead_axis_condition} is thus a diagnostic for when the dead axis is momentarily quiescent, and a design target for the magnetorquer on an inertial hold, but it is not a relaxation of the assumption under which the control law is derived.
 
 
 \subsection{Split Allocation}
