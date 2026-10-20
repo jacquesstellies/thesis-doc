@@ -114,7 +114,7 @@ The satellite's orientation can be represented intuitively using Euler angles ya
     [\vec{v}]^B = [\vec{C}]^{BA}[\vec{v}]^A
 \end{equation}
 
-where $[\vec{C}]^{BA} \in \mathbb{R}^{3 \times 3}$ is the DCM from frame $A$ to $B$ and is made up of the orthonormal basis vectors of frame $B$ expressed in frame $A$: $[\vec{C}]^{BA} = \begin{bmatrix} \vec{\bar{b}}_1^B & \vec{\bar{b}}_2^B & \vec{\bar{b}}_3^B\end{bmatrix}$.
+where $[\vec{C}]^{BA} \in \mathbb{R}^{3 \times 3}$ is the DCM from frame $A$ to $B$ and is made up of the orthonormal basis vectors of frame $B$ expressed in frame $A$: $[\vec{C}]^{BA} = \begin{bmatrix} \vec{\hat{b}}_1^B & \vec{\hat{b}}_2^B & \vec{\hat{b}}_3^B\end{bmatrix}$.
 
 This matrix can be described by the Euler 3-2-1 rotation sequence as:
 
@@ -368,21 +368,21 @@ where $\|\vec{v}_o\|$ is the orbital speed, $\omega^{EI}$ is the Earth's rotatio
 where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the atmospheric scale height, and $\rho_0$ is the nominal atmospheric density at $h_0$. The aerodynamic disturbance torque contribution of a given satellite surface is then \cite{auretDesignAerodynamicAttitude2011}
 
 \begin{equation}
-    \vec{\tau}_{\text{aero}} = \rho \|\vec{v}^B_A\|^2 A_p \left[\sigma_t\left(\vec{r}_{PB} \times \bar{\vec{v}}^B_A\right) + \left(\sigma_n \frac{v_b}{\|\vec{v}^B_A\|} + (2 - \sigma_n - \sigma_t)\cos\alpha\right)\!\left(\vec{r}_{PB} \times \bar{\vec{n}}\right)\right]
+    \vec{\tau}_{\text{aero}} = \rho \|\vec{v}^B_A\|^2 A_p \left[\sigma_t\left(\vec{r}_{PB} \times \hat{\vec{v}}^B_A\right) + \left(\sigma_n \frac{v_b}{\|\vec{v}^B_A\|} + (2 - \sigma_n - \sigma_t)\cos\alpha\right)\!\left(\vec{r}_{PB} \times \hat{\vec{n}}\right)\right]
     \label{eq:aero_torque}
 \end{equation}
 
-where $\bar{\vec{v}}^B_A$ is the unit atmospheric velocity vector in the body frame,$\cos\alpha = \bar{\vec{v}}^B_A \cdot \bar{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\bar{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing equation \eqref{eq:aero_torque} over all exposed surfaces.
+where $\hat{\vec{v}}^B_A$ is the unit atmospheric velocity vector in the body frame,$\cos\alpha = \hat{\vec{v}}^B_A \cdot \hat{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\hat{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing equation \eqref{eq:aero_torque} over all exposed surfaces.
 
 \subsubsection{Gravity Gradient Torque}
-The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $\vec{r}_{BE}$ cubed and is thus only significant in LEO.
+The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $\norm{\vec{r}_{BE}}$ cubed and is thus only significant in LEO.
 
 The gravity gradient torque can be determined by \cite{wertz1999space}:
 \begin{equation}
-    \vec{\tau}_{GG} = \frac{3\mu}{{\vec{r}_{BE}}^3} \vec{u}_e \times (\vec{J_B}\vec{u}_e)
+    \vec{\tau}_{GG} = \frac{3\mu}{{\norm{\vec{r}_{BE}}}^3} \hat{\vec{r}}_{EB} \times (\vec{J}\hat{\vec{r}}_{EB})
 \end{equation}
 
-where $\mu = 398600.5 km^3/s^2$ is the gravitational constant of Earth, $\vec{u}_e = [\vec{C}]^{OB} \begin{bmatrix}0 \ 0 \ 1\end{bmatrix}^T$ is the unit vector towards nadir in satellite body coordinates and $\vec{J}$ is the satellite's moment of inertia tensor.
+where $\mu = 398600.5 km^3/s^2$ is the gravitational constant of Earth, $\hat{\vec{r}}_{EB} = [\vec{C}]^{OB} \begin{bmatrix}0 \ 0 \ 1\end{bmatrix}^T$ is the unit vector towards nadir in satellite body coordinates and $\vec{J}$ is the satellite's moment of inertia tensor.
 
 \subsubsection{Solar Radiation Pressure Torque}
 Solar radiation pressure (SRP) torque arises from the momentum transfer of incident photons striking the surfaces of the satellite. Although the pressure exerted by solar radiation is small, it acts continuously and over long durations can produce a significant secular disturbance, particularly for satellites with large surface areas such as solar panels offset from the centre of mass. Unlike aerodynamic drag and gravity gradient torques, SRP does not vanish with altitude and therefore remains relevant even outside of LEO.
@@ -393,11 +393,11 @@ The solar radiation pressure at a distance of one astronomical unit from the sun
 \end{equation}
 where $S \approx 1367 \ W/m^2$ is the solar constant and $c$ is the speed of light, giving $P \approx 4.51 \times 10^{-6} \ N/m^2$.
 
-For a given flat surface, the force exerted by solar radiation pressure depends on the optical properties of the surface, namely the fractions of incident light that are absorbed, specularly reflected and diffusely reflected. The resulting force on a surface with area $A_{\text{surface}}$ and outward unit normal $\bar{\vec{n}}$ can be expressed as \cite{wieSpaceVehicleDynamics1998}:
+For a given flat surface, the force exerted by solar radiation pressure depends on the optical properties of the surface, namely the fractions of incident light that are absorbed, specularly reflected and diffusely reflected. The resulting force on a surface with area $A_{\text{surface}}$ and outward unit normal $\hat{\vec{n}}$ can be expressed as \cite{wieSpaceVehicleDynamics1998}:
 \begin{equation}
-    \vec{F}_{srp} = -P A_{\text{surface}} \cos\theta_i \left[ (1 - \sigma_s)\bar{\vec{s}} + 2\left(\sigma_s \cos\theta_i + \frac{2}{3}\sigma_d\right)\bar{\vec{n}} \right]
+    \vec{F}_{srp} = -P A_{\text{surface}} \cos\theta_i \left[ (1 - \sigma_s)\hat{\vec{s}} + 2\left(\sigma_s \cos\theta_i + \frac{2}{3}\sigma_d\right)\hat{\vec{n}} \right]
 \end{equation}
-where $\bar{\vec{s}}$ is the unit vector from the satellite towards the sun, $\theta_i$ is the angle of incidence between $\bar{\vec{s}}$ and $\bar{\vec{n}}$, and $\sigma_s$ and $\sigma_d$ are the specular and diffuse reflectivity coefficients of the surface respectively, with the absorbed fraction given by $1 - \sigma_s - \sigma_d$. This force only acts on surfaces which are illuminated, i.e.\ for which $\cos\theta_i > 0$ and which are not in eclipse.
+where $\hat{\vec{s}}$ is the unit vector from the satellite towards the sun, $\theta_i$ is the angle of incidence between $\hat{\vec{s}}$ and $\hat{\vec{n}}$, and $\sigma_s$ and $\sigma_d$ are the specular and diffuse reflectivity coefficients of the surface respectively, with the absorbed fraction given by $1 - \sigma_s - \sigma_d$. This force only acts on surfaces which are illuminated, i.e.\ for which $\cos\theta_i > 0$ and which are not in eclipse.
 
 As with the aerodynamic torque, the disturbance torque about the satellite centre of mass is produced by the offset between the centre of mass $B$ and the centre of solar pressure $P$ of each surface, $\vec{r}_{PB}$, such that the total SRP torque is obtained by summing over all illuminated surfaces \cite{wieSpaceVehicleDynamics1998}:
 \begin{equation}
@@ -405,7 +405,7 @@ As with the aerodynamic torque, the disturbance torque about the satellite centr
     \label{eq:srp_torque}
 \end{equation}
 
-Since the direction of $\bar{\vec{s}}$ changes slowly over the course of an orbit relative to the orbital period, and reverses only when the satellite passes through the Earth's shadow, the SRP torque is typically treated as a slowly-varying or constant disturbance over the timescale of an attitude control manoeuvre.
+Since the direction of $\hat{\vec{s}}$ changes slowly over the course of an orbit relative to the orbital period, and reverses only when the satellite passes through the Earth's shadow, the SRP torque is typically treated as a slowly-varying or constant disturbance over the timescale of an attitude control manoeuvre.
 
 \subsubsection{Magnetic Dipole Torque}
 Satellites have a significant current running through their solar panels and wiring. The interaction between this current and the Earth's magnetic field produces a disturbance torque on the satellite. However with clever design this can be minimized. Solar panel manufacturers design their solar panels to mitigate this effect by using a balanced wiring layout. As such this torque is usually negligible and will be ignored in the analysis of the satellite's attitude dynamics.
