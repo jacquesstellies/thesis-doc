@@ -1,14 +1,14 @@
 \chapter{Orbit Operations Simulation of Underactuated Controller}
 
 \section{Introduction}
-To demonstrate the performance of the FNDO-BS controller derived in chapter \ref{chap:underactuated_controller}, it is necessary to simulate it's performance in a realistic environment. In this chapter, building on the work of the previous chapters,the performance of the FNDO-BS controller is compared to a baseline PID controller during a realistic operation scenario with one reaction wheel in a failed state. In previous chapters, the EOSSAT-1 satellite structure was tested in isolation against a set of inertial reference trajectories, now a common scenario of nadir and sun pointing is considered.  The performance of the controllers is evaluated based on their ability to maintain the desired attitude and minimize the control effort required to do so. A realistic simulation environment is created using the setup defined in chapter \ref{chap:modelling}, and the results of the simulations are presented.
+To demonstrate the performance of the FNDO-BS controller derived in \autoref{chap:underactuated_controller}, it is necessary to simulate it's performance in a realistic environment. In this chapter, building on the work of the previous chapters,the performance of the FNDO-BS controller is compared to a baseline PID controller during a realistic operation scenario with one reaction wheel in a failed state. In previous chapters, the EOSSAT-1 satellite structure was tested in isolation against a set of inertial reference trajectories, now a common scenario of nadir and sun pointing is considered.  The performance of the controllers is evaluated based on their ability to maintain the desired attitude and minimize the control effort required to do so. A realistic simulation environment is created using the setup defined in \autoref{chap:modelling}, and the results of the simulations are presented.
 %@TODO decide what to do 
-A simulation was conducted using the parameters derived in chapter \ref{chap:modelling}.
+A simulation was conducted using the parameters derived in \autoref{chap:modelling}.
 
 The simulation was conducted in python, and the results are presented in this chapter.
 
 \section{Experimental Design}
-In Chapter \ref{chap:modelling} the EOSSAT-1 orbit was defined and it's un-synchronous orbit poses some unique challenges for the underactuated controller. Typical Earth Observation satellites operations involve a combination of nadir and sun pointing. In this section, these operations are defined and their implications for the underactuated controller are discussed. Given this information, choices and constraints for the experimental setup are discussed and metrics for evaluating the performance of the underactuated controller are defined. 
+In \autoref{chap:modelling} the EOSSAT-1 orbit was defined and it's un-synchronous orbit poses some unique challenges for the underactuated controller. Typical Earth Observation satellites operations involve a combination of nadir and sun pointing. In this section, these operations are defined and their implications for the underactuated controller are discussed. Given this information, choices and constraints for the experimental setup are discussed and metrics for evaluating the performance of the underactuated controller are defined. 
 
 \subsection{Satellite Operations}
 
@@ -16,7 +16,7 @@ The two main important operations are important for Earth Observation satellites
 
 
 \subsection{Nadir and Sun Pointing Frame Definitions}
-Given the way that EOSSAT-1's body frame axes are defined in Section \ref{subsec:reference_frames}, nadir pointing becomes the orbit (aka. LVLH) frame $F_O$. For the purposes of this simulation, an additional reference frame is defined: the sun pointing frame $F_S$. The sun pointing frame is defined such that the $x$-axis points anti-parallel to the body-sun vector $x_S = -\vec{r}_{SB}$. The nadir pointing frame is therefore fully constrained where as the sun pointing frame is not fully and the z-axis can be chosen to be any vector perpendicular to the $x$-axis. Typically the $z$-axis is chosen to be closest to the nadir vector, however it will be shown that this choice has important implications given the constraints of the underactuated system.
+Given the way that EOSSAT-1's body frame axes are defined in \autoref{subsec:reference_frames}, nadir pointing becomes the orbit (aka. LVLH) frame $F_O$. For the purposes of this simulation, an additional reference frame is defined: the sun pointing frame $F_S$. The sun pointing frame is defined such that the $x$-axis points anti-parallel to the body-sun vector $x_S = -\vec{r}_{SB}$. The nadir pointing frame is therefore fully constrained where as the sun pointing frame is not fully and the z-axis can be chosen to be any vector perpendicular to the $x$-axis. Typically the $z$-axis is chosen to be closest to the nadir vector, however it will be shown that this choice has important implications given the constraints of the underactuated system.
 
 
 \subsection{Eclipse Transition Planning}

@@ -30,7 +30,7 @@ where $t$ is the current time, $t_1$ is the time at the start of the segment and
 where $q_1$ and $q_2$ are the quaternions at the start and end of the segment, $s$ is the smootherstep interpolation parameter, $\Omega$ is the angle between the two quaternions, and $\theta$ is the angle between the two attitudes. It is necessary to check that $q_1 \cdot q_2 > 0$ to ensure the shortest path is taken.
 The reference angular velocity and acceleration required to follow this trajectory can be obtained by taking the central finite difference of the quaternion attitude trajectory and the angular velocity trajectory respectively.
 
-% deriving equation \eqref{eq:smootherstep} with respect to time multiplied by the euler axis of rotation for a given time step in the following manner:
+% deriving \autoref{eq:smootherstep} with respect to time multiplied by the euler axis of rotation for a given time step in the following manner:
 
 % \begin{equation}
 %     \omega = s'(u) \cdot \frac{d}{dt}\left(\frac{t-t_1}{t_2-t_1}\right) \cdot \mathbf{u}
@@ -99,7 +99,7 @@ The graphs in \autoref{fig:yaw_box_q_sat_vs_ref} and \autoref{fig:yaw_box_e321_s
 \newpage
 
 \section{Summary}
-In this chapter, a method has been presented for manoeuvring the underactuated spacecraft about the unactuated axis via a path planning mechanism analogous to nonholonomic steering. A box manoeuvre has been constructed such that the desired unactuated axis has achieved the desired orientation with minimal error. SLERP and smootherstep timing are utilised to interpolate between waypoints. The resulting trajectories are smooth and continuous, making them suitable for use with the FNDO-BS controller presented in Chapter \ref{chap:underactuated_controller}. A simulation was conducted to demonstrate the tracking of generated waypoints by the underactuated controller.  The results show that the spacecraft is able to follow the reference attitude closely, with a small final error on the unactuated axis.
+In this chapter, a method has been presented for manoeuvring the underactuated spacecraft about the unactuated axis via a path planning mechanism analogous to nonholonomic steering. A box manoeuvre has been constructed such that the desired unactuated axis has achieved the desired orientation with minimal error. SLERP and smootherstep timing are utilised to interpolate between waypoints. The resulting trajectories are smooth and continuous, making them suitable for use with the FNDO-BS controller presented in \autoref{chap:underactuated_controller}. A simulation was conducted to demonstrate the tracking of generated waypoints by the underactuated controller.  The results show that the spacecraft is able to follow the reference attitude closely, with a small final error on the unactuated axis.
 
 % Using the $a=\sqrt{\psi}$ is becomes increasingly inaccurate for larger manoevres and can be seen in the following table which shows the error in the yaw angle for different values of $a$:
 

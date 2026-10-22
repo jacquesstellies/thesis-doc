@@ -8,7 +8,7 @@
 % \makeatletter\@mkboth{}{Appendix}\makeatother
 % \label{appen:derivations_tian_oscillator}
 
-% The choice of the oscillatory term given by equation \eqref{eq:oscillator} is not immediately obvious.  The oscillatory property of this term can by understood by the time derivative of the term $\vec{e}_d^T\vec{e}_d = \norm{\vec{e}_d}^2$
+% The choice of the oscillatory term given by \autoref{eq:oscillator} is not immediately obvious.  The oscillatory property of this term can by understood by the time derivative of the term $\vec{e}_d^T\vec{e}_d = \norm{\vec{e}_d}^2$
 % \begin{align*}
 %     \frac{d \vec{e}_d^T \vec{e}_d}{dt} &= \vec{e}_d^T \Big[\frac{\dot\xi}{\xi}\vec{e}_d + \Lambda\vec{G}_1\vec{e}_d \Big] \\
 %     &=2\vec{e}_d^T\frac{\dot\xi}{\xi}\vec{e}_d + 2\vec{e}_d^T\Lambda\vec{G}_1\vec{e}_d \\
@@ -16,7 +16,7 @@
 % \end{align*}
 % given $\vec{G}_1 = \begin{bmatrix}0 & 1 \\ -1 & 0\end{bmatrix}$ is skew-symmetric then it has the property where any vector $\vec{x}$ satisfies $\vec{x}^T\vec{G}_1\vec{x} = 0$. Since and $\Lambda$ is a scalar then the second term of the derivative becomes zero.
 
-% Given equation \eqref{eq:oscillator_norm_ode}, let $r(t)=\norm{\vec{e}_d(t)}$, so 
+% Given \autoref{eq:oscillator_norm_ode}, let $r(t)=\norm{\vec{e}_d(t)}$, so 
 
 % \begin{align*}
 %     \frac{d}{dt}r^2 &= 2\frac{\dot{\xi}}{\xi}r^2 \\
@@ -39,10 +39,87 @@
 %     &= \dot{\xi}(t)\begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix} + \dot{\theta}(t) \vec{G}_1 \begin{bmatrix}\cos\theta(t) \\ \sin\theta(t)\end{bmatrix} \xi(t)
 % \end{align*}
 
-% Comparing coefficients from equation \eqref{eq:oscillator} shows that $\dot{\theta}(t) = \Lambda$. This indicates that $\Lambda$, which is function of $e_u, q_ew, \omega_{eu}$, determines the frequency of the oscillatory motion of $e_d(t)$.
+% Comparing coefficients from \autoref{eq:oscillator} shows that $\dot{\theta}(t) = \Lambda$. This indicates that $\Lambda$, which is function of $e_u, q_ew, \omega_{eu}$, determines the frequency of the oscillatory motion of $e_d(t)$.
 
 
 
+
+\chapter{Split Allocation Derivation}
+\makeatletter\@mkboth{}{Appendix}\makeatother
+\label{appen:split_allocation}
+
+This appendix derives the split allocation of \autoref{subsec:split_allocation} step by step. The magnetorquer delivers $\vec{\tau}_m = \vec{m}\times\vec{B}$, and two demands must be met with the one dipole $\vec{m}$: a dead-axis torque $\tau_{m,z}$ from \autoref{eq:dead_axis_pd}, and an in-plane dumping torque $\vec{\tau}_{c,\perp}$ with $\hat{\vec{e}}_z\cdot\vec{\tau}_{c,\perp} = 0$. The aim is to deliver $\tau_{m,z}$ exactly while the dumping uses only the freedom left over.
+
+\section*{Step 1: Which dipoles produce dead-axis torque}
+The dead-axis torque is the scalar triple product
+\begin{equation*}
+    \tau_{m,z} = \hat{\vec{e}}_z\cdot(\vec{m}\times\vec{B})
+\end{equation*}
+A scalar triple product is unchanged by cyclic permutation of its three vectors, $\vec{a}\cdot(\vec{b}\times\vec{c}) = \vec{b}\cdot(\vec{c}\times\vec{a})$, so
+\begin{equation}
+    \tau_{m,z} = \vec{m}\cdot(\vec{B}\times\hat{\vec{e}}_z) = \vec{m}\cdot\vec{u}, \qquad \vec{u} \triangleq \vec{B}\times\hat{\vec{e}}_z
+    \label{eq:app_split_triple}
+\end{equation}
+The dead-axis torque therefore depends only on the component of $\vec{m}$ along $\vec{u}$. Any dipole perpendicular to $\vec{u}$ produces no dead-axis torque at all. The magnitude of $\vec{u}$ is
+\begin{equation}
+    \|\vec{u}\|^2 = \|\vec{B}\|^2 - B_z^2 = \|\vec{B}\|^2\sin^2\angle(\vec{B},\hat{\vec{e}}_z)
+    \label{eq:app_split_u_norm}
+\end{equation}
+which vanishes when the field is aligned with the dead axis.
+
+\section*{Step 2: Decomposing the dipole}
+Any dipole can be written uniquely as a component along $\vec{u}$ and a component perpendicular to it,
+\begin{equation*}
+    \vec{m} = \alpha\,\vec{u} + \vec{m}_\perp, \qquad \vec{m}_\perp\cdot\vec{u} = 0
+\end{equation*}
+Substituting into \autoref{eq:app_split_triple} gives $\tau_{m,z} = \alpha\|\vec{u}\|^2$, so the dead-axis demand fixes $\alpha$ and leaves $\vec{m}_\perp$ entirely free. The two objectives can therefore be assigned to the two components independently.
+
+\section*{Step 3: The dead-axis dipole}
+Setting $\alpha = \tau_{m,z}/\|\vec{u}\|^2$ gives
+\begin{equation*}
+    \vec{m}_\psi = \frac{\tau_{m,z}}{\|\vec{u}\|^2}\,\vec{u}
+\end{equation*}
+which is \autoref{eq:m_yaw}. Since $\vec{m}_\perp$ contributes nothing to $\tau_{m,z}$, $\vec{m}_\psi$ is also the smallest dipole that delivers the demand. Its full torque follows from the identity $(\vec{a}\times\vec{b})\times\vec{c} = \vec{b}(\vec{a}\cdot\vec{c}) - \vec{a}(\vec{b}\cdot\vec{c})$,
+\begin{equation*}
+    \vec{m}_\psi\times\vec{B} = \frac{\tau_{m,z}}{\|\vec{u}\|^2}(\vec{B}\times\hat{\vec{e}}_z)\times\vec{B} = \frac{\tau_{m,z}}{\|\vec{u}\|^2}\left(\|\vec{B}\|^2\hat{\vec{e}}_z - B_z\vec{B}\right)
+\end{equation*}
+Its $z$ component is $\tau_{m,z}(\|\vec{B}\|^2 - B_z^2)/\|\vec{u}\|^2 = \tau_{m,z}$ by \autoref{eq:app_split_u_norm}, as required. The remaining $-B_z\tau_{m,z}\vec{B}_{xy}/\|\vec{u}\|^2$ lies on the actuated axes, where it is absorbed by the reaction wheels.
+
+\section*{Step 4: Why the conventional allocation leaks}
+The conventional allocation of the dumping demand, \autoref{eq:magt_alloc}, is
+\begin{equation*}
+    \vec{m}_0 = \frac{\vec{B}\times\vec{\tau}_{c,\perp}}{\|\vec{B}\|^2}
+\end{equation*}
+By \autoref{eq:app_split_triple}, its dead-axis torque is $\vec{m}_0\cdot\vec{u}$. Using the identity $(\vec{a}\times\vec{b})\cdot(\vec{c}\times\vec{d}) = (\vec{a}\cdot\vec{c})(\vec{b}\cdot\vec{d}) - (\vec{a}\cdot\vec{d})(\vec{b}\cdot\vec{c})$ and $\hat{\vec{e}}_z\cdot\vec{\tau}_{c,\perp} = 0$,
+\begin{equation*}
+    \vec{m}_0\cdot\vec{u} = \frac{(\vec{B}\times\vec{\tau}_{c,\perp})\cdot(\vec{B}\times\hat{\vec{e}}_z)}{\|\vec{B}\|^2} = -\frac{B_z\,(\vec{B}\cdot\vec{\tau}_{c,\perp})}{\|\vec{B}\|^2}
+\end{equation*}
+This is non-zero whenever the field has a component along both the dead axis and the dumping demand. A purely in-plane demand therefore leaks a torque onto the dead axis, which is the leakage described in \autoref{subsec:split_allocation}.
+
+\section*{Step 5: The dumping dipole}
+The leakage is removed by subtracting the component of $\vec{m}_0$ along $\vec{u}$, i.e. projecting it onto the plane perpendicular to $\vec{u}$,
+\begin{equation*}
+    \vec{m}_{dump} = \vec{m}_0 - \frac{\vec{m}_0\cdot\vec{u}}{\|\vec{u}\|^2}\,\vec{u} = \frac{\vec{B}\times\vec{\tau}_{c,\perp}}{\|\vec{B}\|^2} - \frac{(\vec{B}\times\vec{\tau}_{c,\perp})\cdot\vec{u}}{\|\vec{B}\|^2\,\|\vec{u}\|^2}\,\vec{u}
+\end{equation*}
+which is \autoref{eq:m_dump}. By construction $\vec{m}_{dump}\cdot\vec{u} = 0$, so its dead-axis torque is exactly zero. The cost is that the in-plane torque it delivers differs from $\vec{P}_B\vec{\tau}_{c,\perp}$ by the in-plane part of the removed component, $-(\vec{m}_0\cdot\vec{u})(\vec{u}\times\vec{B})_{xy}/\|\vec{u}\|^2$. The dumping law tolerates this, since it already acts only on average over the orbit.
+
+\section*{Step 6: Combined dipole and priority saturation}
+The commanded dipole is $\vec{m} = \vec{m}_\psi + \vec{m}_{dump}$, \autoref{eq:m_total}. Because $\vec{m}_\psi \parallel \vec{u}$ and $\vec{m}_{dump}\perp\vec{u}$, the two components are orthogonal and
+\begin{equation*}
+    \|\vec{m}\|^2 = \|\vec{m}_\psi\|^2 + \|\vec{m}_{dump}\|^2
+\end{equation*}
+To give the dead axis priority under the limit $\|\vec{m}\| \leq m_{max}$, $\vec{m}_\psi$ is kept whole and $\vec{m}_{dump}$ is scaled by the largest $s\in[0,1]$ that satisfies the limit,
+\begin{equation*}
+    \|\vec{m}_\psi\|^2 + s^2\|\vec{m}_{dump}\|^2 \leq m_{max}^2 \quad\Longrightarrow\quad s = \min\!\left(1, \frac{\sqrt{m_{max}^2 - \|\vec{m}_\psi\|^2}}{\|\vec{m}_{dump}\|}\right)
+\end{equation*}
+which is \autoref{eq:priority_saturation}. If $\|\vec{m}_\psi\| > m_{max}$ on its own, $\vec{m}_\psi$ is scaled to $m_{max}$ and $s = 0$. Scaling each component along its own direction keeps $\vec{m}_{dump}\perp\vec{u}$, so saturation never reintroduces leakage onto the dead axis.
+
+\section*{Step 7: Degenerate geometry}
+From step 3, $\|\vec{m}_\psi\| = |\tau_{m,z}|/\|\vec{u}\|$, and by \autoref{eq:app_split_u_norm}
+\begin{equation*}
+    \|\vec{m}_\psi\| = \frac{|\tau_{m,z}|}{\|\vec{B}\|\sin\angle(\vec{B},\hat{\vec{e}}_z)}
+\end{equation*}
+The dipole needed for a given dead-axis torque grows without bound as the field aligns with the dead axis, and at $\vec{B}\parallel\hat{\vec{e}}_z$ no dipole can produce any dead-axis torque. In that case $\vec{m}_\psi$ is set to zero for the cycle, and the whole dipole budget goes to dumping.
 
 % \chapter{Zarourati Closed-loop kinematic system development}
 % \makeatletter\@mkboth{}{Appendix}\makeatother

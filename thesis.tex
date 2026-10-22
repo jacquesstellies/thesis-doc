@@ -96,6 +96,19 @@
 % Table of contents and hyperlinks
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linktoc=all,citecolor=black,linkcolor=black}
+% Capitalised \autoref names; equations print as "Equation (3)"
+\addto\extrasenglish{%
+    \def\chapterautorefname{Chapter}%
+    \def\sectionautorefname{Section}%
+    \def\subsectionautorefname{Section}%
+    \def\subsubsectionautorefname{Section}%
+    \def\appendixautorefname{Appendix}%
+    \def\figureautorefname{Figure}%
+    \def\subfigureautorefname{Figure}%
+    \def\tableautorefname{Table}%
+    \def\algorithmautorefname{Algorithm}%
+    \def\equationautorefname~#1\null{Equation~(#1)\null}%
+}
 \usepackage[nottoc]{tocbibind}
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 \newcommand{\norm}[1]{\left\lVert #1 \right\rVert}

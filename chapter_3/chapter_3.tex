@@ -11,7 +11,7 @@ In this chapter the framework is built to represent the underactuated spacecraft
 EOSSAT-1 is a 176kg microsatellite launched in 2023 into sun-synchronous orbit with a perigee altitude of 516 km and an apogee altitude of 537 km. The satellite is an optical Earth observation agricultural land monitoring and is equipped with a camera able to image 11 spectral bands .  and a set of solar panels. The satellite's attitude control system consists of four reaction wheels and a set of magnetorquers.
 
 \section{Visualisation of the Simulation}
-An internal tool was provided by Dragonfly Aerospace to visualise the simulation results used in this thesis. The tool allows for the visualisation of the satellite's attitude and position in orbit. The visualisation tool is used to present the results of the simulations in a clear and intuitive manner, allowing for easy interpretation of the results. Figure \ref{fig:visualizer_introduction} shows a screenshot of the visualisation tool, with the satellite in orbit.
+An internal tool was provided by Dragonfly Aerospace to visualise the simulation results used in this thesis. The tool allows for the visualisation of the satellite's attitude and position in orbit. The visualisation tool is used to present the results of the simulations in a clear and intuitive manner, allowing for easy interpretation of the results. \autoref{fig:visualizer_introduction} shows a screenshot of the visualisation tool, with the satellite in orbit.
 \begin{figure}
     \centering
     \includegraphics[width=1.0\linewidth]{chapter_3/visualizer_introduction.png}
@@ -54,7 +54,7 @@ Since the goal is to control the attitude of a satellite, an appropriate represe
 \vspace{1cm}
 
 
-In Figure \ref{fig:reference_frames} the Earth, orbit and satellite are shown with the relevant reference frames. The inertial frame $F_I$ is fixed at the centre of the Earth, the orbit frame $F_O$ is fixed at a point on the orbit and the body frame $F_B$ is fixed to the satellite. The radius vector $\vec{r}$ points from the Earth centre to the satellite.
+In \autoref{fig:reference_frames} the Earth, orbit and satellite are shown with the relevant reference frames. The inertial frame $F_I$ is fixed at the centre of the Earth, the orbit frame $F_O$ is fixed at a point on the orbit and the body frame $F_B$ is fixed to the satellite. The radius vector $\vec{r}$ points from the Earth centre to the satellite.
 
 The orbit frame $F_O$, also known as the Local Vertical Local Horizontal (LVLH) frame, has its origin at the centre of mass of the satellite and rotates with it as it moves along the orbit. The $z_O$ axis points towards nadir and the $x_O$ axis points in the direction of the velocity vector $\vec{v}$, while the $y_O$ axis points along the negative orbit normal, completing the right-handed triad. More precisely, using the position $\vec{r}$ and velocity $\vec{v}$ of the satellite relative to the Earth, the axes are constructed as:
 \begin{equation}
@@ -65,7 +65,7 @@ The orbit frame $F_O$, also known as the Local Vertical Local Horizontal (LVLH) 
 For a circular orbit, $x_O$ is exactly parallel to $\vec{v}$. For an elliptical orbit the velocity has a radial component, so $x_O$ is instead the in-plane direction perpendicular to nadir. In this case, the frame rotates relative to the inertial frame about $y_O$ at the orbital rate $\omega_o = \sqrt{\mu/a^3}$, so that $[\vec{\omega}_{OI}]^O = [0,\ -\omega_o,\ 0]^T$.
 \input{chapter_3/reference_frames}
 
-EOSSAT-1's body frame can be described as the x-axis defined along a vector splitting the two solar panels evenly, the z-axis defined along the normal of the camera, and the y-axis completing the right-handed co-ordinate system. This can be seen in Figure \ref{fig:visualizer_body_frame} where the x-axis is shown in red, the y-axis is shown in green, and the z-axis is shown in blue. The pink line indicates the orbital path. 
+EOSSAT-1's body frame can be described as the x-axis defined along a vector splitting the two solar panels evenly, the z-axis defined along the normal of the camera, and the y-axis completing the right-handed co-ordinate system. This can be seen in \autoref{fig:visualizer_body_frame} where the x-axis is shown in red, the y-axis is shown in green, and the z-axis is shown in blue. The pink line indicates the orbital path. 
 
 \begin{figure}[H]
     \centering
@@ -74,7 +74,7 @@ EOSSAT-1's body frame can be described as the x-axis defined along a vector spli
     \label{fig:visualizer_body_frame}
 \end{figure}
 
-The external surfaces of the satellite are modelled as seven flat panels. The outward unit normal $n_k$ of each panel, expressed in the body frame, is given in Table~\ref{tab:panel_normals}.
+The external surfaces of the satellite are modelled as seven flat panels. The outward unit normal $n_k$ of each panel, expressed in the body frame, is given in \autoref{tab:panel_normals}.
 
 \begingroup
 \begin{table}[H]
@@ -223,12 +223,12 @@ where $\vec{\omega}_e = \vec{\omega} - [\vec{C}]^{BR}\vec{\omega}_d$ is the angu
 
 \subsection{Attitude Dynamics}
 
-The satellite is modelled as a rigid body. The angular acceleration $\vec{\dot{\omega}}$ of a rigid body relative to the inertial frame with mass moment of inertia $\vec{J}$ can be modelled using the Newton-Euler equation:
+The satellite is modelled as a rigid body. The angular acceleration $\vec{\dot{\omega}}$ of a rigid body relative to the inertial frame with mass moment of inertia $\vec{J}$ can be modelled using the Newton-Euler Equation 
 
 \begin{equation} \label{eq:sat_dynamics_simple}
 \vec{J}\vec{\dot{\omega}} = \sum{\vec{\tau_{ext}}} - \vec{\omega}\times\vec{h}
 \end{equation}
-where $\vec{J}$ is the satellite's mass moment of inertia, $\vec{\tau_{ext}}$ is any external torque applied and $\vec{h}$ is the total angular momentum of the satellite. Incorporating reaction wheel control system and magnetorquers equation \eqref{eq:sat_dynamics_simple} becomes
+where $\vec{J}$ is the satellite's mass moment of inertia, $\vec{\tau_{ext}}$ is any external torque applied and $\vec{h}$ is the total angular momentum of the satellite. Incorporating reaction wheel control system and magnetorquers \autoref{eq:sat_dynamics_simple} becomes
 
 \begin{equation} \label{eq:sat_dynamics}
 \vec{J}\vec{\dot{\omega}} = \vec{\tau}_d -\vec{\omega}^\times(\vec{J}\vec{\omega}-\vec{h}_w)-\dot{\vec{h}}_w + \vec{\tau}_{mag}
@@ -238,7 +238,7 @@ where $\vec{\tau}_d$ represents the external disturbances applied, $\vec{h}_w$ r
 
 \subsection{Underactuated Case}
 \label{subsec:underactuated}
-For the underactuated case, we will assume that a reaction wheel has failed on the z-axis and is no longer able to provide torque about its axis $h_{wz} = \dot{h}_{wz} = 0$. This means that the satellite is now underactuated and cannot control its attitude about that axis. A key assumption here for controllability, mentioned in the previous chapter, is that the spacecraft total angular momentum is zero. This condition must be achieved via some torque, in this case magnetorquers. Thus according to equations \eqref{eq:q_error_kinematics}, \eqref{eq:omega_error}, \eqref{eq:sat_dynamics} the kinematics of the underactuated case can be expressed as \cite{nadafiRobustBacksteppingAttitude2021}:
+For the underactuated case, we will assume that a reaction wheel has failed on the z-axis and is no longer able to provide torque about its axis $h_{wz} = \dot{h}_{wz} = 0$. This means that the satellite is now underactuated and cannot control its attitude about that axis. A key assumption here for controllability, mentioned in the previous chapter, is that the spacecraft total angular momentum is zero. This condition must be achieved via some torque, in this case magnetorquers. Thus according to Equations \eqref{eq:q_error_kinematics}, \eqref{eq:omega_error}, \eqref{eq:sat_dynamics} the kinematics of the underactuated case can be expressed as \cite{nadafiRobustBacksteppingAttitude2021}:
 
 \begin{equation}
     \vec{\dot{q}}_{ev} = \frac{1}{2} \begin{bmatrix} q_{ew} & -q_{ez} \\ 
@@ -267,7 +267,7 @@ The motion of a satellite about the Earth is governed, to first order, by the tw
     \ddot{\vec{r}} = -\frac{\mu}{\lVert\vec{r}\rVert^3}\vec{r} + \vec{a}_p,
     \label{eq:orbit_motion}
 \end{equation}
-where $\vec{r}$ is the position of the satellite relative to the centre of the Earth in the inertial frame, $\mu$ is the Earth's gravitational parameter and $\vec{a}_p$ is the acceleration due to perturbations. In LEO the dominant perturbations are the Earth's oblateness ($J_2$) and atmospheric drag. Without perturbations the solution to \eqref{eq:orbit_motion} is a Keplerian orbit, described by the six orbital elements defined below. In the simulation, the orbit is not obtained by numerically integrating Equation \eqref{eq:orbit_motion}. Instead, the SGP4 (Simplified General Perturbations 4) analytical propagator, as implemented in the \texttt{sgp4} Python library, is used to calculate the position and velocity of the satellite at each time step. SGP4 takes the mean orbital elements at an epoch, together with a ballistic drag term, and models the secular and periodic effects of the Earth's zonal harmonics and atmospheric drag. It returns the position and velocity of the satellite in the True Equator Mean Equinox (TEME) frame, which is then converted to the frames used in this thesis.
+where $\vec{r}$ is the position of the satellite relative to the centre of the Earth in the inertial frame, $\mu$ is the Earth's gravitational parameter and $\vec{a}_p$ is the acceleration due to perturbations. In LEO the dominant perturbations are the Earth's oblateness ($J_2$) and atmospheric drag. Without perturbations the solution to \eqref{eq:orbit_motion} is a Keplerian orbit, described by the six orbital elements defined below. In the simulation, the orbit is not obtained by numerically integrating \autoref{eq:orbit_motion}. Instead, the SGP4 (Simplified General Perturbations 4) analytical propagator, as implemented in the \texttt{sgp4} Python library, is used to calculate the position and velocity of the satellite at each time step. SGP4 takes the mean orbital elements at an epoch, together with a ballistic drag term, and models the secular and periodic effects of the Earth's zonal harmonics and atmospheric drag. It returns the position and velocity of the satellite in the True Equator Mean Equinox (TEME) frame, which is then converted to the frames used in this thesis.
 
 
 Orbits can be defined by six parameters, known as the Keplerian elements. These are the semi-major axis $a$, eccentricity $e$, inclination $i$, right ascension of the ascending node (RAAN) $\Omega$, argument of perigee $\omega$ and true anomaly $\theta$. The semi-major axis defines the size of the orbit, the eccentricity defines the shape of the orbit, the inclination defines the tilt of the orbit relative to the equatorial plane, the right ascension of the ascending node defines the orientation of the orbit in space, the argument of perigee defines where in the orbit the closest approach to Earth occurs and finally the true anomaly defines where in the orbit the satellite is at a given time.
@@ -287,13 +287,13 @@ EOSSAT-1 sits in a 500 km sun-synchronous orbit, common for an Earth Observation
     \dot{\Omega} = -\Big[\frac{3}{2}\frac{\sqrt{\mu} J_2 R_E^2}{a^{7/2}(1-e^2)^2}\Big]\cos i
 \end{equation}
 
-where $\dot{\Omega}$ is the rate of change of the RAAN (the nodal precession rate), $\mu$ is the Earth's gravitational parameter, $J_2$ is the second zonal harmonic coefficient describing the Earth's oblateness, $R_E$ is the equatorial radius of the Earth, $a$ is the semi-major axis, $e$ is the eccentricity and $i$ is the inclination. For the orbit to be sun-synchronous, the node must precess at the same rate at which the Earth orbits the Sun, $\dot{\Omega} = 360^\circ / 365.2422 \text{ days} \approx 0.9856^\circ$/day. Since $\dot{\Omega}$ is negative for prograde inclinations ($i < 90^\circ$), this is only possible for retrograde orbits. Substituting this node rate into the equation for a given $a$ and $e$ this equation fixes the inclination of a sun-synchronous orbit. 
+where $\dot{\Omega}$ is the rate of change of the RAAN (the nodal precession rate), $\mu$ is the Earth's gravitational parameter, $J_2$ is the second zonal harmonic coefficient describing the Earth's oblateness, $R_E$ is the equatorial radius of the Earth, $a$ is the semi-major axis, $e$ is the eccentricity and $i$ is the inclination. For the orbit to be sun-synchronous, the node must precess at the same rate at which the Earth orbits the Sun, $\dot{\Omega} = 360^\circ / 365.2422 \text{ days} \approx 0.9856^\circ$/day. Since $\dot{\Omega}$ is negative for prograde inclinations ($i < 90^\circ$), this is only possible for retrograde orbits. Substituting this node rate into the Equation for a given $a$ and $e$ this Equation fixes the inclination of a sun-synchronous orbit. 
 
 Because the orbital plane then keeps a fixed orientation relative to the Sun, the RAAN is not a convenient way to specify the orbit. A given RAAN corresponds to a different local solar time depending on the date. Sun-synchronous orbits are instead described by the local time of the descending node (LTDN), which is the mean local solar time at which the satellite crosses the equator moving southward (typically specified in hours and minutes or fractions of hours i.e.: 12h30m or 12.5h). The local time of the ascending node (LTAN) is offset from this by twelve hours. The LTDN is constant over the lifetime of the orbit and fixes the RAAN at the epoch $t_0$ through
 \begin{equation}
     \Omega = \alpha_{\text{ms}}(t_0) + 15^\circ \cdot \text{LTDN}_{[\text{h}]},
 \end{equation}
-where $\alpha_{\text{ms}}$ is the right ascension of the mean Sun at the epoch and the LTDN is expressed in hours. The LTDN is therefore listed in Table~\ref{tab:orbit_params} in place of the RAAN, and the RAAN is derived from it.
+where $\alpha_{\text{ms}}$ is the right ascension of the mean Sun at the epoch and the LTDN is expressed in hours. The LTDN is therefore listed in \autoref{tab:orbit_params} in place of the RAAN, and the RAAN is derived from it.
 
 Though not the exact orbit of EOSSAT-1, the following orbital parameters are used for simulation purposes in this thesis:
 
@@ -321,7 +321,7 @@ Though not the exact orbit of EOSSAT-1, the following orbital parameters are use
 \end{table}
 \endgroup
 
-Figure~\ref{fig:ltdn_orbit} shows the geometry of this orbit relative to the Sun.
+\autoref{fig:ltdn_orbit} shows the geometry of this orbit relative to the Sun.
 \input{chapter_3/ltdn_diagram}
 
 \vspace{1cm}
@@ -372,7 +372,7 @@ where $h$ is the orbit altitude, $h_0$ is a reference base altitude, $H$ is the 
     \label{eq:aero_torque}
 \end{equation}
 
-where $\hat{\vec{v}}^B_A$ is the unit atmospheric velocity vector in the body frame,$\cos\alpha = \hat{\vec{v}}^B_A \cdot \hat{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\hat{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing equation \eqref{eq:aero_torque} over all exposed surfaces.
+where $\hat{\vec{v}}^B_A$ is the unit atmospheric velocity vector in the body frame,$\cos\alpha = \hat{\vec{v}}^B_A \cdot \hat{\vec{n}}$ is the cosine of the incidence angle of the atmospheric velocity on the surface, $\hat{\vec{n}}$ is the inward-pointing unit normal of the surface, $\vec{r}_{PB}$ is the vector from the centre of mass to the centre of pressure, $A_p = \mathcal{H}\{\cos\alpha\}\cos\alpha\, A_{\text{surface}}$ is the effective projected area (with $\mathcal{H}\{\cdot\}$ the Heaviside function), and $\sigma_n$, $\sigma_t$ are the normal and tangential accommodation coefficients respectively. The total aerodynamic torque is obtained by summing \autoref{eq:aero_torque} over all exposed surfaces.
 
 \subsubsection{Gravity Gradient Torque}
 The gravity gradient disturbance torque \cite{wertz1999space} on a satellite is caused by the gravitational differential across a body orbiting near another large body (Earth). This force is inversely proportional to the magnitude of the orbital radius $\norm{\vec{r}_{BE}}$ cubed and is thus only significant in LEO.
@@ -413,7 +413,7 @@ Satellites have a significant current running through their solar panels and wir
 \section{Attitude Control}
 
 \subsection{Magnetorquers}
-Reaction wheels, and other momentum based control methods, have the disadvantage, when compared to other control methods, that they build up momentum over time due to external disturbance torqures leading to actuator saturation. Thus to in order to manage this momentum, the Earth's magnetic field can be utilized for generating small torques in LEO. The Earth's magnetic field can be approximated as a dipole field \cite{sidiAttitudeDynamicsKinematics1997}. The magnetic field strength at a distance $\|\vec{r}_{BE}\|$ from the centre of the Earth can be calculated using the following equation:
+Reaction wheels, and other momentum based control methods, have the disadvantage, when compared to other control methods, that they build up momentum over time due to external disturbance torqures leading to actuator saturation. Thus to in order to manage this momentum, the Earth's magnetic field can be utilized for generating small torques in LEO. The Earth's magnetic field can be approximated as a dipole field \cite{sidiAttitudeDynamicsKinematics1997}. The magnetic field strength at a distance $\|\vec{r}_{BE}\|$ from the centre of the Earth can be calculated using the following Equation 
 
 \begin{equation}
     \begin{bmatrix}
@@ -427,7 +427,7 @@ Reaction wheels, and other momentum based control methods, have the disadvantage
     \end{bmatrix}
 \end{equation}
 
-where $\alpha$ is the argument of latitude measured from the ascending node (ie: the sum of the true anomaly and the argument of periapsis), $\eta_m$ is the phase angle measured from the ascending node of the orbit relative to the Earth's equator, $\xi_m$ is the instantaneous inclination of the orbit plane to the geomagnetic equator and $m$ is the magnetic moment of the Earth. \cite{sidiAttitudeDynamicsKinematics1997} The magnetic field can be used for attitude control by using magnetorquers which generate a torque by interacting with the Earth's magnetic field. The torque generated by a magnetorquer can be calculated using the following equation \cite{sidiAttitudeDynamicsKinematics1997}:
+where $\alpha$ is the argument of latitude measured from the ascending node (ie: the sum of the true anomaly and the argument of periapsis), $\eta_m$ is the phase angle measured from the ascending node of the orbit relative to the Earth's equator, $\xi_m$ is the instantaneous inclination of the orbit plane to the geomagnetic equator and $m$ is the magnetic moment of the Earth. \cite{sidiAttitudeDynamicsKinematics1997} The magnetic field can be used for attitude control by using magnetorquers which generate a torque by interacting with the Earth's magnetic field. The torque generated by a magnetorquer can be calculated using the following Equation \cite{sidiAttitudeDynamicsKinematics1997}:
 
 \begin{equation}
     \vec{\tau}_m = \vec{m} \times \vec{B}
@@ -495,8 +495,8 @@ where $k_p, k_d > 0$ are the proportional and derivative gains respectively, and
 The control law \eqref{eq:quat_feedback_control} implicitly assumes that the reaction wheels can supply an arbitrary commanded torque about all three body axes. This can be mitigated by keeping the system within the linear/almost linear control regime which is ensured by proper wheel sizing for desired slew rates. 
 
 \subsection{Fault Effects on Quaternion Feedback Control}
-As discussed in Section~\ref{subsec:underactuated}, once a reaction wheel axis fails such that $h_{wz} = \dot{h}_{wz} = 0$, the spacecraft becomes underactuated and \eqref{eq:quat_feedback_control} can no longer be applied directly, since it requires independent control authority on all three axes. This motivates the study in fault-tolerant control approaches.
-To illustrate this, consider the following example. A 3 wheel satellite is commanded to track a reference quaternion trajectory using the quaternion feedback control law \eqref{eq:quat_feedback_control}. The satellite is initially at rest before following a smooth trajectory to achieve the target quaternion $\vec{q}_{ref} = [0.12707253, -0.17409001,  0.12707253,  0.96819307]^T$. The resulting attitude tracking performance is shown in Figure~\ref{fig:quat_feedback_nominal}. The satellite successfully tracks the reference trajectory with small attitude errors. 
+As discussed in \autoref{subsec:underactuated}, once a reaction wheel axis fails such that $h_{wz} = \dot{h}_{wz} = 0$, the spacecraft becomes underactuated and \eqref{eq:quat_feedback_control} can no longer be applied directly, since it requires independent control authority on all three axes. This motivates the study in fault-tolerant control approaches.
+To illustrate this, consider the following example. A 3 wheel satellite is commanded to track a reference quaternion trajectory using the quaternion feedback control law \eqref{eq:quat_feedback_control}. The satellite is initially at rest before following a smooth trajectory to achieve the target quaternion $\vec{q}_{ref} = [0.12707253, -0.17409001,  0.12707253,  0.96819307]^T$. The resulting attitude tracking performance is shown in \autoref{fig:quat_feedback_nominal}. The satellite successfully tracks the reference trajectory with small attitude errors. 
 
 
 \begin{figure}
@@ -506,7 +506,7 @@ To illustrate this, consider the following example. A 3 wheel satellite is comma
     \label{fig:quat_feedback_nominal}
 \end{figure}
 
-The same satellite is commanded to track the same reference trajectory but with a stuck wheel on the z-axis. The resulting attitude tracking performance is shown in Figure~\ref{fig:quat_feedback_fault}. The satellite is unable to track the reference trajectory due to the loss of control authority on the z-axis, resulting in large attitude errors.
+The same satellite is commanded to track the same reference trajectory but with a stuck wheel on the z-axis. The resulting attitude tracking performance is shown in \autoref{fig:quat_feedback_fault}. The satellite is unable to track the reference trajectory due to the loss of control authority on the z-axis, resulting in large attitude errors.
 
 \begin{figure}
     \centering
