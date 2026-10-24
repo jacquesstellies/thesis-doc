@@ -16,12 +16,42 @@ The two main important operations are important for Earth Observation satellites
 
 
 \subsection{Nadir and Sun Pointing Frame Definitions}
-Given the way that EOSSAT-1's body frame axes are defined in \autoref{subsec:reference_frames}, nadir pointing becomes the orbit (aka. LVLH) frame $F_O$. For the purposes of this simulation, an additional reference frame is defined: the sun pointing frame $F_S$. The sun pointing frame is defined such that the $x$-axis points anti-parallel to the body-sun vector $x_S = -\vec{r}_{SB}$. The nadir pointing frame is therefore fully constrained where as the sun pointing frame is not fully and the z-axis can be chosen to be any vector perpendicular to the $x$-axis. Typically the $z$-axis is chosen to be closest to the nadir vector, however it will be shown that this choice has important implications given the constraints of the underactuated system.
+Given the way that EOSSAT-1's body frame axes are defined in \autoref{subsec:reference_frames}, nadir pointing becomes the orbit (aka. LVLH) frame $F_O$. For the purposes of this simulation, an additional reference frame is defined: the sun pointing frame $F_S$. The sun pointing frame is defined such that the $x$-axis points anti-parallel to the body-sun vector $x_S = -\vec{r}_{SB}$. The nadir pointing frame is therefore fully constrained where as the sun pointing frame is not fully constrained; the z-axis can be chosen to be any vector perpendicular to the $x$-axis. Typically the $z$-axis is chosen to be the shortest vector to the nadir vector, however it will be shown that this choice has important implications given the constraints of the underactuated system. The standard sun triad can be calculated as follows:
+
+\begin{align*}
+    [T]^{SI}  &= \begin{bmatrix}
+        \hat{x}_S \
+        \hat{y}_S \
+        \hat{z}_S
+    \end{bmatrix} \\
+    \hat{x}_S &= -\vec{r}_{SB} \\
+    \hat{z}_O &= \frac{\vec{r}_{OB}}{\|\vec{r}_{OB}\|} \\
+    \hat{y}_S &= \hat{z}_O \times \hat{x}_S \\
+    \hat{z}_S &= \hat{x}_S \times \hat{y}_S 
+\end{align*}
+% Neaten this up
+
+\subsection{Simulation Comparison}
+
+Simulatin the above scenario over one orbit will allow for a comparison between the performance of the FNDO-BS controller and a baseline PID controller.
+
+% Insert figure of PID simulation over one orbit
+
+% Insert screen grab of transition pointing in visualizer
+
+It's clear from the figure above that a significant yaw rotation $\psi_{S->O}=137\degree$ is required to transition between sun pointing and nadir pointing frames. This is a very inefficient manoeuvre for the underactuated controller as has been shown in \autoref{chap:path_planning}. Indeed, this can be observed in the figure below during the transition from sun pointing to nadir as the controller is unable to manoeuvre to the nadir frame before the next eclipse transition occurs. It also uses up a significant amount of time during the sunlit portion of the orbit to transition to the sun pointing frame which requires $\psi_{O->S}=37\degree$.
+
+% Insert figure of FNDO-BS simulation over one orbit with no 
+
 
 
 \subsection{Eclipse Transition Planning}
 
+To mitigate the above mentioned issues with the underactuated controller, instead of defining the sun pointing frame with x-axis directly pointed towards the sun and z-axis defined as the shortest vector to nadir, the z-axis is defined as pointing anti-parallel to the velocity vector (to avoid the camera payload pointing directly into the high velocity atmospheric air flow) and the x-axis is defined as the shortest vector to the sun. This avoids the need for large yaw rotations and simply requires a $180\degree$ roll followed by a pitch manoeuvre.
 
+Therefore, a slow yaw rotation is executed over the course of the sunlit portion of the orbit.
+
+% mention prediction of eclipse transition and how it is used to plan the manoeuvre
 
 The simulation was designed to test the performance of the FNDO-BS controller in a realistic scenario where the satellite is required to switch between nadir and sun pointing while one reaction wheel is in a failed state. 
 

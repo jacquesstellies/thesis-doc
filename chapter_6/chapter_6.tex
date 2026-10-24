@@ -241,7 +241,7 @@ where $\vec{\tau}_{c,\perp}$ is the dumping demand on the actuated axes; the ful
 with $\vec{m}_{\psi}$ itself scaled back only if it alone exceeds $m_{max}$. In the degenerate case $\vec{B} \parallel \hat{\vec{e}}_z$ the vector $\vec{u}$ vanishes and no unactuated axis authority exists for that cycle; the yaw term is then simply suppressed. For a nadir-pointing spacecraft this occurs where the field is radial, that is, near the magnetic poles. In the orbit studied the minimum angle between $\vec{B}$ and the dead axis was $1.5^\circ$ and the available unactuated axis torque never fell below a factor of $59$ above the disturbance, so these windows proved to be of no practical consequence.
 
 \subsection{Simulation Results}
-\autoref{tab:split_allocation_results} and \autoref{fig:split_allocation_hold} compare the isotropic dumping law against the split allocation over a $6000\,\mathrm{s}$ inertial hold in full closed-loop simulation, with the $z$-axis wheel failed, $m_{max} = 17\,\mathrm{A\,m^2}$ and $\zeta = 0.707$. The isotropic case is the run of \autoref{fig:inertial_hold_magt}. In every case the actuated roll and pitch errors remain below $3\times10^{-4}\,^\circ$.
+\autoref{tab:split_allocation_results} and \autoref{fig:split_allocation_hold} compare the isotropic dumping law in conjunction with the BS-FNDO controller against the split allocation over a $6000\,\mathrm{s}$ inertial hold in full closed-loop simulation, with the $z$-axis wheel failed. The magnetorquer $m_{max} = 17\,\mathrm{A\,m^2}$ and $\zeta = 0.707$. The isotropic case is the run of \autoref{fig:inertial_hold_magt}. In every case the actuated roll and pitch errors remain below $3\times10^{-4}\,^\circ$.
 
 \begin{table}[h]
 \centering
@@ -266,7 +266,14 @@ Split allocation, $\omega_n = 0.02\,\mathrm{rad/s}$  & $0.116^\circ$ & $0.116^\c
 \label{fig:split_allocation_hold}
 \end{figure}
 
-The split allocation reduces the peak unactuated-axis error by between $1.5$ and $2.7$ orders of magnitude relative to isotropic dumping. Because the dead-axis disturbance varies at orbital frequency, well below $\omega_n$, the loop responds quasi-statically: the error tracks $\tau_{dist,z}(t)/(J_z\omega_n^2)$ throughout the run rather than settling to a constant, and its peak agrees with the prediction of \autoref{eq:yaw_ss_error} to within $1\%$. Doubling $\omega_n$ reduces the error fourfold, as the $1/\omega_n^2$ dependence requires. At $\omega_n = 0.005\,\mathrm{rad/s}$, only about four times the orbital rate, the response lags the disturbance noticeably, although the peak is still predicted closely.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{chapter_6/split_allocation_hold_wn002.png}
+\caption{Unactuated-axis yaw error $\psi_e$ over a $6000\,\mathrm{s}$ inertial hold with the split allocation at $\omega_n = 0.02\,\mathrm{rad/s}$. The error stays within $\pm0.12^\circ$ and oscillates at roughly twice the orbital rate, following the dead-axis disturbance torque.}
+\label{fig:split_allocation_hold_wn002}
+\end{figure}
+
+The split allocation reduces the peak unactuated-axis error to $\leq0.12\degree$ which is $2$ orders of magnitude relative to isotropic dumping. The error tracks $\tau_{dist,z}(t)/(J_z\omega_n^2)$ throughout the run rather than settling to a constant, and its peak agrees with the prediction of \autoref{eq:yaw_ss_error} to within $1\%$. Doubling $\omega_n$ reduces the error fourfold, as the $1/\omega_n^2$ dependence requires. At $\omega_n = 0.005\,\mathrm{rad/s}$, only about four times the orbital rate, the response lags the disturbance noticeably, although the peak is still predicted closely.
 
 The peak dipole occurs in a brief window near $t \approx 5960\,\mathrm{s}$, where the dead-axis authority $\|\vec{B}\times\hat{\vec{e}}_z\|$ is small and the required dipole grows accordingly. At $\omega_n = 0.005\,\mathrm{rad/s}$ the limit is reached for $0.1\%$ of the run. Away from such windows the demand is modest: the median dipole is $1.2\,\mathrm{A\,m^2}$ and the $99$th percentile is between $5.6$ and $7.2\,\mathrm{A\,m^2}$ across the three bandwidths.
 
@@ -290,7 +297,7 @@ $\omega_n = 0$ throughout           & $-0.3662$ & $-65.34^\circ$ \\
 
 Tracking improves monotonically with unactuated axis magnetic authority: with the loop suppressed the manoeuvre diverges to $-65^\circ$, in the wrong direction entirely, while with it fully active the error settles to $+0.19^\circ$. The magnetorquer is not competing with the wheels for yaw control but supplying the majority of it. The in-plane momentum available to the manoeuvre was within $15\%$ across these cases, so the difference is attributable to the unactuated axis loop rather than to the dumping law depriving the manoeuvre of the momentum it requires.
 
-This also clarifies an earlier observation that the manoeuvre overshot its target by $168\%$ and then recovered only slowly. That behaviour occurred at an unrealistic $m_{max} = 1000\,\mathrm{A\,m^2}$; at a representative $15\,\mathrm{A\,m^2}$ the same configuration tracks to within $0.2^\circ$. The overshoot was a symptom of excessive unactuated axis authority overdriving the loop, not of contention between the two actuators.
+% Talk about achievable angular rate
 
 \subsection{Limitations}
 Three limitations of the above should be noted. The gain sweep of \autoref{tab:dump_gain_sweep} is a free-decay replay of the dumping law along the logged field history, without disturbances or the attitude controller. The hold results of \autoref{tab:split_allocation_results} and the manoeuvre results of \autoref{tab:manoeuvre_gain} are from full closed-loop simulation, but each represents a single trajectory at one orbital phase, so the quoted figures should be read as indicative rather than as general performance bounds. Finally, the loop of \autoref{eq:dead_axis_pd} is normalised in gain with respect to inertia but not in authority: the dipole required scales as $J_z\omega_n^2\psi/(\|\vec{B}\|\sin\angle(\vec{B},\hat{\vec{e}}_z))$, so a spacecraft of substantially larger moment of inertia will require proportionally more dipole to sustain the same bandwidth, and the $15\,\mathrm{A\,m^2}$ used here may not be sufficient.

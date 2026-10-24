@@ -242,7 +242,7 @@ This limitation is also visible directly in the Lyapunov derivative
     \label{eq:Vadot}
 \end{equation}
 Every term is proportional to $\left(q_{e1}^2 + q_{e2}^2\right)$, so as the actuated axes
-converge, $\dot{V}_a \to 0$ and all convergence---including that of $q_{e3}$---stalls.
+converge, $\dot{V}_a \to 0$ and all convergence, including that of $q_{e3}$, stalls.
 The driving authority for $q_{e3}$ is quadratic in the actuated error, so it vanishes as the trajectory approaches the target.
 
 This limitation is a significant practical concern as it means small manoeuvres which fail to sufficiently excite the actuated axes will leave the unactuated axis in an arbitrary orientation. This is particularly problematic for a satellite which may need to perform a slew manoeuvre to point at a target. If the unactuated axis is not sufficiently excited during the slew, the satellite may end up pointing in an arbitrary direction after the slew is complete. A way to counteract this behaviour is to construct a manoeuvre about the actuated axes which ultimately end at the desired attitude. The Figures \ref{fig:large_angle_maneuver} and \ref{fig:small_angle_maneuver} illustrate this concept for large-angle and small-angle manoeuvres, respectively.
